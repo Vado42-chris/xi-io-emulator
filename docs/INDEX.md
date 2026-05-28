@@ -16,6 +16,7 @@ docs/INDEX.md
 docs/project-tracking/open-work-ledger.md
 docs/roadmap/remaining-work-pass-plan.md
 docs/agent-master-prompt-current-next.md
+docs/agent-master-prompt-pass-b-pass-c.md
 docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
 docs/arcade-ui-product-pivot.md
@@ -23,6 +24,7 @@ docs/agent-handoff-controller-launch.md
 docs/future/media-platform-extension-track.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/decisions/non-mutating-local-library-import.md
+docs/decisions/generic-usb-controller-proof-policy.md
 docs/agent-handoff-image-hydration.md
 docs/architecture/conversation-decision-backlog.md
 docs/architecture/naming-and-pathing-standard.md
@@ -82,6 +84,7 @@ docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/decisions/rosetta-stone-artwork-identity-resolution.md
 docs/decisions/ibal-assistant-and-local-ai-strategy.md
 docs/decisions/non-mutating-local-library-import.md
+docs/decisions/generic-usb-controller-proof-policy.md
 ```
 
 ## Reviews
@@ -108,6 +111,7 @@ docs/agent-handoff-cursor-arcade-home.md
 docs/agent-handoff-controller-launch.md
 docs/agent-handoff-image-hydration.md
 docs/agent-master-prompt-current-next.md
+docs/agent-master-prompt-pass-b-pass-c.md
 docs/agent-master-prompt-cursor-current.md
 docs/agent-master-prompt-image-hydration.md
 docs/agent-master-prompt-standardization-audit.md
@@ -141,6 +145,7 @@ Current focus:
 Prove controller + real launch loop before bulk local library hydration.
 NES proof: FCEUX + one hand-picked .nes game.
 SNES proof: RetroArch + SNES core + one hand-picked .sfc/.smc game.
+Controller proof: generic wired USB controller is valid; SNES-branded controller is not required.
 ```
 
 ## Current guardrail
