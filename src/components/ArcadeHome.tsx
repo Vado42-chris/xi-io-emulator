@@ -1,0 +1,528 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { 
+  Gamepad, 
+  Settings, 
+  FolderPlus, 
+  Search, 
+  Play, 
+  Heart, 
+  FolderOpen, 
+  AlertTriangle,
+  X
+} from 'lucide-react';
+import type { GameRecord } from '../data/gameModels';
+import type { ProjectStatus } from '../data/projectStatus';
+import type { LibraryRoot } from '../services/db';
+import { GameTile } from './GameTile';
+import { detectDuplicateCandidates } from '../services/searchService';
+
+interface ArcadeHomeProps {
+  games: GameRecord[];
+  status: ProjectStatus;
+  roots: LibraryRoot[];
+  onToggleAdminMode: () => void;
+  onQuickSingleIngress: () => void;
+  onQuickBatchIngress: () => void;
+  onToggleFavorite: (game: GameRecord) => void;
+}
+
+export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
+  games,
+  status,
+  roots,
+  onToggleAdminMode,
+  onQuickSingleIngress,
+  onQuickBatchIngress,
+  onToggleFavorite,
+}) => {
+  const [activeShelfIndex, setActiveShelfIndex] = useState(0);
+  const [activeGameIndex, setActiveGameIndex] = useState(0);
+  
+  // Search state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSearchIndex, setActiveSearchIndex] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Launch state
+  const [launchingGame, setLaunchingGame] = useState<GameRecord | null>(null);
+
+  // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
+  const { shelves, allGames } = useMemo(() => {
+    const activeGames = games.filter((g) => !g.hidden);
+
+    const recentlyAdded = [...activeGames]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10);
+
+    const favorites = activeGames.filter((g) => g.favorite);
+    const needsConfig = activeGames.filter((g) => g.launchStatus !== 'ready');
+    const all = [...activeGames].sort((a, b) => a.title.localeCompare(b.title));
+
+    const duplicateGroups = detectDuplicateCandidates(games);
+    const duplicateGameIds = new Set(duplicateGroups.flatMap((dg) => dg.gameIds));
+    const duplicates = activeGames.filter((g) => duplicateGameIds.has(g.id));
+
+    const list: { id: string; title: string; count: number; games: GameRecord[] }[] = [];
+
+    if (recentlyAdded.length > 0) {
+      list.push({ id: 'recent', title: 'Recently Added', count: recentlyAdded.length, games: recentlyAdded });
+    }
+    if (favorites.length > 0) {
+      list.push({ id: 'favorites', title: 'Favorites', count: favorites.length, games: favorites });
+    }
+    if (needsConfig.length > 0) {
+      list.push({ id: 'needs_config', title: 'Needs Configuration', count: needsConfig.length, games: needsConfig });
+    }
+    if (all.length > 0) {
+      list.push({ id: 'all', title: 'All Games', count: all.length, games: all });
+    }
+    if (duplicates.length > 0) {
+      list.push({ id: 'duplicates', title: 'Duplicate Candidates', count: duplicates.length, games: duplicates });
+    }
+
+    return { shelves: list, allGames: all };
+  }, [games]);
+
+  // Active focused game in the carousel
+  const activeShelf = shelves[activeShelfIndex];
+  const activeGame = activeShelf?.games[activeGameIndex];
+
+  // Focus search input when opened
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // Handle keyboard events (D-pad emulator)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 1. Launching Overlay active: Only Esc returns
+      if (launchingGame) {
+        if (e.key === 'Escape') {
+          setLaunchingGame(null);
+        }
+        return;
+      }
+
+      // 2. Search Overlay active
+      if (isSearchOpen) {
+        const filteredSearchGames = allGames.filter((g) =>
+          g.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        if (e.key === 'Escape') {
+          setIsSearchOpen(false);
+          setSearchQuery('');
+          setActiveSearchIndex(0);
+          e.preventDefault();
+        } else if (e.key === 'ArrowLeft') {
+          setActiveSearchIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          e.preventDefault();
+        } else if (e.key === 'ArrowRight') {
+          setActiveSearchIndex((prev) =>
+            prev < filteredSearchGames.length - 1 ? prev + 1 : prev
+          );
+          e.preventDefault();
+        } else if (e.key === 'Enter') {
+          const selected = filteredSearchGames[activeSearchIndex];
+          if (selected) {
+            setLaunchingGame(selected);
+            setIsSearchOpen(false);
+            setSearchQuery('');
+            setActiveSearchIndex(0);
+          }
+          e.preventDefault();
+        }
+        return;
+      }
+
+      // 3. Normal Carousel Navigation
+      if (shelves.length === 0) return;
+
+      switch (e.key) {
+        case 'ArrowUp':
+          setActiveShelfIndex((prev) => {
+            const next = prev > 0 ? prev - 1 : prev;
+            setActiveGameIndex(0); // Reset horizontal index
+            return next;
+          });
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          setActiveShelfIndex((prev) => {
+            const next = prev < shelves.length - 1 ? prev + 1 : prev;
+            setActiveGameIndex(0);
+            return next;
+          });
+          e.preventDefault();
+          break;
+        case 'ArrowLeft':
+          setActiveGameIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          e.preventDefault();
+          break;
+        case 'ArrowRight': {
+          const currentShelfGames = shelves[activeShelfIndex]?.games || [];
+          setActiveGameIndex((prev) =>
+            prev < currentShelfGames.length - 1 ? prev + 1 : prev
+          );
+          e.preventDefault();
+          break;
+        }
+        case 'Enter':
+          if (activeGame) {
+            setLaunchingGame(activeGame);
+          }
+          e.preventDefault();
+          break;
+        case ' ': // Space key
+        case 'x':
+        case 'X':
+          if (activeGame) {
+            onToggleFavorite(activeGame);
+          }
+          e.preventDefault();
+          break;
+        case 'y':
+        case 'Y':
+          setIsSearchOpen(true);
+          e.preventDefault();
+          break;
+        case 'Escape':
+          onToggleAdminMode();
+          e.preventDefault();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    shelves,
+    activeShelfIndex,
+    activeGameIndex,
+    activeGame,
+    isSearchOpen,
+    searchQuery,
+    activeSearchIndex,
+    launchingGame,
+    allGames,
+    onToggleFavorite,
+    onToggleAdminMode,
+  ]);
+
+  // Onboarding Layout
+  if (games.length === 0) {
+    return (
+      <div className="arcade-onboarding">
+        <h1 className="arcade-onboarding-title">
+          Welcome to <span>xi-io Arcade</span>
+        </h1>
+        <p className="arcade-onboarding-desc">
+          A premium, 10-foot, controller-friendly home for your local retro game collection.
+          Get started by importing your library or staging a single game.
+        </p>
+
+        <div className="arcade-onboarding-grid">
+          <div className="arcade-onboarding-card" onClick={onQuickSingleIngress} id="btn-quick-single">
+            <div className="arcade-onboarding-card-icon">
+              <Gamepad size={32} />
+            </div>
+            <h3 className="arcade-onboarding-card-title">Stage Single Game</h3>
+            <p className="arcade-onboarding-card-desc">
+              Simulate importing a single SNES ROM for instant launch testing.
+            </p>
+          </div>
+
+          <div className="arcade-onboarding-card" onClick={onQuickBatchIngress} id="btn-quick-batch">
+            <div className="arcade-onboarding-card-icon">
+              <FolderPlus size={32} />
+            </div>
+            <h3 className="arcade-onboarding-card-title">Scan Batch Folder</h3>
+            <p className="arcade-onboarding-card-desc">
+              Scan a virtual library path and ingress multiple titles at once.
+            </p>
+          </div>
+
+          <div className="arcade-onboarding-card" onClick={onToggleAdminMode} id="btn-quick-admin">
+            <div className="arcade-onboarding-card-icon">
+              <Settings size={32} />
+            </div>
+            <h3 className="arcade-onboarding-card-title">Admin Dashboard</h3>
+            <p className="arcade-onboarding-card-desc">
+              Configure system options, mount storage paths, and view log ledger details.
+            </p>
+          </div>
+        </div>
+
+        <div className="arcade-onboarding-checklist">
+          <div className="arcade-onboarding-check-item">
+            <span
+              className={`arcade-status-dot ${status.storageState === 'mounted' || status.storageState === 'configured' ? 'active' : 'inactive'}`}
+            />
+            <span>Storage: {status.storageState}</span>
+          </div>
+          <div className="arcade-onboarding-check-item">
+            <span
+              className={`arcade-status-dot ${status.controllerState === 'connected' ? 'active' : 'inactive'}`}
+            />
+            <span>Controller: {status.controllerState}</span>
+          </div>
+          <div className="arcade-onboarding-check-item">
+            <span
+              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : 'inactive'}`}
+            />
+            <span>Launch Readiness: {status.launchReadiness}</span>
+          </div>
+        </div>
+
+        <button
+          className="arcade-admin-btn"
+          onClick={onToggleAdminMode}
+          style={{ marginTop: '40px' }}
+        >
+          <Settings size={14} /> Open Admin Console
+        </button>
+      </div>
+    );
+  }
+
+  // Derive Blocker/Diagnostic Message for active game
+  const getBlockerMessage = (game: GameRecord) => {
+    if (game.launchStatus === 'ready') return null;
+
+    // Check if offline storage
+    if (game.ingressMode === 'batch_library' && game.libraryRootId) {
+      const root = roots.find((r) => r.id === game.libraryRootId);
+      if (root && !root.mounted) {
+        return {
+          title: 'Offline Storage Volume',
+          desc: 'The storage directory containing this game record is not currently mounted. Please go to Storage settings to mount the directory.',
+        };
+      }
+    }
+
+    // Default missing adapter/engine core
+    return {
+      title: 'Missing Emulator Engine Config',
+      desc: 'RetroArch binary path or core adapter settings are missing. Please launch Admin Mode and select Emulator Engines to map RetroArch paths.',
+    };
+  };
+
+  const blocker = activeGame ? getBlockerMessage(activeGame) : null;
+  const filteredSearchGames = allGames.filter((g) =>
+    g.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="arcade-container">
+      {/* Header */}
+      <header className="arcade-header">
+        <div className="arcade-logo-area">
+          <div className="logo-glow">X</div>
+          <div className="arcade-logo">
+            xi-io <span>Arcade</span>
+          </div>
+        </div>
+
+        <div className="arcade-status-indicators">
+          <div className="arcade-status-item">
+            <span
+              className={`arcade-status-dot ${status.storageState === 'mounted' || status.storageState === 'configured' ? 'active' : 'inactive'}`}
+            />
+            <span>Storage</span>
+          </div>
+          <div className="arcade-status-item">
+            <span
+              className={`arcade-status-dot ${status.controllerState === 'connected' ? 'active' : 'inactive'}`}
+            />
+            <span>Controller</span>
+          </div>
+          <div className="arcade-status-item">
+            <span
+              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : 'inactive'}`}
+            />
+            <span>Engine Ready</span>
+          </div>
+
+          <button className="arcade-admin-btn" onClick={onToggleAdminMode} id="btn-toggle-admin">
+            <Settings size={14} /> Admin Mode
+          </button>
+        </div>
+      </header>
+
+      {/* Hero Area */}
+      {activeGame && (
+        <section className="arcade-hero">
+          <div className="arcade-hero-bg" />
+          <div className="arcade-hero-content">
+            <div className="arcade-hero-system-badge">{activeGame.systemId}</div>
+            <h1 className="arcade-hero-title">{activeGame.title}</h1>
+
+            <div className="arcade-hero-meta">
+              <div className="arcade-hero-meta-item">
+                <FolderOpen size={14} />
+                <span>{activeGame.ingressMode === 'single_game' ? 'Single Ingress' : 'Batch Library'}</span>
+              </div>
+              <div className="arcade-hero-meta-item">
+                <Gamepad size={14} />
+                <span>Plays: {activeGame.playCount}</span>
+              </div>
+              {activeGame.favorite && (
+                <div className="arcade-hero-meta-item" style={{ color: '#fbbf24' }}>
+                  <Heart size={14} fill="#fbbf24" />
+                  <span>Favorite</span>
+                </div>
+              )}
+            </div>
+
+            <p className="arcade-hero-desc">
+              Path: {activeGame.contentPath} ({activeGame.fileExtension.toUpperCase()} Rom File)
+            </p>
+
+            {blocker ? (
+              <div className="arcade-hero-blocker-panel">
+                <div className="arcade-hero-blocker-title">
+                  <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  {blocker.title}
+                </div>
+                <div className="arcade-hero-blocker-desc">{blocker.desc}</div>
+              </div>
+            ) : (
+              <div className="arcade-hero-actions">
+                <button
+                  className="arcade-btn-launch"
+                  onClick={() => setLaunchingGame(activeGame)}
+                >
+                  <Play size={18} fill="#fff" /> PRESS ENTER TO PLAY
+                </button>
+                <button
+                  className="arcade-btn-secondary"
+                  onClick={() => onToggleFavorite(activeGame)}
+                >
+                  <Heart size={16} fill={activeGame.favorite ? '#fff' : 'none'} />
+                  {activeGame.favorite ? 'Unfavorite' : 'Add to Favorites'}
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Shelves List */}
+      <section className="arcade-shelves-container">
+        {shelves.map((shelf, shelfIdx) => (
+          <div key={shelf.id} className="arcade-shelf">
+            <h2 className="arcade-shelf-title">
+              {shelf.title}
+              <span className="arcade-shelf-title-count">({shelf.count})</span>
+            </h2>
+            <div className="arcade-shelf-carousel">
+              {shelf.games.map((game, gameIdx) => (
+                <GameTile
+                  key={`${shelf.id}-${game.id}`}
+                  game={game}
+                  isFocused={activeShelfIndex === shelfIdx && activeGameIndex === gameIdx}
+                  onClick={() => {
+                    setActiveShelfIndex(shelfIdx);
+                    setActiveGameIndex(gameIdx);
+                    setLaunchingGame(game);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* Hint Rail */}
+      <footer className="arcade-hint-rail">
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-a">A</span>
+          <span>Play / Select</span>
+        </div>
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-x">X</span>
+          <span>Favorite</span>
+        </div>
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-y">Y</span>
+          <span>Search Library</span>
+        </div>
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-menu">Esc</span>
+          <span>Admin Mode</span>
+        </div>
+      </footer>
+
+      {/* Search Overlay */}
+      {isSearchOpen && (
+        <div className="search-overlay-container">
+          <button
+            className="arcade-btn-secondary"
+            style={{ position: 'absolute', top: '30px', right: '30px', padding: '12px' }}
+            onClick={() => {
+              setIsSearchOpen(false);
+              setSearchQuery('');
+            }}
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="search-overlay-input-wrap">
+            <Search className="search-overlay-icon" size={28} />
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="search-overlay-input"
+              placeholder="Search by Title, System, or Tags..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setActiveSearchIndex(0);
+              }}
+            />
+          </div>
+
+          <div className="search-overlay-results">
+            <h3 style={{ marginBottom: '20px', color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
+              Results ({filteredSearchGames.length})
+            </h3>
+            {filteredSearchGames.length > 0 ? (
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                {filteredSearchGames.map((game, idx) => (
+                  <GameTile
+                    key={`search-${game.id}`}
+                    game={game}
+                    isFocused={activeSearchIndex === idx}
+                    onClick={() => {
+                      setLaunchingGame(game);
+                      setIsSearchOpen(false);
+                      setSearchQuery('');
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '1.25rem', textAlign: 'center', marginTop: '60px' }}>
+                No matching games found.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Launch Overlay */}
+      {launchingGame && (
+        <div className="launch-overlay">
+          <h1 className="launch-overlay-title">Launching {launchingGame.title}</h1>
+          <div className="launch-overlay-spinner" />
+          <p className="launch-overlay-hint">Press Escape to exit game and return to Arcade Home</p>
+        </div>
+      )}
+    </div>
+  );
+};
