@@ -16,10 +16,12 @@ current_milestone:
 completed_in_repo:
   - Tauri Rust scaffold and invoke commands
   - Adapter manifests fceux.nes and retroarch.snes.snes9x
-  - Controller detection and visual test UI
-  - Real launch lifecycle in launchService
+  - Controller detection and input test UI (button press required)
+  - Real launch lifecycle in launchService (no auto in-game verify)
+  - Per-system proof readiness (nesProofReady, snesProofReady, overallProofState)
   - Proof game registration UI (no bulk scan)
-  - docs/reports/controller-launch-proof-report.md
+  - Demo mode banner on Arcade Home
+  - docs/reports/controller-launch-proof-report.md (R1 peer-review pass)
 
 deferred_until_user_launch_proof:
   - bulk local library hydration
@@ -40,3 +42,7 @@ phase2_community_parity:
   - Real gamepad shell navigation
   - Storage hardening and missing-drive diagnostics
   - Optional scraping with confidence scores
+
+sync_metadata:
+  xi_io_net_mirror: mirrored_2026_05_28_r1
+  workbench_preview_event: pending

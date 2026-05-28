@@ -29,12 +29,22 @@ visible ledger events
 
 ### 001, Cursor controller launch proof
 
-Status: **implemented in repo — pending user verification in `npm run tauri:dev`.**
+Status: **implemented in repo — R1 peer-review fixes applied — pending user verification in `npm run tauri:dev`.**
 
 Report:
 
 ```txt
 docs/reports/controller-launch-proof-report.md
+```
+
+R1 fixes (2026-05-28):
+
+```txt
+Removed auto in-game controller verify on launch exit
+Input test requires button press (not detection-only pass)
+Split nesProofReady / snesProofReady / overallProofState
+Arcade overlay Escape copy corrected
+Demo mode banner on Arcade Home
 ```
 
 Canonical handoff:
@@ -141,13 +151,12 @@ media/debrid features
 ```txt
 Tauri compile requires Linux WebKit/libsoup packages (see controller-launch-proof-report.md).
 Tauri process spawning not yet proven on user hardware.
-Controller in-game verification pending user test in npm run tauri:dev.
-Local master is ahead of origin/main until pushed (user approval required).
-Branch names differ: local master vs remote main — align after push with user approval.
+Controller in-game verification requires explicit user action (Mark In-Game Verified).
+Local master synced with origin/main after initial push; R1 pass pending commit/push.
 Flatpak may complicate filesystem and device access.
 FCEUX path and launch arguments need validation on user machine.
 RetroArch SNES core path needs validation on user machine.
-xi-io.net Workbench mirror pending (see docs/framework/xi-io-net-sync-status.md).
+xi-io.net manifest/hydration mirrored locally (see docs/framework/xi-io-net-sync-status.md); Workbench preview event pending.
 ```
 
 ## Framework sync reminders

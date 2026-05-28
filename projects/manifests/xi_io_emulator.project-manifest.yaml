@@ -1,14 +1,44 @@
+xiio_version: "0.1.0"
+manifest_version: "1.0.0"
 project_id: xi_io_emulator
 project_name: xi-io Emulator
-description: Linux-first arcade shell wrapping FCEUX, RetroArch, and future engine adapters.
+project_type: desktop_app
 management_mode: first_party_product
-implementation_focus: controller_launch_proof_complete_pending_user_test
+implementation_focus: controller_launch_proof_r1_pending_user_test
+description: Linux-first arcade shell wrapping FCEUX, RetroArch, and future engine adapters.
+
+repository:
+  provider: github
+  full_name: Vado42-chris/xi-io-emulator
+  url: git@github.com:Vado42-chris/xi-io-emulator.git
+  default_branch: main
+  local_path: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+  repo_safe: true
 
 status:
   milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
-  phase: launch_proof_implemented
+  phase: launch_proof_implemented_r1
   next_milestone: XARCADE-STORAGE-001
+  lifecycle_state: in_build
+  freshness_state: needs_review
+  validation_state: not_checked
+  repo_sync_state: synced
+  known_blockers:
+    - Tauri compile requires libsoup-3.0 / WebKitGTK on Linux
+    - End-to-end NES/SNES launch proof pending user npm run tauri:dev test
+  next_action: User verifies dual launch proof; then begin XARCADE-STORAGE-001
+
+runtime:
+  local_preview:
+    status: implemented
+    command: npm run dev
+    working_directory: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+  desktop_shell:
+    status: implemented
+    command: npm run tauri:dev
+    working_directory: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+    notes: Requires Linux Tauri prerequisites
 
 notes:
-  - Placeholder manifest created after launch proof code landing.
-  - Expand when bulk hydration begins.
+  - R1 peer-review fixes applied 2026-05-28 (input test, split proof readiness, no auto verify).
+  - Expand manifest when bulk hydration begins.

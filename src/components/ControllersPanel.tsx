@@ -3,7 +3,7 @@ import { Gamepad, RefreshCw, CheckCircle, XCircle, AlertTriangle } from 'lucide-
 import {
   getControllerSnapshot,
   pollControllerDevices,
-  runVisualControllerTest,
+  runInputControllerTest,
   markInGameControllerVerified,
   type ControllerSnapshot,
 } from '../services/controllerService';
@@ -52,9 +52,9 @@ export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotCh
     onSnapshotChange?.(s);
   };
 
-  const handleVisualTest = async () => {
+  const handleInputTest = async () => {
     setTesting(true);
-    const s = await runVisualControllerTest();
+    const s = await runInputControllerTest();
     setSnapshot(s);
     onSnapshotChange?.(s);
     setTesting(false);
@@ -103,9 +103,9 @@ export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotCh
           type="button"
           className="btn-primary"
           disabled={testing}
-          onClick={() => void handleVisualTest()}
+          onClick={() => void handleInputTest()}
         >
-          Start Visual Test
+          {testing ? 'Listening for input (5s)...' : 'Run Input Test'}
         </button>
         <button type="button" className="btn-secondary" onClick={handleInGameVerified}>
           Mark In-Game Verified
@@ -169,7 +169,7 @@ export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotCh
 
       {snapshot.state === 'test_failed' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontSize: '0.85rem' }}>
-          <XCircle size={16} /> Visual test did not detect input. Use in-game FCEUX verification if pad works there.
+          <XCircle size={16} /> Input test did not detect a button press. Use in-game FCEUX verification if pad works there.
         </div>
       )}
     </div>

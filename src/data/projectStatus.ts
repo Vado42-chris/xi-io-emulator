@@ -4,7 +4,10 @@ export interface ProjectStatus {
   currentBackendTarget: string;
   storageState: 'not configured' | 'mounted' | 'missing' | 'error';
   controllerState: 'not configured' | 'connected' | 'unmapped' | 'error';
-  launchReadiness: 'not configured' | 'ready' | 'blocked';
+  launchReadiness: 'not configured' | 'partial' | 'ready' | 'blocked';
+  nesProofReady: 'not configured' | 'ready' | 'blocked';
+  snesProofReady: 'not configured' | 'ready' | 'blocked';
+  overallProofState: 'not configured' | 'partial' | 'ready' | 'blocked';
   systemLogo?: string;
 }
 
@@ -15,4 +18,7 @@ export const initialProjectStatus: ProjectStatus = {
   storageState: "not configured",
   controllerState: "not configured",
   launchReadiness: "not configured",
+  nesProofReady: "not configured",
+  snesProofReady: "not configured",
+  overallProofState: "not configured",
 };

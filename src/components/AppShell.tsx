@@ -64,6 +64,7 @@ import {
   controllerStateForStatusPanel,
   getControllerSnapshot,
 } from '../services/controllerService';
+import { computeProofReadiness, launchReadinessFromProof } from '../services/proofReadinessService';
 import { checkPathExists, isTauriRuntime } from '../services/tauriService';
 
 export const AppShell: React.FC = () => {
@@ -114,7 +115,7 @@ export const AppShell: React.FC = () => {
   // Status panel projection
   const [projectStatus, setProjectStatus] = useState(initialProjectStatus);
 
-  const refreshState = () => {
+  const refreshState = async () => {
     let updatedGames = getGameRecords();
     
     // Backfill artwork mappings for legacy/preloaded game records that lack them
@@ -155,22 +156,9 @@ export const AppShell: React.FC = () => {
         : updatedRoots.some(r => r.mounted) 
           ? 'configured' 
           : 'offline';
-    
-    const hasBinary = engine.retroarchBinaryPath && engine.retroarchBinaryPath !== 'Not set';
-    const hasCore = engine.snesCorePath && engine.snesCorePath !== 'Not set';
-    const hasFceux = engine.fceuxBinaryPath && engine.fceuxBinaryPath !== 'Not set';
-    const proof = getProofGameSettings();
-    
-    let launchReadiness: 'not configured' | 'ready' | 'blocked' = 'not configured';
-    if ((!hasBinary || !hasCore) && !hasFceux) {
-      launchReadiness = 'blocked';
-    } else if (updatedRoots.length > 0 && updatedRoots.every(r => !r.mounted)) {
-      launchReadiness = 'blocked';
-    } else if (proof.nesGameId || proof.snesGameId) {
-      launchReadiness = 'ready';
-    } else {
-      launchReadiness = hasBinary && hasCore ? 'ready' : 'not configured';
-    }
+
+    const proofSummary = await computeProofReadiness();
+    const launchReadiness = launchReadinessFromProof(proofSummary);
 
     const ctrlSnapshot = getControllerSnapshot();
 
@@ -179,7 +167,10 @@ export const AppShell: React.FC = () => {
       currentMilestone: 'XARCADE-CONTROLLER-LAUNCH-PROOF-001',
       storageState,
       controllerState: controllerStateForStatusPanel(ctrlSnapshot),
-      launchReadiness
+      launchReadiness,
+      nesProofReady: proofSummary.nesProofReady,
+      snesProofReady: proofSummary.snesProofReady,
+      overallProofState: proofSummary.overallProofState,
     }));
   };
 
@@ -194,7 +185,7 @@ export const AppShell: React.FC = () => {
     }
     // Defer the state refresh to avoid calling setState synchronously within the effect body
     const timer = setTimeout(() => {
-      refreshState();
+      void refreshState();
     }, 0);
     return () => clearTimeout(timer);
   }, []);

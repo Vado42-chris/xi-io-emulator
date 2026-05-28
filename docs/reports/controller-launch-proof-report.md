@@ -1,12 +1,21 @@
 # Controller Launch Proof Report
 
 Date: 2026-05-28  
-Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
+Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001** (R1 peer-review fix pass)  
 Tags: `#xar:controller-launch-proof/current` `#adapter:fceux/nes` `#adapter:retroarch/snes`
 
 ## Summary
 
-Implemented the controller + dual-engine launch proof foundation: Tauri Rust scaffold, adapter manifests (`fceux.nes`, `retroarch.snes.snes9x`), controller detection/visual test UI, real launch lifecycle in `launchService.ts`, proof-game registration (no bulk scan), and demo-mode gating for simulated launch.
+Implemented the controller + dual-engine launch proof foundation: Tauri Rust scaffold, adapter manifests (`fceux.nes`, `retroarch.snes.snes9x`), controller detection/input test UI, real launch lifecycle in `launchService.ts`, proof-game registration (no bulk scan), and demo-mode gating for simulated launch.
+
+**R1 peer-review fixes (2026-05-28):**
+
+- Removed auto `markInGameControllerVerified()` on emulator exit — user must click explicitly
+- Renamed Visual Test → **Run Input Test** (requires Gamepad API button press within 5s)
+- Split proof readiness: `nesProofReady`, `snesProofReady`, `overallProofState` (`partial` when only one system ready)
+- Fixed Arcade launch overlay copy — Escape closes overlay only, does not kill emulator
+- Added visible **DEMO MODE** banner on Arcade Home
+- Milestone remains **implemented, pending local hardware proof** — not marked complete
 
 ## Files changed
 
@@ -15,26 +24,27 @@ src-tauri/                          # Rust scaffold (launch_emulator, path_exist
 src/data/adapters/                  # JSON adapter manifests
 src/services/tauriService.ts
 src/services/adapterService.ts
-src/services/controllerService.ts
+src/services/controllerService.ts   # runInputControllerTest, runDetectionTest
+src/services/proofReadinessService.ts  # per-system proof readiness (R1)
 src/services/launchService.ts       # Real launch + ledger lifecycle
 src/services/db.ts                  # FCEUX path + proof game settings
-src/services/ingressService.ts    # NES support
+src/services/ingressService.ts      # NES support
 src/components/ControllersPanel.tsx
 src/components/AppShell.tsx
 src/components/ArcadeHome.tsx
 src/components/GameDetailPanel.tsx
-docs/INDEX.md                       # repo-sync-contract reference fix
-package.json                        # tauri scripts + @tauri-apps/api
-index.html                          # title fix
-projects/manifests/                 # placeholder manifest
-projects/hydration/                 # placeholder hydration state
+src/components/StatusPanel.tsx      # NES/SNES/overall proof rows (R1)
+src/data/projectStatus.ts           # partial + per-system fields (R1)
+docs/INDEX.md
+projects/manifests/
+projects/hydration/
 ```
 
 ## Branch and sync state
 
-- Branch: `master` (merged `origin/main` agent docs)
-- Local commits include merge + controller launch proof implementation
-- Push to GitHub: pending user approval
+- Branch: `master` (tracks `origin/main`)
+- Latest commits: `db3ddca` (docs), `c6108ab` (implementation), R1 pass pending commit
+- Push to GitHub: **synced** (`master` → `origin/main`)
 
 ## Tauri backend status
 
@@ -57,53 +67,57 @@ projects/hydration/                 # placeholder hydration state
 ## Controller proof result
 
 - **Controllers page:** live detection via browser Gamepad API + Tauri `/proc/bus/input/devices` when in desktop shell
-- **Visual test:** enabled with ledger events (`controller_test_started`, `controller_mapping_created` / `controller_mapping_failed`)
-- **In-game verification:** `Mark In-Game Verified` after FCEUX/RetroArch launch proof
+- **Input test:** requires button press within 5s window (`controller_test_started`, `controller_mapping_created` / `controller_mapping_failed`)
+- **In-game verification:** explicit **Mark In-Game Verified** only — not auto-set on launch exit (R1)
 - **Honest fallback:** browser dev mode documents Tauri requirement; does not fake Linux device scan
 
 ## NES / FCEUX proof result
 
 - **UI:** Register one `.nes` path on Emulator Engines → Proof Games section
+- **Readiness:** `nesProofReady` in status panel (R1)
 - **Runtime:** requires Tauri + valid FCEUX binary path + existing ROM file
 - **User action:** configure paths and run `npm run tauri:dev`, then launch proof NES game from Arcade or Library detail
 
 ## SNES / RetroArch proof result
 
 - **UI:** Register one `.sfc`/`.smc` path on Emulator Engines → Proof Games section
+- **Readiness:** `snesProofReady` in status panel (R1)
 - **Runtime:** requires Tauri + RetroArch + SNES core paths + existing ROM file
 - **User action:** same as NES proof via desktop shell
 
 ## Commands run
 
 ```bash
-git merge origin/main
-npm install @tauri-apps/api @tauri-apps/cli
-npm run typecheck   # pass
-npm run lint        # pass (1 warning in ArcadeHome exhaustive-deps)
-npm run build       # pass
-cargo check         # fail — missing libsoup-3.0
+npm run typecheck   # R1 pass — see gate table
+npm run lint        # R1 pass — see gate table
+npm run build       # R1 pass — see gate table
+cargo check         # fail — missing libsoup-3.0 (expected until deps installed)
 ```
 
 ## Pass / fail results
 
 | Gate | Result | Verified |
 |------|--------|----------|
-| typecheck | pass | 2026-05-28 |
-| lint | pass (0 errors, 0 warnings) | 2026-05-28 |
-| build | pass | 2026-05-28 |
-| git commit | pass (`c6108ab`) | 2026-05-28 |
+| typecheck | pass | 2026-05-28 R1 |
+| lint | pass (0 errors, 0 warnings) | 2026-05-28 R1 |
+| build | pass | 2026-05-28 R1 |
+| git commit (R1) | pending | this pass |
 | Tauri compile (`cargo check`) | **fail** — `libsoup-3.0-dev` not installed | 2026-05-28 |
 | End-to-end launch on user machine | **pending** | not verified |
-| GitHub push | **pending user approval** | not verified |
-| xi-io.net Workbench mirror | **pending** | not verified |
+| GitHub push (R1) | pending | after commit |
+| xi-io.net Workbench mirror | **mirrored** (R1) | see `docs/framework/xi-io-net-sync-status.md` |
 
-## Compliance pass (2026-05-28)
+## R1 peer-review compliance
 
-- Fixed ArcadeHome exhaustive-deps lint warning (`useCallback`)
-- Updated `docs/backlog.md`, `walkthrough.md`, `docs/INDEX.md`
-- Added `docs/framework/xi-io-net-sync-status.md` for two-way framework tracking
-- Added `src-tauri/target` to `.gitignore`
-- Committed on `master` as `c6108ab`
+| Finding | Status |
+|---------|--------|
+| Remove auto in-game controller verify on launch exit | **fixed** |
+| Milestone = implemented, pending user proof | **documented** |
+| Input test requires button press | **fixed** |
+| Split NES/SNES/overall proof readiness | **fixed** |
+| Arcade overlay Escape copy | **fixed** |
+| Demo mode visibility on Arcade Home | **fixed** |
+| Report reflects GitHub sync + R1 | **fixed** |
 
 ## Known blockers
 
@@ -121,21 +135,13 @@ artwork/provider downloads
 cheat/patch execution
 PS1/PS2
 media/debrid features
+launch-as-session PID polling
+narrow Tauri permissions
+CI workflow
 ```
 
 ## Next recommended slice
 
-**XARCADE-STORAGE-001** — after user confirms dual launch proof in Tauri:
+**User verification pass (Pass B):** install Tauri deps, run `npm run tauri:dev`, prove NES + SNES launch, mark in-game controller verified manually.
 
-1. Real folder picker + `.nes`/`.sfc`/`.smc` scan
-2. Replace `mockFiles` demo ingress
-3. Real gamepad shell navigation (replace keyboard-only arcade loop)
-4. Expand hydration-state.yaml artifact coverage
-
-Recommended prompt:
-
-```txt
-Launch proof passed in Tauri. Begin XARCADE-STORAGE-001: real library roots and scan.
-Read docs/INDEX.md and docs/project-tracking/open-work-ledger.md first.
-Do not enable artwork scraping or SQLite until storage ingress is stable.
-```
+Then **XARCADE-STORAGE-001** — after user confirms dual launch proof in Tauri.

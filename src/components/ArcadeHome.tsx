@@ -316,7 +316,8 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           </div>
           <div className="arcade-onboarding-check-item">
             <span
-              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : 'inactive'}`}
+              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : status.launchReadiness === 'partial' ? 'active' : 'inactive'}`}
+              style={status.launchReadiness === 'partial' ? { opacity: 0.6 } : undefined}
             />
             <span>Launch Readiness: {status.launchReadiness}</span>
           </div>
@@ -340,6 +341,22 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
   return (
     <div className="arcade-container">
+      {demoMode && (
+        <div
+          style={{
+            backgroundColor: 'rgba(251, 191, 36, 0.15)',
+            borderBottom: '2px solid #fbbf24',
+            color: '#fbbf24',
+            padding: '10px 24px',
+            textAlign: 'center',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            letterSpacing: '0.02em',
+          }}
+        >
+          DEMO MODE — launches are simulated; no emulator process is started. Disable in Admin → Settings.
+        </div>
+      )}
       {/* Header */}
       <header className="arcade-header">
         <div className="arcade-logo-area">
@@ -364,9 +381,10 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           </div>
           <div className="arcade-status-item">
             <span
-              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : 'inactive'}`}
+              className={`arcade-status-dot ${status.launchReadiness === 'ready' ? 'active' : status.launchReadiness === 'partial' ? 'active' : 'inactive'}`}
+              style={status.launchReadiness === 'partial' ? { opacity: 0.6 } : undefined}
             />
-            <span>Engine Ready</span>
+            <span>Engine Ready ({status.overallProofState})</span>
           </div>
 
           <button className="arcade-admin-btn" onClick={onToggleAdminMode} id="btn-toggle-admin">
@@ -604,7 +622,13 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                 </div>
               )}
 
-              <p className="launch-overlay-hint">Press Escape to exit game and return to Arcade Home</p>
+              <p className="launch-overlay-hint">
+                {isLaunching
+                  ? 'Emulator is running in the background. Wait for it to exit, or quit from the emulator window.'
+                  : launchResult?.success
+                    ? 'Emulator exited. Press Escape to close this overlay and return to Arcade Home.'
+                    : 'Press Escape to close this overlay. This does not stop a running emulator process.'}
+              </p>
             </>
           )}
         </div>

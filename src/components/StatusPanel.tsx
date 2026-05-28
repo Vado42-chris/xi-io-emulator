@@ -9,6 +9,7 @@ interface StatusPanelProps {
 export const StatusPanel: React.FC<StatusPanelProps> = ({ status }) => {
   const getBadgeClass = (state: string) => {
     if (state === 'not configured') return 'badge not-configured';
+    if (state === 'partial') return 'badge not-configured';
     if (state === 'ready' || state === 'mounted' || state === 'connected') return 'badge ready';
     return 'badge not-configured';
   };
@@ -75,6 +76,27 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status }) => {
             </span>
             <span className={getBadgeClass(status.launchReadiness)}>
               {status.launchReadiness}
+            </span>
+          </div>
+
+          <div className="status-row">
+            <span className="status-label">NES Proof</span>
+            <span className={getBadgeClass(status.nesProofReady)}>
+              {status.nesProofReady}
+            </span>
+          </div>
+
+          <div className="status-row">
+            <span className="status-label">SNES Proof</span>
+            <span className={getBadgeClass(status.snesProofReady)}>
+              {status.snesProofReady}
+            </span>
+          </div>
+
+          <div className="status-row">
+            <span className="status-label">Overall Proof</span>
+            <span className={getBadgeClass(status.overallProofState)}>
+              {status.overallProofState}
             </span>
           </div>
         </div>

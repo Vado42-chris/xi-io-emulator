@@ -25,7 +25,12 @@ This walkthrough documents milestones through **XARCADE-CONTROLLER-LAUNCH-PROOF-
 
 #### 4. Controllers UI (`src/components/ControllersPanel.tsx`)
 - Gamepad API + Linux input device scan (Tauri)
-- Visual test and in-game verification marker
+- **Run Input Test** (requires button press within 5s) and explicit **Mark In-Game Verified** (not auto on launch exit)
+
+#### 4b. R1 peer-review fixes (2026-05-28)
+- `proofReadinessService.ts` — `nesProofReady`, `snesProofReady`, `overallProofState` (`partial` when only one system ready)
+- Arcade Home demo mode banner and corrected launch overlay Escape copy
+- Status panel shows per-system proof rows
 
 #### 5. Framework artifacts
 - `docs/reports/controller-launch-proof-report.md`

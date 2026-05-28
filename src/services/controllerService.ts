@@ -92,11 +92,70 @@ export const pollControllerDevices = async (): Promise<ControllerSnapshot> => {
   return snapshot;
 };
 
-export const runVisualControllerTest = async (): Promise<ControllerSnapshot> => {
-  addLedgerEvent('controller_test_started', 'Visual controller test started', {});
+const waitForGamepadButtonPress = (timeoutMs: number): Promise<boolean> =>
+  new Promise((resolve) => {
+    const deadline = Date.now() + timeoutMs;
+
+    const poll = () => {
+      const pads = navigator.getGamepads?.() ?? [];
+      for (const pad of pads) {
+        if (!pad) continue;
+        for (const btn of pad.buttons) {
+          if (btn.pressed) {
+            resolve(true);
+            return;
+          }
+        }
+      }
+
+      if (Date.now() >= deadline) {
+        resolve(false);
+        return;
+      }
+
+      window.setTimeout(poll, 100);
+    };
+
+    poll();
+  });
+
+/** Detection-only poll — does not verify button input. */
+export const runDetectionTest = async (): Promise<ControllerSnapshot> => {
+  addLedgerEvent('controller_test_started', 'Controller detection test started', {});
 
   const snapshot = await pollControllerDevices();
   const passed = snapshot.devices.length > 0 || snapshot.browserGamepadCount > 0;
+
+  const result: ControllerSnapshot = {
+    ...snapshot,
+    state: passed ? 'detected' : 'not_detected',
+    lastTestAt: new Date().toISOString(),
+    notes: [
+      ...snapshot.notes,
+      passed
+        ? 'Detection test found a controller source. Run Input Test or verify in-game after launch.'
+        : 'No controller detected. Connect a USB/Bluetooth pad and press a button, then retry.',
+    ],
+  };
+
+  saveControllerSnapshot(result);
+  addLedgerEvent(
+    passed ? 'controller_detected' : 'controller_mapping_failed',
+    passed ? 'Controller detection test passed' : 'Controller detection test failed',
+    { browserGamepads: result.browserGamepadCount, linuxDevices: result.devices.length }
+  );
+
+  return result;
+};
+
+/** Requires a physical button press within the timeout window. */
+export const runInputControllerTest = async (): Promise<ControllerSnapshot> => {
+  addLedgerEvent('controller_test_started', 'Controller input test started — press any button', {});
+
+  const snapshot = await pollControllerDevices();
+  const buttonPressed = await waitForGamepadButtonPress(5000);
+  const hasSource = snapshot.devices.length > 0 || snapshot.browserGamepadCount > 0;
+  const passed = buttonPressed && hasSource;
 
   const result: ControllerSnapshot = {
     ...snapshot,
@@ -104,21 +163,31 @@ export const runVisualControllerTest = async (): Promise<ControllerSnapshot> => 
     lastTestAt: new Date().toISOString(),
     notes: [
       ...snapshot.notes,
-      passed
-        ? 'Shell detected at least one controller source. Confirm in-game input via FCEUX/RetroArch launch proof.'
-        : 'No controller detected. Connect a USB/Bluetooth pad and press a button, then retry.',
+      buttonPressed
+        ? 'Input test recorded a button press via Gamepad API.'
+        : 'Input test timed out — press any controller button during the 5s window.',
+      hasSource
+        ? 'Controller source detected. Confirm in-game input via FCEUX/RetroArch launch proof.'
+        : 'No controller source detected. Connect a pad or use Mark In-Game Verified after FCEUX works.',
     ],
   };
 
   saveControllerSnapshot(result);
   addLedgerEvent(
     passed ? 'controller_mapping_created' : 'controller_mapping_failed',
-    passed ? 'Controller visual test passed' : 'Controller visual test failed',
-    { browserGamepads: result.browserGamepadCount, linuxDevices: result.devices.length }
+    passed ? 'Controller input test passed' : 'Controller input test failed',
+    {
+      browserGamepads: result.browserGamepadCount,
+      linuxDevices: result.devices.length,
+      buttonPressed,
+    }
   );
 
   return result;
 };
+
+/** @deprecated Use runDetectionTest or runInputControllerTest. */
+export const runVisualControllerTest = runInputControllerTest;
 
 export const markInGameControllerVerified = (): ControllerSnapshot => {
   const current = getControllerSnapshot();

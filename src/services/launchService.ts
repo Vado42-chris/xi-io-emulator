@@ -7,7 +7,6 @@ import {
   validateAdapterReadiness,
 } from './adapterService';
 import { isTauriRuntime, launchEmulatorProcess } from './tauriService';
-import { markInGameControllerVerified } from './controllerService';
 
 export interface LaunchBlocker {
   code:
@@ -174,7 +173,6 @@ export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
         gameId: game.id,
         exitCode: result.exit_code,
       });
-      markInGameControllerVerified();
       addLedgerEvent('shell_focus_restored', 'Shell focus restore attempted after emulator exit', {
         gameId: game.id,
       });
