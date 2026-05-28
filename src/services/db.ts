@@ -17,10 +17,20 @@ export interface LibraryRoot {
 export interface EngineSettings {
   retroarchBinaryPath: string;
   snesCorePath: string;
+  fceuxBinaryPath: string;
   lastTestedAt?: string;
   testStatus: 'not_tested' | 'success' | 'failed';
   detectedVersion?: string;
   launchStrategy?: 'native' | 'flatpak' | 'bundled';
+}
+
+export interface ProofGameSettings {
+  nesGameId?: string;
+  snesGameId?: string;
+  nesContentPath?: string;
+  snesContentPath?: string;
+  nesTitle?: string;
+  snesTitle?: string;
 }
 
 export interface StorageDiagnostic {
@@ -147,12 +157,16 @@ export const clearDatabase = (): void => {
   localStorage.removeItem(STORAGE_KEYS.LEDGER);
   localStorage.removeItem('xibalba_engine_settings');
   localStorage.removeItem('xibalba_scan_history');
+  localStorage.removeItem('xibalba_proof_games');
+  localStorage.removeItem('xibalba_controller_proof');
+  localStorage.removeItem('xibalba_demo_mode');
   addLedgerEvent('database_cleared', 'Database states cleared');
 };
 
 const DEFAULT_ENGINE_SETTINGS: EngineSettings = {
   retroarchBinaryPath: 'Not set',
   snesCorePath: 'Not set',
+  fceuxBinaryPath: 'Not set',
   testStatus: 'not_tested'
 };
 
@@ -168,6 +182,22 @@ export const getEngineSettings = (): EngineSettings => {
 
 export const saveEngineSettings = (settings: EngineSettings): void => {
   localStorage.setItem('xibalba_engine_settings', JSON.stringify(settings));
+};
+
+const DEFAULT_PROOF_SETTINGS: ProofGameSettings = {};
+
+export const getProofGameSettings = (): ProofGameSettings => {
+  const data = localStorage.getItem('xibalba_proof_games');
+  if (!data) return DEFAULT_PROOF_SETTINGS;
+  try {
+    return JSON.parse(data) as ProofGameSettings;
+  } catch {
+    return DEFAULT_PROOF_SETTINGS;
+  }
+};
+
+export const saveProofGameSettings = (settings: ProofGameSettings): void => {
+  localStorage.setItem('xibalba_proof_games', JSON.stringify(settings));
 };
 
 export const getScanHistory = (): LibraryScanResult[] => {

@@ -89,8 +89,15 @@ docs/agent-master-prompt-cursor-current.md
 
 ```txt
 docs/framework/repo-sync-contract.md
+docs/framework/xi-io-net-sync-status.md
 docs/framework/serialized-hashtags-standard.md
 docs/project-tracking/open-work-ledger.md
+```
+
+## Reports
+
+```txt
+docs/reports/controller-launch-proof-report.md
 ```
 
 ## Current milestone

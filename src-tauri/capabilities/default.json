@@ -1,9 +1,13 @@
 {
-  "$schema": "../schemas/capability.json",
+  "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default capability for the main window",
+  "description": "Default capability for xi-io Emulator main window",
   "windows": ["main"],
   "permissions": [
-    "core:default"
+    "core:default",
+    "core:window:allow-show",
+    "core:window:allow-unminimize",
+    "core:window:allow-set-focus",
+    "shell:default"
   ]
 }

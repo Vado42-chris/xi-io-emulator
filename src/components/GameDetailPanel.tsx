@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   X, Eye, EyeOff, Image as ImageIcon, BookOpen, 
   Code, ShieldAlert, Cpu, Heart, Database, AlertCircle,
@@ -8,7 +8,7 @@ import type { GameRecord } from '../data/gameModels';
 import type { LibraryRoot } from '../services/db';
 import { ReadinessBadge } from './ReadinessBadge';
 import { TagPill } from './TagPill';
-import { checkLaunchReadiness } from '../services/launchService';
+import { checkLaunchReadiness, type LaunchReadiness } from '../services/launchService';
 
 interface GameDetailPanelProps {
   game: GameRecord;
@@ -16,6 +16,7 @@ interface GameDetailPanelProps {
   onClose: () => void;
   onToggleFavorite: (game: GameRecord) => void;
   onToggleHidden: (game: GameRecord) => void;
+  onLaunch?: (game: GameRecord) => void;
 }
 
 type TabType = 'artwork' | 'guides' | 'cheats' | 'patches' | 'hacks' | 'controller' | 'savestates';
@@ -32,12 +33,17 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
   libraryRoot,
   onClose,
   onToggleFavorite,
-  onToggleHidden
+  onToggleHidden,
+  onLaunch,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('artwork');
+  const [readiness, setReadiness] = useState<LaunchReadiness>({ ready: false, blockers: [] });
+  const [launching, setLaunching] = useState(false);
 
-  // Computed status using the standardized launchService
-  const readiness = checkLaunchReadiness(game);
+  useEffect(() => {
+    void checkLaunchReadiness(game).then(setReadiness);
+  }, [game]);
+
   const currentStatus = readiness.ready 
     ? 'ready' 
     : (readiness.blockers.some(b => b.code === 'missing_engine' || b.code === 'missing_core') 
@@ -471,10 +477,20 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
               </button>
             </div>
 
-            {/* Launch Game Disabled Placeholder */}
-            <button className="btn-primary" style={{ width: '100%', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '8px' }} disabled>
+            {/* Launch Game */}
+            <button
+              className="btn-primary"
+              style={{ width: '100%', marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '8px' }}
+              disabled={!readiness.ready || launching || !onLaunch}
+              onClick={() => {
+                if (!onLaunch) return;
+                setLaunching(true);
+                onLaunch(game);
+                setLaunching(false);
+              }}
+            >
               <Cpu size={16} />
-              Launch Game (Process execution deferred)
+              {launching ? 'Launching...' : readiness.ready ? 'Launch Game' : 'Launch Blocked'}
             </button>
           </div>
 

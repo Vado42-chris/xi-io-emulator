@@ -17,7 +17,8 @@ import {
   getEngineSettings,
   saveEngineSettings,
   getScanHistory,
-  exportLibraryToCSV
+  exportLibraryToCSV,
+  getProofGameSettings,
 } from '../services/db';
 import type { LibraryRoot, LedgerEvent, EngineSettings, LibraryScanResult } from '../services/db';
 import { ingressSingleGame, ingressBatchFolder } from '../services/ingressService';
@@ -45,6 +46,7 @@ import {
 import { LibraryGrid } from './LibraryGrid';
 import { GameDetailPanel } from './GameDetailPanel';
 import { ArcadeHome } from './ArcadeHome';
+import { ControllersPanel } from './ControllersPanel';
 import {
   buildGameSearchIndex,
   detectDuplicateCandidates,
@@ -52,6 +54,17 @@ import {
   sortGameSearchDocuments
 } from '../services/searchService';
 import { getArtworkMappingForTitle } from '../services/artworkProvider';
+import {
+  getDemoMode,
+  launchGame,
+  registerProofGameFromPath,
+  setDemoMode,
+} from '../services/launchService';
+import {
+  controllerStateForStatusPanel,
+  getControllerSnapshot,
+} from '../services/controllerService';
+import { checkPathExists, isTauriRuntime } from '../services/tauriService';
 
 export const AppShell: React.FC = () => {
   const [appMode, setAppMode] = useState<'arcade' | 'admin'>('arcade');
@@ -77,14 +90,20 @@ export const AppShell: React.FC = () => {
   // Engine inputs & browse popovers
   const [raPath, setRaPath] = useState(engineSettings.retroarchBinaryPath);
   const [corePath, setCorePath] = useState(engineSettings.snesCorePath);
+  const [fceuxPath, setFceuxPath] = useState(engineSettings.fceuxBinaryPath ?? 'Not set');
   const [raBrowseOpen, setRaBrowseOpen] = useState(false);
   const [coreBrowseOpen, setCoreBrowseOpen] = useState(false);
+  const [fceuxBrowseOpen, setFceuxBrowseOpen] = useState(false);
+  const [proofNesPath, setProofNesPath] = useState(getProofGameSettings().nesContentPath ?? '');
+  const [proofSnesPath, setProofSnesPath] = useState(getProofGameSettings().snesContentPath ?? '');
+  const [demoMode, setDemoModeState] = useState(getDemoMode());
 
   // Sync inputs when settings change from local storage
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setRaPath(engineSettings.retroarchBinaryPath);
     setCorePath(engineSettings.snesCorePath);
+    setFceuxPath(engineSettings.fceuxBinaryPath ?? 'Not set');
   }, [engineSettings]);
 
   // Ingress forms state
@@ -139,19 +158,27 @@ export const AppShell: React.FC = () => {
     
     const hasBinary = engine.retroarchBinaryPath && engine.retroarchBinaryPath !== 'Not set';
     const hasCore = engine.snesCorePath && engine.snesCorePath !== 'Not set';
+    const hasFceux = engine.fceuxBinaryPath && engine.fceuxBinaryPath !== 'Not set';
+    const proof = getProofGameSettings();
     
     let launchReadiness: 'not configured' | 'ready' | 'blocked' = 'not configured';
-    if (!hasBinary || !hasCore) {
+    if ((!hasBinary || !hasCore) && !hasFceux) {
       launchReadiness = 'blocked';
     } else if (updatedRoots.length > 0 && updatedRoots.every(r => !r.mounted)) {
       launchReadiness = 'blocked';
-    } else {
+    } else if (proof.nesGameId || proof.snesGameId) {
       launchReadiness = 'ready';
+    } else {
+      launchReadiness = hasBinary && hasCore ? 'ready' : 'not configured';
     }
+
+    const ctrlSnapshot = getControllerSnapshot();
 
     setProjectStatus(prev => ({
       ...prev,
+      currentMilestone: 'XARCADE-CONTROLLER-LAUNCH-PROOF-001',
       storageState,
+      controllerState: controllerStateForStatusPanel(ctrlSnapshot),
       launchReadiness
     }));
   };
@@ -332,19 +359,53 @@ export const AppShell: React.FC = () => {
     addLedgerEvent('library_exported', 'Exported library records to CSV');
   };
 
-  const handleTestEngine = (e: React.FormEvent) => {
+  const handleTestEngine = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!raPath.trim() || raPath === 'Not set' || !corePath.trim() || corePath === 'Not set') {
+    if (
+      (!raPath.trim() || raPath === 'Not set' || !corePath.trim() || corePath === 'Not set') &&
+      (!fceuxPath.trim() || fceuxPath === 'Not set')
+    ) {
       const updated: EngineSettings = {
         retroarchBinaryPath: raPath,
         snesCorePath: corePath,
+        fceuxBinaryPath: fceuxPath,
         testStatus: 'failed',
         detectedVersion: undefined,
         launchStrategy: undefined,
         lastTestedAt: new Date().toLocaleTimeString()
       };
       saveEngineSettings(updated);
-      addLedgerEvent('engine_test_failed', 'Engine validation failed: Paths cannot be empty or "Not set"');
+      addLedgerEvent('engine_test_failed', 'Engine validation failed: configure FCEUX and/or RetroArch paths');
+      refreshState();
+      return;
+    }
+
+    const missing: string[] = [];
+    if (isTauriRuntime()) {
+      if (fceuxPath && fceuxPath !== 'Not set') {
+        const fceuxCheck = await checkPathExists(fceuxPath);
+        if (!fceuxCheck.exists) missing.push(`FCEUX not found: ${fceuxPath}`);
+      }
+      if (raPath && raPath !== 'Not set') {
+        const raCheck = await checkPathExists(raPath);
+        if (!raCheck.exists) missing.push(`RetroArch not found: ${raPath}`);
+      }
+      if (corePath && corePath !== 'Not set') {
+        const coreCheck = await checkPathExists(corePath);
+        if (!coreCheck.exists) missing.push(`SNES core not found: ${corePath}`);
+      }
+    }
+
+    if (missing.length > 0) {
+      const updated: EngineSettings = {
+        retroarchBinaryPath: raPath,
+        snesCorePath: corePath,
+        fceuxBinaryPath: fceuxPath,
+        testStatus: 'failed',
+        lastTestedAt: new Date().toLocaleTimeString(),
+      };
+      saveEngineSettings(updated);
+      addLedgerEvent('engine_test_failed', missing.join('; '));
       refreshState();
       return;
     }
@@ -354,18 +415,48 @@ export const AppShell: React.FC = () => {
       launchStrategy = 'flatpak';
     }
 
-    const version = "RetroArch 1.18.0 (git 2a8f8d) - Snes9x 1.62.1";
+    const version = isTauriRuntime()
+      ? 'Paths verified on disk via Tauri'
+      : 'Paths saved (verify on disk requires Tauri desktop shell)';
     const updated: EngineSettings = {
       retroarchBinaryPath: raPath,
       snesCorePath: corePath,
+      fceuxBinaryPath: fceuxPath,
       testStatus: 'success',
       detectedVersion: version,
       launchStrategy,
       lastTestedAt: new Date().toLocaleTimeString()
     };
     saveEngineSettings(updated);
-    addLedgerEvent('engine_test_success', `Engine validated successfully: ${version} (${launchStrategy} mode)`);
+    addLedgerEvent('engine_detected', `Engine paths validated: ${version}`);
     refreshState();
+  };
+
+  const handleRegisterProofGame = async (systemId: 'nes' | 'snes', path: string) => {
+    if (!path.trim()) return;
+    try {
+      await registerProofGameFromPath(systemId, path.trim());
+      if (systemId === 'nes') setProofNesPath(path.trim());
+      else setProofSnesPath(path.trim());
+      refreshState();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert(message);
+    }
+  };
+
+  const handleLaunchFromShell = async (game: GameRecord) => {
+    const result = await launchGame(game);
+    refreshState();
+    if (!result.success && result.error) {
+      alert(result.error);
+    }
+  };
+
+  const handleDemoModeToggle = (enabled: boolean) => {
+    setDemoMode(enabled);
+    setDemoModeState(enabled);
+    addLedgerEvent('settings_loaded', `Demo mode ${enabled ? 'enabled' : 'disabled'}`);
   };
 
   const handleSelectGame = (game: GameRecord) => {
@@ -692,23 +783,18 @@ export const AppShell: React.FC = () => {
                 <Gamepad className="color-accent" size={24} />
                 <h1 className="view-title">Controllers</h1>
               </div>
-              <p className="view-subtitle">Map and test physical controllers for shell and virtual console inputs</p>
-            </div>
-
-            <div className="empty-state">
-              <div className="empty-state-icon">
-                <Gamepad size={32} />
-              </div>
-              <h3 className="empty-state-title">No Controller Connected</h3>
-              <p className="empty-state-description">
-                Connect a USB or Bluetooth gamepad to test mapping confidence. 
-                Visual mapping and input tests are scheduled for milestone <strong>XARCADE-CONTROLLER-001</strong>.
+              <p className="view-subtitle">
+                Detect and test physical controllers for shell navigation and launch proof
               </p>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-secondary" disabled>Start Visual Test</button>
-                <button className="btn-secondary" disabled>Define Shell Profile</button>
-              </div>
             </div>
+            <ControllersPanel
+              onSnapshotChange={(snapshot) => {
+                setProjectStatus((prev) => ({
+                  ...prev,
+                  controllerState: controllerStateForStatusPanel(snapshot),
+                }));
+              }}
+            />
           </div>
         );
 
@@ -1001,6 +1087,38 @@ export const AppShell: React.FC = () => {
                       )}
                     </div>
                   </div>
+                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="settings-meta" style={{ flex: 1 }}>
+                      <span className="settings-label">FCEUX Binary Path (NES proof)</span>
+                      <span className="settings-desc">Location of the FCEUX executable for NES launch proof</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
+                      <input
+                        type="text"
+                        className="form-input"
+                        style={{ width: '320px' }}
+                        value={fceuxPath}
+                        onChange={(e) => setFceuxPath(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={() => setFceuxBrowseOpen(!fceuxBrowseOpen)}
+                      >
+                        Browse...
+                      </button>
+                      {fceuxBrowseOpen && (
+                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setFceuxPath('/usr/bin/fceux'); setFceuxBrowseOpen(false); }}>
+                            /usr/bin/fceux
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setFceuxPath('/usr/games/fceux'); setFceuxBrowseOpen(false); }}>
+                            /usr/games/fceux
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
@@ -1022,6 +1140,43 @@ export const AppShell: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Launch proof games — no bulk scan */}
+              <div className="status-card" style={{ padding: '16px', marginTop: '16px', flexDirection: 'column', alignItems: 'stretch', gap: '12px' }}>
+                <h4 style={{ fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>#xar:controller-launch-proof/current — Proof Games Only</h4>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                  Register one NES and one SNES ROM path for launch proof. Do not bulk-scan libraries in this milestone.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Path to one .nes ROM for FCEUX proof"
+                    value={proofNesPath}
+                    onChange={(e) => setProofNesPath(e.target.value)}
+                  />
+                  <button type="button" className="btn-secondary" onClick={() => void handleRegisterProofGame('nes', proofNesPath)}>
+                    Register NES Proof
+                  </button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Path to one .sfc/.smc ROM for RetroArch proof"
+                    value={proofSnesPath}
+                    onChange={(e) => setProofSnesPath(e.target.value)}
+                  />
+                  <button type="button" className="btn-secondary" onClick={() => void handleRegisterProofGame('snes', proofSnesPath)}>
+                    Register SNES Proof
+                  </button>
+                </div>
+                {!isTauriRuntime() && (
+                  <p style={{ fontSize: '0.75rem', color: '#fbbf24', margin: 0 }}>
+                    Real launch requires Tauri: npm run tauri:dev
+                  </p>
+                )}
+              </div>
 
               {/* Collapsible Manifest details */}
               <details className="manifest-details" style={{ marginTop: '12px', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', backgroundColor: '#07080d' }}>
@@ -1070,6 +1225,18 @@ export const AppShell: React.FC = () => {
             </div>
 
             <div className="settings-list">
+              <div className="settings-item">
+                <div className="settings-meta">
+                  <span className="settings-label">Demo Mode (simulate launch)</span>
+                  <span className="settings-desc">When enabled, Play uses simulateLaunchGame instead of real process spawn</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={demoMode}
+                  onChange={(e) => handleDemoModeToggle(e.target.checked)}
+                />
+              </div>
+
               <div className="settings-item">
                 <div className="settings-meta">
                   <span className="settings-label">Start Fullscreen</span>
@@ -1152,6 +1319,7 @@ export const AppShell: React.FC = () => {
               game={selectedGame}
               libraryRoot={roots.find(r => r.id === selectedGame.libraryRootId)}
               onClose={() => setSelectedGame(null)}
+              onLaunch={(g) => void handleLaunchFromShell(g)}
               onToggleFavorite={(g) => {
                 toggleFavorite(g);
                 setSelectedGame(prev => prev ? { ...prev, favorite: !prev.favorite } : null);
@@ -1168,11 +1336,12 @@ export const AppShell: React.FC = () => {
           games={games}
           status={projectStatus}
           roots={roots}
+          demoMode={demoMode}
           onToggleAdminMode={() => setAppMode('admin')}
           onQuickSingleIngress={handleQuickSingleIngress}
           onQuickBatchIngress={handleQuickBatchIngress}
           onToggleFavorite={toggleFavorite}
-          onToggleHidden={toggleHidden}
+          onLaunchComplete={refreshState}
         />
       )}
     </div>

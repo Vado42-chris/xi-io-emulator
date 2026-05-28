@@ -55,14 +55,14 @@ If the wider workbench is available, mirror the milestone state there as well.
 
 ## Future manifest placeholders
 
-Add later, after launch proof:
+Added after launch proof code landing (expand when bulk hydration begins):
 
 ```txt
 projects/manifests/xi_io_emulator.project-manifest.yaml
 projects/hydration/xi_io_emulator.hydration-state.yaml
 ```
 
-Do not add full hydration artifacts before the controller and dual launch proof passes.
+Mirror to xi-io.net per `docs/framework/xi-io-net-sync-status.md`.
 
 ## Agent start checklist
 

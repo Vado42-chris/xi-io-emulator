@@ -29,7 +29,13 @@ visible ledger events
 
 ### 001, Cursor controller launch proof
 
-Status: ready for Cursor.
+Status: **implemented in repo — pending user verification in `npm run tauri:dev`.**
+
+Report:
+
+```txt
+docs/reports/controller-launch-proof-report.md
+```
 
 Canonical handoff:
 
@@ -133,13 +139,15 @@ media/debrid features
 ## Known risks
 
 ```txt
-Tauri process spawning not yet proven.
-Controller detection from shell not yet proven.
+Tauri compile requires Linux WebKit/libsoup packages (see controller-launch-proof-report.md).
+Tauri process spawning not yet proven on user hardware.
+Controller in-game verification pending user test in npm run tauri:dev.
+Local master is ahead of origin/main until pushed (user approval required).
+Branch names differ: local master vs remote main — align after push with user approval.
 Flatpak may complicate filesystem and device access.
-FCEUX path and launch arguments need validation.
-RetroArch SNES core path needs validation.
-Local work may be ahead of GitHub.
-Branch names may need alignment later, but do not force change during proof work.
+FCEUX path and launch arguments need validation on user machine.
+RetroArch SNES core path needs validation on user machine.
+xi-io.net Workbench mirror pending (see docs/framework/xi-io-net-sync-status.md).
 ```
 
 ## Framework sync reminders

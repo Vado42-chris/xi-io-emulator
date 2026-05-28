@@ -1,0 +1,42 @@
+xiio_version: "0.1.0"
+schema_version: "1.0.0"
+hydration_id: "xi_io_emulator.hydration.2026-05-28.launch-proof"
+project_id: xi_io_emulator
+project_name: xi-io Emulator
+management_mode: first_party_product
+overall_state: launch_proof_implemented_pending_user_test
+
+current_milestone:
+  id: XARCADE-CONTROLLER-LAUNCH-PROOF-001
+  tags:
+    - "#xar:controller-launch-proof/current"
+    - "#adapter:fceux/nes"
+    - "#adapter:retroarch/snes"
+
+completed_in_repo:
+  - Tauri Rust scaffold and invoke commands
+  - Adapter manifests fceux.nes and retroarch.snes.snes9x
+  - Controller detection and visual test UI
+  - Real launch lifecycle in launchService
+  - Proof game registration UI (no bulk scan)
+  - docs/reports/controller-launch-proof-report.md
+
+deferred_until_user_launch_proof:
+  - bulk local library hydration
+  - SQLite migration
+  - full storage root scan
+  - artwork provider sync
+  - cheat and patch execution
+  - PS1/PS2
+  - media/debrid features
+
+blockers:
+  - Tauri compile requires libsoup-3.0 / WebKitGTK system packages
+  - End-to-end launch requires npm run tauri:dev on user machine
+
+next_slice: XARCADE-STORAGE-001
+
+phase2_community_parity:
+  - Real gamepad shell navigation
+  - Storage hardening and missing-drive diagnostics
+  - Optional scraping with confidence scores

@@ -9,7 +9,7 @@ export interface ProjectStatus {
 }
 
 export const initialProjectStatus: ProjectStatus = {
-  currentMilestone: "XARCADE-ARCADE-HOME-001",
+  currentMilestone: "XARCADE-CONTROLLER-LAUNCH-PROOF-001",
   currentSystem: "SNES",
   currentBackendTarget: "RetroArch",
   storageState: "not configured",

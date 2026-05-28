@@ -1,6 +1,46 @@
-# Walkthrough: xi-io Arcade Game Ingress, Library Cockpit, Search/Filters, Arcade Home, and Launch Readiness
+# Walkthrough: xi-io Arcade Game Ingress, Library Cockpit, Search/Filters, Arcade Home, Launch Readiness, and Controller Launch Proof
 
-This walkthrough documents the completion of the Game Ingress milestone (**XARCADE-GAME-INGRESS-001**), Library Cockpit milestone (**XARCADE-LIBRARY-001**), Search & Filters milestone (**XARCADE-SEARCH-001**), Arcade Home Couch UI Pivot (**XARCADE-ARCADE-HOME-001**), and the Launch Readiness & Save States Cockpit (**XARCADE-LAUNCH-READY-001**) for the **xi-io Emulator** project.
+This walkthrough documents milestones through **XARCADE-CONTROLLER-LAUNCH-PROOF-001** for the **xi-io Emulator** project.
+
+---
+
+## Milestone 6: Controller + Dual Engine Launch Proof (XARCADE-CONTROLLER-LAUNCH-PROOF-001)
+
+### Changes Made
+
+#### 1. Tauri process foundation (`src-tauri/`)
+- Rust commands: `path_exists`, `launch_emulator`, `list_input_devices`
+- Process spawn with exit capture and shell focus restore attempt
+- Tags: `#xar:controller-launch-proof/tauri/active`
+
+#### 2. Adapter manifests and services
+- `src/data/adapters/fceux.nes.json` — `#adapter:fceux/nes`
+- `src/data/adapters/retroarch.snes.snes9x.json` — `#adapter:retroarch/snes`
+- `adapterService.ts`, `tauriService.ts`, `controllerService.ts`
+
+#### 3. Real launch lifecycle (`src/services/launchService.ts`)
+- `launchGame()` with ledger events: `launch_requested`, `launch_blocked`, `launch_started`, `emulator_exited`, `launch_failed`, `shell_focus_restored`
+- Demo mode gates `simulateLaunchGame()` (Settings toggle)
+- Proof game registration only — no bulk library scan
+
+#### 4. Controllers UI (`src/components/ControllersPanel.tsx`)
+- Gamepad API + Linux input device scan (Tauri)
+- Visual test and in-game verification marker
+
+#### 5. Framework artifacts
+- `docs/reports/controller-launch-proof-report.md`
+- `projects/manifests/xi_io_emulator.project-manifest.yaml`
+- `projects/hydration/xi_io_emulator.hydration-state.yaml`
+- `docs/framework/xi-io-net-sync-status.md`
+
+### Verification
+
+```bash
+npm run typecheck && npm run lint && npm run build
+npm run tauri:dev   # requires Linux Tauri prerequisites
+```
+
+Report: [docs/reports/controller-launch-proof-report.md](docs/reports/controller-launch-proof-report.md)
 
 ---
 

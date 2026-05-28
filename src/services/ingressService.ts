@@ -30,18 +30,29 @@ export const isSupportedSNES = (extension: string): boolean => {
   return ext === '.sfc' || ext === '.smc';
 };
 
+export const isSupportedNES = (extension: string): boolean => {
+  return extension.toLowerCase() === '.nes';
+};
+
+export const isSupportedForSystem = (extension: string, systemId: string): boolean => {
+  if (systemId === 'nes') return isSupportedNES(extension);
+  if (systemId === 'snes') return isSupportedSNES(extension);
+  return false;
+};
+
 // Ingress a single game
 export const ingressSingleGame = async (
   originalFileName: string,
   contentPath: string,
-  fileSizeBytes?: number
+  fileSizeBytes?: number,
+  systemId: 'nes' | 'snes' = 'snes'
 ): Promise<GameRecord> => {
   addLedgerEvent('single_game_ingress_started', `Starting ingress for single game: ${originalFileName}`);
   
   const { title, sortTitle, extension } = normalizeTitle(originalFileName);
   
-  if (!isSupportedSNES(extension)) {
-    const errorMsg = `Unsupported file extension "${extension}". Only .sfc and .smc are supported.`;
+  if (!isSupportedForSystem(extension, systemId)) {
+    const errorMsg = `Unsupported file extension "${extension}" for system ${systemId}.`;
     addLedgerEvent('single_game_ingress_failed', errorMsg, { originalFileName });
     throw new Error(errorMsg);
   }
@@ -49,7 +60,7 @@ export const ingressSingleGame = async (
   const id = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   const tags = [
-    'system:snes',
+    `system:${systemId}`,
     'source:single_game',
     'identity:raw',
     'launch:not_configured'
@@ -57,7 +68,7 @@ export const ingressSingleGame = async (
 
   const record: GameRecord = {
     id,
-    systemId: 'snes',
+    systemId,
     ingressMode: 'single_game',
     title,
     sortTitle,
@@ -72,7 +83,7 @@ export const ingressSingleGame = async (
     playCount: 0,
     tags,
     mappings: {
-      artwork: getArtworkMappingForTitle(title, 'snes')
+      artwork: getArtworkMappingForTitle(title, systemId)
     },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()

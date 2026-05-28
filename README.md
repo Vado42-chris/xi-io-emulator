@@ -85,4 +85,4 @@ Do not silently fail when drives, cores, BIOS files, or controllers are missing.
 
 ## Repository status
 
-This repository is newly initialized and currently in framework hydration. See `docs/` for the product map, contracts, and working backlog.
+Milestone **XARCADE-CONTROLLER-LAUNCH-PROOF-001** is implemented in code. Start agents at [docs/INDEX.md](docs/INDEX.md). Real launch requires the Tauri desktop shell (`npm run tauri:dev`). Bulk library hydration remains deferred until launch proof passes on your machine.

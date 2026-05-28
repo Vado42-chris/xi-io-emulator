@@ -1,0 +1,19 @@
+{
+  "adapter_id": "fceux.nes",
+  "adapter_version": "1.0.0",
+  "engine_id": "fceux",
+  "system_id": "nes",
+  "display_name": "NES via FCEUX",
+  "description": "Launches NES games using the FCEUX emulator binary.",
+  "content_extensions": [".nes"],
+  "requires_bios": false,
+  "required_files": [
+    {
+      "kind": "engine_binary",
+      "setting_id": "engine.fceux.binary_path",
+      "label": "FCEUX binary"
+    }
+  ],
+  "launch_template": ["{engine_path}", "{content_path}"],
+  "controller_profile": "nes.standard.v1"
+}

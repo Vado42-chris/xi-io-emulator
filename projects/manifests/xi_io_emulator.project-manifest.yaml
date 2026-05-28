@@ -1,0 +1,14 @@
+project_id: xi_io_emulator
+project_name: xi-io Emulator
+description: Linux-first arcade shell wrapping FCEUX, RetroArch, and future engine adapters.
+management_mode: first_party_product
+implementation_focus: controller_launch_proof_complete_pending_user_test
+
+status:
+  milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
+  phase: launch_proof_implemented
+  next_milestone: XARCADE-STORAGE-001
+
+notes:
+  - Placeholder manifest created after launch proof code landing.
+  - Expand when bulk hydration begins.

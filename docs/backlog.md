@@ -5,8 +5,9 @@ This backlog is intentionally small and slice-based. Do not expand systems until
 ## Current milestone
 
 ```txt
-M0: Framework hydration and local bootstrap
-M1: XARCADE-SHELL-001, SNES shell MVP
+M0: Framework hydration and local bootstrap — complete
+M1: XARCADE-CONTROLLER-LAUNCH-PROOF-001 — implemented, pending user Tauri verification
+M2: XARCADE-STORAGE-001 — deferred until launch proof passes
 ```
 
 ## M0, framework hydration
@@ -31,7 +32,7 @@ Agent handoff exists
 
 ### XARCADE-BOOT-001, create local app skeleton
 
-Status: pending local agent.
+Status: complete locally. Tauri Rust scaffold added; compile requires Linux WebKit/libsoup system packages.
 
 Acceptance:
 

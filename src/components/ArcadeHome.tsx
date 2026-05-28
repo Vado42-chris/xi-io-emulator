@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   Gamepad, 
   Settings, 
@@ -15,17 +15,19 @@ import type { ProjectStatus } from '../data/projectStatus';
 import type { LibraryRoot } from '../services/db';
 import { GameTile } from './GameTile';
 import { detectDuplicateCandidates } from '../services/searchService';
-import { checkLaunchReadiness, simulateLaunchGame } from '../services/launchService';
+import { checkLaunchReadiness, launchGame, getDemoMode, simulateLaunchGame } from '../services/launchService';
 import type { LaunchBlocker, LaunchResult } from '../services/launchService';
 
 interface ArcadeHomeProps {
   games: GameRecord[];
   status: ProjectStatus;
   roots: LibraryRoot[];
+  demoMode?: boolean;
   onToggleAdminMode: () => void;
   onQuickSingleIngress: () => void;
   onQuickBatchIngress: () => void;
   onToggleFavorite: (game: GameRecord) => void;
+  onLaunchComplete?: () => void;
 }
 
 export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
@@ -35,6 +37,8 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   onQuickSingleIngress,
   onQuickBatchIngress,
   onToggleFavorite,
+  onLaunchComplete,
+  demoMode: demoModeProp,
 }) => {
   const [activeShelfIndex, setActiveShelfIndex] = useState(0);
   const [activeGameIndex, setActiveGameIndex] = useState(0);
@@ -49,19 +53,30 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [launchingGame, setLaunchingGame] = useState<GameRecord | null>(null);
   const [launchResult, setLaunchResult] = useState<LaunchResult | null>(null);
   const [launchBlockers, setLaunchBlockers] = useState<LaunchBlocker[]>([]);
+  const [isLaunching, setIsLaunching] = useState(false);
+  const [activeBlocker, setActiveBlocker] = useState<LaunchBlocker | null>(null);
 
-  const handleLaunchGame = (game: GameRecord) => {
-    const readiness = checkLaunchReadiness(game);
+  const demoMode = demoModeProp ?? getDemoMode();
+
+  const handleLaunchGame = useCallback(async (game: GameRecord) => {
+    const readiness = await checkLaunchReadiness(game);
     setLaunchBlockers(readiness.blockers);
+    setLaunchingGame(game);
+
     if (!readiness.ready) {
-      setLaunchingGame(game);
-      setLaunchResult({ success: false, command: '', error: readiness.blockers[0].desc });
-    } else {
-      const result = simulateLaunchGame(game);
-      setLaunchingGame(game);
-      setLaunchResult(result);
+      setLaunchResult({ success: false, command: '', error: readiness.blockers[0]?.desc });
+      return;
     }
-  };
+
+    setIsLaunching(true);
+    try {
+      const result = demoMode ? simulateLaunchGame(game) : await launchGame(game);
+      setLaunchResult(result);
+      onLaunchComplete?.();
+    } finally {
+      setIsLaunching(false);
+    }
+  }, [demoMode, onLaunchComplete]);
 
   // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
   const { shelves, allGames } = useMemo(() => {
@@ -103,6 +118,17 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   // Active focused game in the carousel
   const activeShelf = shelves[activeShelfIndex];
   const activeGame = activeShelf?.games[activeGameIndex];
+
+  useEffect(() => {
+    if (!activeGame) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveBlocker(null);
+      return;
+    }
+    void checkLaunchReadiness(activeGame).then((readiness) => {
+      setActiveBlocker(readiness.ready ? null : readiness.blockers[0] ?? null);
+    });
+  }, [activeGame]);
 
   // Focus search input when opened
   useEffect(() => {
@@ -228,6 +254,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     allGames,
     onToggleFavorite,
     onToggleAdminMode,
+    handleLaunchGame,
   ]);
 
   // Onboarding Layout
@@ -306,14 +333,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     );
   }
 
-  // Derive Blocker/Diagnostic Message for active game
-  const getBlockerMessage = (game: GameRecord) => {
-    const readiness = checkLaunchReadiness(game);
-    if (readiness.ready) return null;
-    return readiness.blockers[0] || null;
-  };
-
-  const blocker = activeGame ? getBlockerMessage(activeGame) : null;
+  const blocker = activeBlocker;
   const filteredSearchGames = allGames.filter((g) =>
     g.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -566,8 +586,16 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
             </div>
           ) : (
             <>
-              <h1 className="launch-overlay-title">Launching {launchingGame.title}</h1>
-              <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
+              <h1 className="launch-overlay-title">
+                {isLaunching ? `Launching ${launchingGame.title}...` : launchResult?.success ? `${launchingGame.title} finished` : `Launching ${launchingGame.title}`}
+              </h1>
+              {isLaunching && (
+                <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
+              )}
+              
+              {!isLaunching && launchResult?.error && (
+                <p style={{ color: 'var(--color-warning)', maxWidth: '600px', textAlign: 'center' }}>{launchResult.error}</p>
+              )}
               
               {launchResult?.command && (
                 <div style={{ maxWidth: '600px', width: '100%', margin: '20px auto', textAlign: 'left', backgroundColor: 'rgba(5, 6, 11, 0.8)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'monospace', fontSize: '0.8rem' }}>
