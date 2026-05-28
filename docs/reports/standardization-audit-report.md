@@ -39,7 +39,8 @@ rg private-path patterns (chrishallberg, Storage 22, /home/user/retro)
 | typecheck (post) | pass | 2026-05-28 |
 | lint (post) | pass | 2026-05-28 |
 | build (post) | pass | 2026-05-28 |
-| git commit (audit) | pending this commit | — |
+| git commit (audit) | pass (`5b221d3`) | 2026-05-28 |
+| GitHub push (audit) | pass (`5b221d3` → origin/main) | 2026-05-28 |
 
 `cargo check` not re-run — unchanged blocker (WebKitGTK/libsoup; Pass B user install).
 

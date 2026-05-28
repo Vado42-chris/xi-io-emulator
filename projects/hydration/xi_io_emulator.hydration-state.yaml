@@ -81,7 +81,7 @@ phase2_community_parity:
   - Optional scraping with confidence scores
 
 sync_metadata:
-  xi_io_net_mirror: pending_standardization_audit
+  xi_io_net_mirror: mirrored_2026_05_28_audit_9c33543
   workbench_preview_event: pending
-  product_repo_commit: pending_audit_commit
-  standardization_audit: XARCADE-STANDARDIZATION-AUDIT-001
+  product_repo_commit: "5b221d3"
+  standardization_audit: XARCADE-STANDARDIZATION-AUDIT-001-complete

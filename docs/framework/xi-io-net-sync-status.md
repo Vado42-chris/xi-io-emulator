@@ -38,9 +38,9 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 
 | Repo | Commit | Notes |
 |------|--------|-------|
-| xi-io-emulator | `a04d8b6` | Image hydration gate docs |
-| xi-io-emulator | `86090b3` | Image hydration handoff (user) |
-| xi-io.net | `93ab97c` | Image gate re-mirror |
+| xi-io-emulator | `5b221d3` | Standardization audit complete |
+| xi-io-emulator | `b329913` | Standardization checkpoint (user) |
+| xi-io.net | `9c33543` | Audit hydration re-mirror |
 
 ## Blockers
 
