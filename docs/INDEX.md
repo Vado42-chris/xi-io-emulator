@@ -14,7 +14,7 @@ The goal is to keep product intent, technical contracts, future tracks, framewor
 README.md
 docs/INDEX.md
 docs/project-tracking/open-work-ledger.md
-docs/framework/framework-communication-contract.md
+docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
 docs/arcade-ui-product-pivot.md
 docs/agent-handoff-controller-launch.md
@@ -88,7 +88,7 @@ docs/agent-master-prompt-cursor-current.md
 ## Framework and tracking docs
 
 ```txt
-docs/framework/framework-communication-contract.md
+docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
 docs/project-tracking/open-work-ledger.md
 ```
