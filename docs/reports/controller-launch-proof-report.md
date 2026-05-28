@@ -43,8 +43,8 @@ projects/hydration/
 ## Branch and sync state
 
 - Branch: `master` (tracks `origin/main`)
-- Latest commits: `db3ddca` (docs), `c6108ab` (implementation), R1 pass pending commit
-- Push to GitHub: **synced** (`master` → `origin/main`)
+- Latest commits: `37a71bb` (R1 peer-review fixes), `db3ddca` (docs), `c6108ab` (implementation)
+- Push to GitHub: **synced** (`master` → `origin/main`, commit `37a71bb`)
 
 ## Tauri backend status
 

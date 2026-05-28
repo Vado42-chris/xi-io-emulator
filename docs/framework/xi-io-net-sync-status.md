@@ -29,8 +29,15 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 
 1. Copied `projects/manifests/xi_io_emulator.project-manifest.yaml` → `003_xi-io_net/projects/manifests/`
 2. Copied `projects/hydration/xi_io_emulator.hydration-state.yaml` → `003_xi-io_net/projects/hydration/`
-3. **Pending:** Add Workbench preview event summarizing milestone `XARCADE-CONTROLLER-LAUNCH-PROOF-001-R1` and link to GitHub commit SHA after R1 push
-4. Update commit SHAs on both repos after R1 push
+3. **Done:** Workbench manifest/hydration mirrored — xi-io.net commit `32fec7d`, product repo `37a71bb`
+4. **Pending:** Add Workbench preview event in `public/data/workbench-events.preview.json` (optional UI surfacing)
+
+## Sync commits (R1)
+
+| Repo | Commit | Branch |
+|------|--------|--------|
+| xi-io-emulator | `37a71bb` | master → origin/main |
+| xi-io.net | `32fec7d` | main |
 
 ## Blockers
 
