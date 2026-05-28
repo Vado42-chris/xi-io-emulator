@@ -182,6 +182,7 @@ Slice order after Pass B/C:
 
 ```txt
 XARCADE-IMAGE-HYDRATION-001
+XARCADE-IBAL-SLOT-001 (optional/reserved)
 XARCADE-STORAGE-001 (gated)
 ```
 

@@ -1,7 +1,7 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-28 (image hydration gate update)  
-Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/current` `#xar:image-hydration/planning`
+Date: 2026-05-28 (standardization audit complete)  
+Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/current` `#xio:emulator/pathing/standard`
 
 ## Purpose
 
@@ -16,7 +16,7 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Image hydration decision | `docs/decisions/library-image-hydration-before-bulk-ingress.md` | Workbench evidence | **local only — pending mirror** |
 | Image hydration handoff | `docs/agent-handoff-image-hydration.md` | Workbench evidence | **local only — pending mirror** |
 | Open work ledger | `docs/project-tracking/open-work-ledger.md` | Workbench events / project record | **pending Workbench event** |
-| Slice report | `docs/reports/controller-launch-proof-report.md` | Project evidence / validation | **pending Workbench event** |
+| Slice report | `docs/reports/standardization-audit-report.md` | Project evidence | **pending Workbench event** |
 | Milestone tags | serialized hashtags in code + docs | Workbench facet filters | **local only** |
 
 ## xi-io.net → Emulator repo (inbound)

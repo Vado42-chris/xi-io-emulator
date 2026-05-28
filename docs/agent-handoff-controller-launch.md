@@ -267,7 +267,7 @@ sudo apt install libwebkit2gtk-4.1-dev libsoup-3.0-dev build-essential curl wget
 ### 2. Start desktop shell
 
 ```bash
-cd "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+cd "<local clone of xi-io-emulator>"
 npm run tauri:dev
 ```
 

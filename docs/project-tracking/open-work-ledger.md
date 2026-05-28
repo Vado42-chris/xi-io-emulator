@@ -167,6 +167,7 @@ Slice order after Pass C:
 
 ```txt
 XARCADE-IMAGE-HYDRATION-001
+XARCADE-IBAL-SLOT-001 (optional/reserved)
 XARCADE-STORAGE-001 (gated — no text-only bulk scan)
 ```
 
@@ -178,6 +179,33 @@ Tags:
 #xio:emulator/hydration/images
 #risk:provider/image-rights
 #todo:storage/image-mapping-before-bulk
+```
+
+### 007, Standardization audit
+
+Status: **complete — XARCADE-STANDARDIZATION-AUDIT-001 (`docs/reports/standardization-audit-report.md`).**
+
+Report:
+
+```txt
+docs/reports/standardization-audit-report.md
+```
+
+Canonical prompts:
+
+```txt
+docs/agent-master-prompt-standardization-audit.md
+docs/architecture/naming-and-pathing-standard.md
+docs/architecture/conversation-decision-backlog.md
+```
+
+Tags:
+
+```txt
+#xio:emulator/pathing/standard
+#xio:emulator/naming/standard
+#risk:path-drift
+#risk:private-path-leak
 ```
 
 ## Deferred until launch proof passes

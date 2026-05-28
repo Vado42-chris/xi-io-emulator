@@ -75,10 +75,25 @@ Future relevant tags:
 ```txt
 #xar:storage-ingress/future
 #xar:arcade-home/pivot
+#xar:image-hydration/planning
+#xar:image-hydration/rosetta
+#xar:ibal-slot/future
+#xio:emulator/artwork/local-first
+#xio:emulator/hydration/images
+#xio:emulator/identity-resolution
+#xio:emulator/ibal/optional
+#xio:emulator/local-ai/ollama
+#xio:emulator/pathing/standard
+#xio:emulator/naming/standard
 #xio:emulator/media-extension/future
 #xio:emulator/flatpak/storage
 #xio:emulator/cheats/future
 #xio:emulator/patches/future
+#risk:path-drift
+#risk:private-path-leak
+#risk:rom-name-chaos
+#risk:artwork-mismatch
+#todo:storage/image-mapping-before-bulk
 ```
 
 ## Ledger event tags

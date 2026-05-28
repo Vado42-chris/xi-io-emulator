@@ -8,6 +8,7 @@ This backlog is intentionally small and slice-based. Do not expand systems until
 M0: Framework hydration and local bootstrap — complete
 M1: XARCADE-CONTROLLER-LAUNCH-PROOF-001 — implemented, pending user Tauri verification (Pass B)
 M1b: XARCADE-IMAGE-HYDRATION-001 — planned, required before bulk ingress
+M1c: XARCADE-IBAL-SLOT-001 — optional/reserved; not blocking image hydration
 M2: XARCADE-STORAGE-001 — deferred until Pass B/C + image hydration
 ```
 
@@ -78,6 +79,32 @@ Tags:
 #xar:image-hydration/planning
 #xio:emulator/artwork/local-first
 #xio:emulator/hydration/images
+```
+
+### XARCADE-IBAL-SLOT-001, optional assistant slot (reserved)
+
+Status: **documented — do not implement during Pass B/C or image hydration MVP.**
+
+Acceptance (future):
+
+```txt
+Optional Ibal assistant slot in shell layout
+Command palette contract documented
+No required dependency for launch, scan, or artwork matching
+Screen keyboard before voice; push-to-talk voice later only
+```
+
+Canonical doc:
+
+```txt
+docs/decisions/ibal-assistant-and-local-ai-strategy.md
+```
+
+Tags:
+
+```txt
+#xio:emulator/ibal/optional
+#xar:ibal-slot/future
 ```
 
 ## M2, SNES shell MVP (storage — gated)

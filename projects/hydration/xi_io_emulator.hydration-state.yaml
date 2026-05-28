@@ -1,6 +1,6 @@
 xiio_version: "0.1.0"
 schema_version: "1.0.0"
-hydration_id: "xi_io_emulator.hydration.2026-05-28.launch-proof"
+hydration_id: "xi_io_emulator.hydration.2026-05-28.standardization-audit"
 project_id: xi_io_emulator
 project_name: xi-io Emulator
 management_mode: first_party_product
@@ -23,14 +23,30 @@ completed_in_repo:
   - Demo mode banner on Arcade Home
   - docs/reports/controller-launch-proof-report.md (R1 peer-review pass)
   - Image hydration decision and handoff (0f738f5, 86090b3)
+  - Rosetta identity + Ibal optional strategy decisions (d267efd, f0f718d)
+  - Naming/pathing standard + conversation decision backlog (bd181ea, a88f413)
+  - Standardization audit report (XARCADE-STANDARDIZATION-AUDIT-001)
 
 planned_next_slices:
+  - id: Pass-B
+    state: pending_user
+    gate: Tauri deps + dual launch hardware proof
+  - id: Pass-C
+    state: pending
+    gate: after Pass B checklist
   - id: XARCADE-IMAGE-HYDRATION-001
     state: planned
     tags:
       - "#xar:image-hydration/planning"
       - "#xio:emulator/artwork/local-first"
+      - "#xar:image-hydration/rosetta"
     gate: after Pass B/C; before bulk XARCADE-STORAGE-001
+  - id: XARCADE-IBAL-SLOT-001
+    state: reserved_optional
+    tags:
+      - "#xio:emulator/ibal/optional"
+      - "#xar:ibal-slot/future"
+    gate: not blocking image hydration
   - id: XARCADE-STORAGE-001
     state: deferred
     gate: requires image hydration — no text-only bulk scan
@@ -40,6 +56,7 @@ deferred_until_user_launch_proof:
   - SQLite migration
   - full storage root scan
   - automatic artwork/provider downloads
+  - Ibal assistant implementation
   - cheat and patch execution
   - PS1/PS2
   - media/debrid features
@@ -48,7 +65,7 @@ blockers:
   - Tauri compile requires libsoup-3.0 / WebKitGTK system packages
   - End-to-end launch requires npm run tauri:dev on user machine
 
-next_slice: XARCADE-IMAGE-HYDRATION-001
+next_slice: Pass-B-user-hardware-proof
 
 bulk_hydration_gate:
   requires:
@@ -64,6 +81,7 @@ phase2_community_parity:
   - Optional scraping with confidence scores
 
 sync_metadata:
-  xi_io_net_mirror: pending_image_hydration_gate_update
+  xi_io_net_mirror: pending_standardization_audit
   workbench_preview_event: pending
-  product_repo_commit: "86090b3"
+  product_repo_commit: pending_audit_commit
+  standardization_audit: XARCADE-STANDARDIZATION-AUDIT-001

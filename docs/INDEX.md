@@ -21,6 +21,15 @@ docs/agent-handoff-controller-launch.md
 docs/future/media-platform-extension-track.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/agent-handoff-image-hydration.md
+docs/architecture/conversation-decision-backlog.md
+docs/architecture/naming-and-pathing-standard.md
+```
+
+## Architecture
+
+```txt
+docs/architecture/naming-and-pathing-standard.md
+docs/architecture/conversation-decision-backlog.md
 ```
 
 ## Core product docs
@@ -61,6 +70,8 @@ docs/future/media-platform-extension-track.md
 ```txt
 docs/decisions/controller-launch-first-decision.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/decisions/rosetta-stone-artwork-identity-resolution.md
+docs/decisions/ibal-assistant-and-local-ai-strategy.md
 ```
 
 ## Reviews
@@ -87,6 +98,8 @@ docs/agent-handoff-cursor-arcade-home.md
 docs/agent-handoff-controller-launch.md
 docs/agent-handoff-image-hydration.md
 docs/agent-master-prompt-cursor-current.md
+docs/agent-master-prompt-image-hydration.md
+docs/agent-master-prompt-standardization-audit.md
 ```
 
 ## Framework and tracking docs
@@ -102,6 +115,7 @@ docs/project-tracking/open-work-ledger.md
 
 ```txt
 docs/reports/controller-launch-proof-report.md
+docs/reports/standardization-audit-report.md
 ```
 
 ## Current milestone
@@ -140,8 +154,11 @@ Pass B may proceed with two hand-picked proof games only.
 ## Planned slice order (after Pass B/C)
 
 ```txt
-XARCADE-IMAGE-HYDRATION-001  — local artwork, thumbnails, fallback art, review queue
-XARCADE-STORAGE-001          — bulk library ingress (gated by image hydration)
+Pass B  — local hardware proof (two hand-picked games)
+Pass C  — close launch proof milestone docs + framework sync
+XARCADE-IMAGE-HYDRATION-001  — Rosetta + local artwork + fallback + review queue
+XARCADE-IBAL-SLOT-001        — optional assistant slot (not blocking image hydration)
+XARCADE-STORAGE-001          — bulk library ingress (gated; never text-only GameRecords)
 ```
 
 ## Documentation rule

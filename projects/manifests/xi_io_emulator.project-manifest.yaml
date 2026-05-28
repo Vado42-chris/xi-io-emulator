@@ -18,8 +18,8 @@ repository:
 status:
   milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
   phase: launch_proof_implemented_r1
-  next_milestone: XARCADE-IMAGE-HYDRATION-001
-  next_milestone_after: XARCADE-STORAGE-001
+  next_milestone: Pass-B-user-hardware-proof
+  next_milestone_after: Pass-C-then-XARCADE-IMAGE-HYDRATION-001
   lifecycle_state: in_build
   freshness_state: needs_review
   validation_state: not_checked
@@ -27,8 +27,8 @@ status:
   known_blockers:
     - Tauri compile requires libsoup-3.0 / WebKitGTK on Linux
     - End-to-end NES/SNES launch proof pending user npm run tauri:dev test
-    - Bulk ingress gated by image hydration (decision 0f738f5)
-  next_action: Pass B hardware proof; Pass C close; then XARCADE-IMAGE-HYDRATION-001 before bulk scan
+    - Bulk ingress gated by image hydration + standardization audit complete
+  next_action: Pass B hardware proof; Pass C close; then XARCADE-IMAGE-HYDRATION-001
 
 runtime:
   local_preview:
@@ -42,6 +42,7 @@ runtime:
     notes: Requires Linux Tauri prerequisites
 
 notes:
-  - R1 peer-review fixes applied 2026-05-28 (input test, split proof readiness, no auto verify).
-  - Image hydration decision + handoff 0f738f5 / 86090b3 — bulk scan gated; no text-only GameRecords.
-  - Expand manifest when XARCADE-IMAGE-HYDRATION-001 implementation begins.
+  - R1 peer-review fixes applied 2026-05-28.
+  - Image hydration + Rosetta + Ibal optional decisions locked (0f738f5–b329913).
+  - XARCADE-STANDARDIZATION-AUDIT-001 complete before image hydration coding.
+  - Slice order Pass B → Pass C → IMAGE-HYDRATION → IBAL-SLOT (optional) → STORAGE.

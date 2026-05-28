@@ -821,8 +821,8 @@ export const AppShell: React.FC = () => {
                 {/* Presets */}
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', alignSelf: 'center' }}>Presets:</span>
-                  <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS')}>
-                    Personal ROMs Folder
+                  <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/media/<user>/<drive>/Games/roms/snes')}>
+                    Example SNES Library Path
                   </button>
                   <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/media/arcade-usb/snes-roms')}>
                     USB Arcade Path
