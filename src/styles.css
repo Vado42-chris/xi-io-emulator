@@ -1535,6 +1535,24 @@ body {
   justify-content: center;
   z-index: 1;
   transition: all 0.22s ease;
+  overflow: hidden;
+}
+
+.game-tile-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), filter 0.22s ease;
+}
+
+.game-tile.focused .game-tile-image {
+  transform: scale(1.06);
 }
 
 .game-tile-art-gradient {
@@ -1545,6 +1563,7 @@ body {
   bottom: 0;
   opacity: 0.15;
   transition: all 0.22s ease;
+  z-index: 1;
 }
 
 .game-tile-art-text {
@@ -1553,6 +1572,22 @@ body {
   color: rgba(255, 255, 255, 0.03);
   text-transform: uppercase;
   user-select: none;
+  z-index: 1;
+}
+
+.arcade-hero-art-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.35;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.85) 20%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.85) 20%, rgba(0, 0, 0, 0) 100%);
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
 }
 
 .game-tile-overlay {

@@ -88,6 +88,18 @@ export const GameTile: React.FC<GameTileProps> = ({ game, isFocused, onClick }) 
       aria-label={`${game.title} on ${game.systemId}`}
     >
       <div className="game-tile-art">
+        {game.mappings?.artwork?.boxart ? (
+          <img 
+            src={game.mappings.artwork.boxart} 
+            alt={game.title} 
+            className="game-tile-image"
+            loading="lazy"
+            onError={(e) => {
+              // Gracefully hide image if load fails
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        ) : null}
         <div className="game-tile-art-gradient" style={{ background: gradient.background }} />
         <span className="game-tile-art-text" style={{ color: gradient.color + '20' }}>
           {getInitials(game.title)}

@@ -1,5 +1,6 @@
 import type { GameRecord } from '../data/gameModels';
 import { saveGameRecord, addLedgerEvent, getGameRecords, type LibraryRoot, saveLibraryRoot } from './db';
+import { getArtworkMappingForTitle } from './artworkProvider';
 
 // Helper to normalize game title from file name
 export const normalizeTitle = (fileName: string): { title: string; sortTitle: string; extension: string } => {
@@ -70,6 +71,9 @@ export const ingressSingleGame = async (
     hidden: false,
     playCount: 0,
     tags,
+    mappings: {
+      artwork: getArtworkMappingForTitle(title, 'snes')
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -156,6 +160,9 @@ export const ingressBatchFolder = async (
       playCount: 0,
       tags,
       libraryRootId: rootId,
+      mappings: {
+        artwork: getArtworkMappingForTitle(title, 'snes')
+      },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

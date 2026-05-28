@@ -43,6 +43,7 @@ import {
   filterGameSearchDocuments,
   sortGameSearchDocuments
 } from '../services/searchService';
+import { getArtworkMappingForTitle } from '../services/artworkProvider';
 
 export const AppShell: React.FC = () => {
   const [appMode, setAppMode] = useState<'arcade' | 'admin'>('arcade');
@@ -72,7 +73,27 @@ export const AppShell: React.FC = () => {
   const [projectStatus, setProjectStatus] = useState(initialProjectStatus);
 
   const refreshState = () => {
-    const updatedGames = getGameRecords();
+    let updatedGames = getGameRecords();
+    
+    // Backfill artwork mappings for legacy/preloaded game records that lack them
+    updatedGames = updatedGames.map(game => {
+      if (game.systemId === 'snes' && (!game.mappings || !game.mappings.artwork || !game.mappings.artwork.boxart)) {
+        const artwork = getArtworkMappingForTitle(game.title, 'snes');
+        if (artwork.boxart) {
+          const updated = {
+            ...game,
+            mappings: {
+              ...game.mappings,
+              artwork
+            }
+          };
+          saveGameRecord(updated);
+          return updated;
+        }
+      }
+      return game;
+    });
+
     const updatedRoots = getLibraryRoots();
     const updatedLogs = getLedgerEvents();
     

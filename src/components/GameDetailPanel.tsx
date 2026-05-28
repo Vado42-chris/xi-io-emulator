@@ -52,21 +52,51 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
         return (
           <div className="tab-pane-content">
             <h4 className="tab-section-header">Game Artwork</h4>
-            <p className="tab-section-desc">Add visual assets to display in the main arcade shell. (Scraper pending integration)</p>
+            <p className="tab-section-desc">Visual preservation assets for this game sourced from Libretro databases.</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
-              <div className="artwork-mock-box">
-                <ImageIcon size={24} style={{ color: 'var(--color-accent)' }} />
-                <span>Box Art (Front)</span>
-                <span className="artwork-mock-status">No Asset Found</span>
+              <div className="artwork-mock-box" style={{ padding: 0, overflow: 'hidden', height: '160px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                {game.mappings?.artwork?.boxart ? (
+                  <>
+                    <img 
+                      src={game.mappings.artwork.boxart} 
+                      alt="Box Art" 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(0,0,0,0.2)' }} 
+                    />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '0.65rem', padding: '4px', textAlign: 'center' }}>
+                      Box Art (Front)
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon size={24} style={{ color: 'var(--color-accent)', marginBottom: '8px' }} />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Box Art (Front)</span>
+                    <span className="artwork-mock-status">No Asset Found</span>
+                  </>
+                )}
               </div>
-              <div className="artwork-mock-box">
-                <ImageIcon size={24} style={{ color: 'var(--color-accent)' }} />
-                <span>Gameplay Screenshot</span>
-                <span className="artwork-mock-status">No Asset Found</span>
+              <div className="artwork-mock-box" style={{ padding: 0, overflow: 'hidden', height: '160px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                {game.mappings?.artwork?.screenshot ? (
+                  <>
+                    <img 
+                      src={game.mappings.artwork.screenshot} 
+                      alt="Gameplay Screenshot" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'rgba(0,0,0,0.2)' }} 
+                    />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '0.65rem', padding: '4px', textAlign: 'center' }}>
+                      Gameplay Screenshot
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon size={24} style={{ color: 'var(--color-accent)', marginBottom: '8px' }} />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Gameplay Screenshot</span>
+                    <span className="artwork-mock-status">No Asset Found</span>
+                  </>
+                )}
               </div>
             </div>
-            <button className="btn-secondary" style={{ marginTop: '16px', width: '100%', fontSize: '0.8rem', padding: '8px' }}>
-              Upload Custom Image File
+            <button className="btn-secondary" style={{ marginTop: '16px', width: '100%', fontSize: '0.8rem', padding: '8px' }} disabled>
+              Custom Art Upload (Pending Ingress Integration)
             </button>
           </div>
         );

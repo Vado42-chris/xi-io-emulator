@@ -357,6 +357,14 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       {/* Hero Area */}
       {activeGame && (
         <section className="arcade-hero">
+          {(activeGame.mappings?.artwork?.background || activeGame.mappings?.artwork?.screenshot) ? (
+            <img 
+              src={activeGame.mappings.artwork.background || activeGame.mappings.artwork.screenshot} 
+              alt=""
+              className="arcade-hero-art-bg"
+              key={activeGame.id}
+            />
+          ) : null}
           <div className="arcade-hero-bg" />
           <div className="arcade-hero-content">
             <div className="arcade-hero-system-badge">{activeGame.systemId}</div>
