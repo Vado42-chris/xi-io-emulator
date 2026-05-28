@@ -251,3 +251,43 @@ SNES/RetroArch proof result
 Risks/blockers
 Recommended next prompt
 ```
+
+---
+
+## Pass B — user hardware proof (current)
+
+R1 peer review: **approved for local hardware proof.** Milestone remains **implemented, pending Pass B.**
+
+### 1. Install Tauri deps (user terminal — requires sudo password)
+
+```bash
+sudo apt install libwebkit2gtk-4.1-dev libsoup-3.0-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+### 2. Start desktop shell
+
+```bash
+cd "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+npm run tauri:dev
+```
+
+### 3. Configure in Admin → Emulator Engines
+
+| Field | This machine |
+|-------|----------------|
+| FCEUX | `/usr/games/fceux` |
+| RetroArch | `~/.local/share/flatpak/exports/bin/org.libretro.RetroArch` |
+| SNES core | Install Snes9x in RetroArch, then paste core `.so` path |
+
+### 4. Register proof ROMs (Engines → Proof Games)
+
+- NES: one `.nes` from your library (e.g. Zelda ROM on Storage 22)
+- SNES: one `.smc`/`.sfc` (e.g. Super Mario World)
+
+### 5. Launch, verify controller, click Mark In-Game Verified
+
+Do **not** bulk-scan libraries. Do **not** start XARCADE-STORAGE-001 until Pass B checklist is returned.
+
+### Pass B result template
+
+Copy back to Cursor when done — see `docs/reports/controller-launch-proof-report.md` Pass B section.

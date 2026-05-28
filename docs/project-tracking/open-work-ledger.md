@@ -29,7 +29,17 @@ visible ledger events
 
 ### 001, Cursor controller launch proof
 
-Status: **implemented in repo — R1 peer-review fixes applied — pending user verification in `npm run tauri:dev`.**
+Status: **R1 approved — Pass B blocked on sudo/Tauri deps — pending user hardware verification in `npm run tauri:dev`.**
+
+Pass B agent check (2026-05-28):
+
+```txt
+sudo apt install … failed (password required in agent shell)
+cargo check still blocked until user installs webkit2gtk + libsoup
+FCEUX found at /usr/games/fceux
+RetroArch Flatpak found at ~/.local/share/flatpak/exports/bin/org.libretro.RetroArch
+snes9x core not found on disk — install via RetroArch or configure core path in Engines UI
+```
 
 Report:
 

@@ -101,11 +101,10 @@ cargo check         # fail — missing libsoup-3.0 (expected until deps installe
 | typecheck | pass | 2026-05-28 R1 |
 | lint | pass (0 errors, 0 warnings) | 2026-05-28 R1 |
 | build | pass | 2026-05-28 R1 |
-| git commit (R1) | pending | this pass |
-| Tauri compile (`cargo check`) | **fail** — `libsoup-3.0-dev` not installed | 2026-05-28 |
-| git commit (R1) | pass (`37a71bb`, docs `9faef4a`) | 2026-05-28 |
-| End-to-end launch on user machine | **pending** | not verified |
-| GitHub push (R1) | pass (`9faef4a` → origin/main) | 2026-05-28 |
+| git commit (R1) | pass (`37a71bb`, docs `7606c71`) | 2026-05-28 |
+| Tauri compile (`cargo check`) | **fail** — `webkit2gtk-4.1` / `libsoup-3.0-dev` not installed | 2026-05-28 |
+| End-to-end launch on user machine | **pending** — Pass B | not verified |
+| GitHub push (R1) | pass (`7606c71` → origin/main) | 2026-05-28 |
 | xi-io.net Workbench mirror | **mirrored** (`32fec7d`) | 2026-05-28 |
 
 ## R1 peer-review compliance
@@ -146,3 +145,39 @@ CI workflow
 **User verification pass (Pass B):** install Tauri deps, run `npm run tauri:dev`, prove NES + SNES launch, mark in-game controller verified manually.
 
 Then **XARCADE-STORAGE-001** — after user confirms dual launch proof in Tauri.
+
+---
+
+## Pass B — local hardware proof (in progress)
+
+**Agent attempt (2026-05-28):** `sudo apt install …` failed — password required in non-interactive shell. User must run the install command locally, then `npm run tauri:dev`.
+
+**Machine discovery (not committed to source — configure in UI):**
+
+| Setting | Suggested path on this machine |
+|---------|-------------------------------|
+| FCEUX binary | `/usr/games/fceux` |
+| RetroArch binary (Flatpak) | `/home/chrishallberg/.local/share/flatpak/exports/bin/org.libretro.RetroArch` |
+| SNES core | Install **Snes9x** via RetroArch Online Updater, or point to an existing libretro core under `~/.var/app/org.libretro.RetroArch/config/retroarch/cores/` (bsnes cores present; snes9x not found at scan time) |
+| NES proof ROM | `/media/chrishallberg/Storage 22/Games/emulators/Legend of Zelda, The (USA) (Rev 1).nes` |
+| SNES proof ROM | e.g. `…/ROMS/Super Mario World (E) (V1.1) [!].smc` under your SNES ROM folder |
+
+**Pass B checklist (user fills in after test):**
+
+```txt
+Pass B hardware proof result
+
+Tauri app opened:
+NES proof game registered:
+NES launched through FCEUX:
+NES controller worked in-game:
+SNES proof game registered:
+SNES launched through RetroArch:
+SNES controller worked in-game:
+Mark In-Game Verified clicked:
+Any launch blockers shown:
+Any terminal errors:
+Any emulator config changed intentionally:
+```
+
+**Pass C (agent, after Pass B):** close milestone docs, set hydration `overall_state`, refresh xi-io.net mirror + Workbench preview event.
