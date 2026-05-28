@@ -103,9 +103,10 @@ cargo check         # fail — missing libsoup-3.0 (expected until deps installe
 | build | pass | 2026-05-28 R1 |
 | git commit (R1) | pending | this pass |
 | Tauri compile (`cargo check`) | **fail** — `libsoup-3.0-dev` not installed | 2026-05-28 |
+| git commit (R1) | pass (`37a71bb`, docs `9faef4a`) | 2026-05-28 |
 | End-to-end launch on user machine | **pending** | not verified |
-| GitHub push (R1) | pending | after commit |
-| xi-io.net Workbench mirror | **mirrored** (R1) | see `docs/framework/xi-io-net-sync-status.md` |
+| GitHub push (R1) | pass (`9faef4a` → origin/main) | 2026-05-28 |
+| xi-io.net Workbench mirror | **mirrored** (`32fec7d`) | 2026-05-28 |
 
 ## R1 peer-review compliance
 
