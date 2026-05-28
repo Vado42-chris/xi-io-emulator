@@ -18,7 +18,8 @@ repository:
 status:
   milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
   phase: launch_proof_implemented_r1
-  next_milestone: XARCADE-STORAGE-001
+  next_milestone: XARCADE-IMAGE-HYDRATION-001
+  next_milestone_after: XARCADE-STORAGE-001
   lifecycle_state: in_build
   freshness_state: needs_review
   validation_state: not_checked
@@ -26,7 +27,8 @@ status:
   known_blockers:
     - Tauri compile requires libsoup-3.0 / WebKitGTK on Linux
     - End-to-end NES/SNES launch proof pending user npm run tauri:dev test
-  next_action: User verifies dual launch proof; then begin XARCADE-STORAGE-001
+    - Bulk ingress gated by image hydration (decision 0f738f5)
+  next_action: Pass B hardware proof; Pass C close; then XARCADE-IMAGE-HYDRATION-001 before bulk scan
 
 runtime:
   local_preview:
@@ -41,4 +43,5 @@ runtime:
 
 notes:
   - R1 peer-review fixes applied 2026-05-28 (input test, split proof readiness, no auto verify).
-  - Expand manifest when bulk hydration begins.
+  - Image hydration decision + handoff 0f738f5 / 86090b3 — bulk scan gated; no text-only GameRecords.
+  - Expand manifest when XARCADE-IMAGE-HYDRATION-001 implementation begins.

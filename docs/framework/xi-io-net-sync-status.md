@@ -1,7 +1,7 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-28 (R1 pass)  
-Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/current`
+Date: 2026-05-28 (image hydration gate update)  
+Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/current` `#xar:image-hydration/planning`
 
 ## Purpose
 
@@ -12,7 +12,9 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Artifact | Local path | xi-io.net target | Status |
 |----------|------------|------------------|--------|
 | Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `003_xi-io_net/projects/manifests/` | **mirrored 2026-05-28 R1** |
-| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `003_xi-io_net/projects/hydration/` | **mirrored 2026-05-28 R1** |
+| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `003_xi-io_net/projects/hydration/` | **pending re-mirror (image gate)** |
+| Image hydration decision | `docs/decisions/library-image-hydration-before-bulk-ingress.md` | Workbench evidence | **local only — pending mirror** |
+| Image hydration handoff | `docs/agent-handoff-image-hydration.md` | Workbench evidence | **local only — pending mirror** |
 | Open work ledger | `docs/project-tracking/open-work-ledger.md` | Workbench events / project record | **pending Workbench event** |
 | Slice report | `docs/reports/controller-launch-proof-report.md` | Project evidence / validation | **pending Workbench event** |
 | Milestone tags | serialized hashtags in code + docs | Workbench facet filters | **local only** |
@@ -42,10 +44,10 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 ## Blockers
 
 ```txt
-Workbench preview JSON event not yet added (requires xi-io.net commit + optional preview data update).
+Workbench preview JSON event not yet added.
 Tauri end-to-end launch proof not yet confirmed on user machine.
-Hydration state overall_state remains launch_proof_implemented_pending_user_test until verified.
-Schema validation against xi-io.net engines/schemas/project-hydration-state.schema.json not run.
+Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001 (decision 0f738f5, handoff 86090b3).
+Hydration state re-mirror to xi-io.net pending this pass.
 ```
 
 ## Freshness rule

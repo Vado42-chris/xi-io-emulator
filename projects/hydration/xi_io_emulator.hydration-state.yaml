@@ -22,12 +22,24 @@ completed_in_repo:
   - Proof game registration UI (no bulk scan)
   - Demo mode banner on Arcade Home
   - docs/reports/controller-launch-proof-report.md (R1 peer-review pass)
+  - Image hydration decision and handoff (0f738f5, 86090b3)
+
+planned_next_slices:
+  - id: XARCADE-IMAGE-HYDRATION-001
+    state: planned
+    tags:
+      - "#xar:image-hydration/planning"
+      - "#xio:emulator/artwork/local-first"
+    gate: after Pass B/C; before bulk XARCADE-STORAGE-001
+  - id: XARCADE-STORAGE-001
+    state: deferred
+    gate: requires image hydration — no text-only bulk scan
 
 deferred_until_user_launch_proof:
-  - bulk local library hydration
+  - bulk local library hydration (requires IMAGE-HYDRATION-001)
   - SQLite migration
   - full storage root scan
-  - artwork provider sync
+  - automatic artwork/provider downloads
   - cheat and patch execution
   - PS1/PS2
   - media/debrid features
@@ -36,7 +48,15 @@ blockers:
   - Tauri compile requires libsoup-3.0 / WebKitGTK system packages
   - End-to-end launch requires npm run tauri:dev on user machine
 
-next_slice: XARCADE-STORAGE-001
+next_slice: XARCADE-IMAGE-HYDRATION-001
+
+bulk_hydration_gate:
+  requires:
+    - Pass B controller + dual launch proof
+    - Pass C launch proof milestone close
+    - XARCADE-IMAGE-HYDRATION-001 implemented
+  rule: never bulk-scan as text-only GameRecords
+  canonical_decision: docs/decisions/library-image-hydration-before-bulk-ingress.md
 
 phase2_community_parity:
   - Real gamepad shell navigation
@@ -44,5 +64,6 @@ phase2_community_parity:
   - Optional scraping with confidence scores
 
 sync_metadata:
-  xi_io_net_mirror: mirrored_2026_05_28_r1
+  xi_io_net_mirror: pending_image_hydration_gate_update
   workbench_preview_event: pending
+  product_repo_commit: "86090b3"

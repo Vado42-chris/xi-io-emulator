@@ -169,6 +169,22 @@ Recommended next prompt
 
 This prompt supersedes older prompt fragments that suggested bulk hydration before launch proof.
 
+Before any bulk library hydration, read:
+
+```txt
+docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/agent-handoff-image-hydration.md
+```
+
+Hydration must include image/artwork planning, local thumbnail mapping, generated fallback art, source/confidence state, and artwork review queues. Do not bulk-scan the local library as text-only GameRecords.
+
+Slice order after Pass B/C:
+
+```txt
+XARCADE-IMAGE-HYDRATION-001
+XARCADE-STORAGE-001 (gated)
+```
+
 Future media platform work is documented but out of scope for this pass:
 
 ```txt

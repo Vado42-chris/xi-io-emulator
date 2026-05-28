@@ -286,7 +286,7 @@ npm run tauri:dev
 
 ### 5. Launch, verify controller, click Mark In-Game Verified
 
-Do **not** bulk-scan libraries. Do **not** start XARCADE-STORAGE-001 until Pass B checklist is returned.
+Do **not** bulk-scan libraries. Do **not** start XARCADE-STORAGE-001 until Pass B checklist is returned **and** XARCADE-IMAGE-HYDRATION-001 is implemented (see `docs/agent-handoff-image-hydration.md`).
 
 ### Pass B result template
 

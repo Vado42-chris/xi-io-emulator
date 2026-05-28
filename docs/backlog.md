@@ -6,8 +6,9 @@ This backlog is intentionally small and slice-based. Do not expand systems until
 
 ```txt
 M0: Framework hydration and local bootstrap — complete
-M1: XARCADE-CONTROLLER-LAUNCH-PROOF-001 — implemented, pending user Tauri verification
-M2: XARCADE-STORAGE-001 — deferred until launch proof passes
+M1: XARCADE-CONTROLLER-LAUNCH-PROOF-001 — implemented, pending user Tauri verification (Pass B)
+M1b: XARCADE-IMAGE-HYDRATION-001 — planned, required before bulk ingress
+M2: XARCADE-STORAGE-001 — deferred until Pass B/C + image hydration
 ```
 
 ## M0, framework hydration
@@ -44,9 +45,46 @@ App opens locally
 No emulator logic yet
 ```
 
-## M1, SNES shell MVP
+## M1b, image hydration before bulk ingress
+
+### XARCADE-IMAGE-HYDRATION-001, local artwork and fallback art
+
+Status: **planned — decision and handoff committed (`0f738f5`, `86090b3`).**
+
+Run after Pass B/C. Run before or alongside XARCADE-STORAGE-001 bulk scan.
+
+Acceptance:
+
+```txt
+ArtworkMapping model extended (source, confidence, reviewStatus)
+Local thumbnail scanner (xi-io media/ + RetroArch Named_* paths)
+Generated fallback art for carousel tiles
+Missing artwork visible as hydration/review state — does not block launch
+Artwork Health summary in Admin Mode
+Review queue staged (missing, low-confidence, duplicate candidates)
+No automatic provider image downloads
+```
+
+Canonical docs:
+
+```txt
+docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/agent-handoff-image-hydration.md
+```
+
+Tags:
+
+```txt
+#xar:image-hydration/planning
+#xio:emulator/artwork/local-first
+#xio:emulator/hydration/images
+```
+
+## M2, SNES shell MVP (storage — gated)
 
 ### XARCADE-STORAGE-001, library root manager
+
+**Gate:** Do not start until XARCADE-IMAGE-HYDRATION-001 is implemented or explicitly documented as in-progress alongside storage. Never bulk-scan as text-only records.
 
 Acceptance:
 

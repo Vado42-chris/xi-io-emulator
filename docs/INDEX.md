@@ -19,6 +19,8 @@ docs/framework/serialized-hashtags-standard.md
 docs/arcade-ui-product-pivot.md
 docs/agent-handoff-controller-launch.md
 docs/future/media-platform-extension-track.md
+docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/agent-handoff-image-hydration.md
 ```
 
 ## Core product docs
@@ -58,6 +60,7 @@ docs/future/media-platform-extension-track.md
 
 ```txt
 docs/decisions/controller-launch-first-decision.md
+docs/decisions/library-image-hydration-before-bulk-ingress.md
 ```
 
 ## Reviews
@@ -82,6 +85,7 @@ docs/agent-handoff-search-and-filters.md
 docs/agent-handoff-arcade-home.md
 docs/agent-handoff-cursor-arcade-home.md
 docs/agent-handoff-controller-launch.md
+docs/agent-handoff-image-hydration.md
 docs/agent-master-prompt-cursor-current.md
 ```
 
@@ -116,7 +120,29 @@ SNES proof: RetroArch + SNES core + one hand-picked .sfc/.smc game.
 
 ## Current guardrail
 
-Do not bulk scan or hydrate the full local library until the controller + dual launch proof passes.
+Do not bulk scan or hydrate the full local library until:
+
+```txt
+Pass B: controller + dual launch proof passes
+Pass C: launch proof milestone documentation closes
+XARCADE-IMAGE-HYDRATION-001: image/artwork hydration plan is implemented
+```
+
+Bulk hydration must not produce text-only `GameRecord` rows. See:
+
+```txt
+docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/agent-handoff-image-hydration.md
+```
+
+Pass B may proceed with two hand-picked proof games only.
+
+## Planned slice order (after Pass B/C)
+
+```txt
+XARCADE-IMAGE-HYDRATION-001  — local artwork, thumbnails, fallback art, review queue
+XARCADE-STORAGE-001          — bulk library ingress (gated by image hydration)
+```
 
 ## Documentation rule
 

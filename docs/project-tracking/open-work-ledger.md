@@ -143,13 +143,50 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 006, Image hydration before bulk ingress
+
+Status: **decision + handoff committed (`0f738f5`, `86090b3`) — implementation deferred until after Pass B/C.**
+
+Canonical docs:
+
+```txt
+docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/agent-handoff-image-hydration.md
+```
+
+Decision:
+
+```txt
+Bulk hydration must not be scan ROMs -> GameRecord rows only.
+Hydration includes visual identity: artwork, thumbnails, fallback art, source/confidence, review queue.
+Missing artwork must not block playability but must be visible as hydration/review state.
+Remote/provider downloads stay explicit and user-controlled.
+```
+
+Slice order after Pass C:
+
+```txt
+XARCADE-IMAGE-HYDRATION-001
+XARCADE-STORAGE-001 (gated — no text-only bulk scan)
+```
+
+Tags:
+
+```txt
+#xar:image-hydration/planning
+#xio:emulator/artwork/local-first
+#xio:emulator/hydration/images
+#risk:provider/image-rights
+#todo:storage/image-mapping-before-bulk
+```
+
 ## Deferred until launch proof passes
 
 ```txt
-bulk local library hydration
+bulk local library hydration (also gated by XARCADE-IMAGE-HYDRATION-001)
 SQLite migration
 full storage root scan
-artwork/provider downloads
+automatic artwork/provider downloads
 cheat execution
 patch execution
 PS1/PS2
@@ -162,7 +199,8 @@ media/debrid features
 Tauri compile requires Linux WebKit/libsoup packages (see controller-launch-proof-report.md).
 Tauri process spawning not yet proven on user hardware.
 Controller in-game verification requires explicit user action (Mark In-Game Verified).
-Local master synced with origin/main after initial push; R1 pass pending commit/push.
+Local master synced with origin/main (`86090b3` includes image hydration decision).
+Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001 — no text-only GameRecord scan.
 Flatpak may complicate filesystem and device access.
 FCEUX path and launch arguments need validation on user machine.
 RetroArch SNES core path needs validation on user machine.

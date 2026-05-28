@@ -144,7 +144,7 @@ CI workflow
 
 **User verification pass (Pass B):** install Tauri deps, run `npm run tauri:dev`, prove NES + SNES launch, mark in-game controller verified manually.
 
-Then **XARCADE-STORAGE-001** — after user confirms dual launch proof in Tauri.
+Then **Pass C** milestone close, then **XARCADE-IMAGE-HYDRATION-001**, then **XARCADE-STORAGE-001** — bulk ingress is gated; never text-only `GameRecord` scan. See `docs/decisions/library-image-hydration-before-bulk-ingress.md`.
 
 ---
 
