@@ -14,12 +14,15 @@ The goal is to keep product intent, technical contracts, future tracks, framewor
 README.md
 docs/INDEX.md
 docs/project-tracking/open-work-ledger.md
+docs/roadmap/remaining-work-pass-plan.md
+docs/agent-master-prompt-current-next.md
 docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
 docs/arcade-ui-product-pivot.md
 docs/agent-handoff-controller-launch.md
 docs/future/media-platform-extension-track.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
+docs/decisions/non-mutating-local-library-import.md
 docs/agent-handoff-image-hydration.md
 docs/architecture/conversation-decision-backlog.md
 docs/architecture/naming-and-pathing-standard.md
@@ -40,6 +43,12 @@ docs/framework-alignment.md
 docs/settings-map.md
 docs/iceberg-delivery-roadmap.md
 docs/arcade-ui-product-pivot.md
+```
+
+## Roadmap
+
+```txt
+docs/roadmap/remaining-work-pass-plan.md
 ```
 
 ## Contracts
@@ -72,6 +81,7 @@ docs/decisions/controller-launch-first-decision.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/decisions/rosetta-stone-artwork-identity-resolution.md
 docs/decisions/ibal-assistant-and-local-ai-strategy.md
+docs/decisions/non-mutating-local-library-import.md
 ```
 
 ## Reviews
@@ -87,7 +97,7 @@ docs/reviews/pages/settings-page-review.md
 docs/reviews/pages/logs-page-review.md
 ```
 
-## Agent handoffs
+## Agent handoffs and master prompts
 
 ```txt
 docs/agent-handoff-antigravity.md
@@ -97,6 +107,7 @@ docs/agent-handoff-arcade-home.md
 docs/agent-handoff-cursor-arcade-home.md
 docs/agent-handoff-controller-launch.md
 docs/agent-handoff-image-hydration.md
+docs/agent-master-prompt-current-next.md
 docs/agent-master-prompt-cursor-current.md
 docs/agent-master-prompt-image-hydration.md
 docs/agent-master-prompt-standardization-audit.md
@@ -147,6 +158,7 @@ Bulk hydration must not produce text-only `GameRecord` rows. See:
 ```txt
 docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/agent-handoff-image-hydration.md
+docs/decisions/non-mutating-local-library-import.md
 ```
 
 Pass B may proceed with two hand-picked proof games only.
@@ -159,6 +171,12 @@ Pass C  — close launch proof milestone docs + framework sync
 XARCADE-IMAGE-HYDRATION-001  — Rosetta + local artwork + fallback + review queue
 XARCADE-IBAL-SLOT-001        — optional assistant slot (not blocking image hydration)
 XARCADE-STORAGE-001          — bulk library ingress (gated; never text-only GameRecords)
+```
+
+For full remaining-work estimates, see:
+
+```txt
+docs/roadmap/remaining-work-pass-plan.md
 ```
 
 ## Documentation rule
