@@ -11,8 +11,8 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 
 | Artifact | Local path | xi-io.net target | Status |
 |----------|------------|------------------|--------|
-| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `003_xi-io_net/projects/manifests/` | **mirrored 2026-05-28 R1** |
-| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `003_xi-io_net/projects/hydration/` | **pending re-mirror (image gate)** |
+| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `003_xi-io_net/projects/manifests/` | **mirrored 2026-05-28 (`a04d8b6`)** |
+| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `003_xi-io_net/projects/hydration/` | **mirrored 2026-05-28 (`a04d8b6` → xi-io.net)** |
 | Image hydration decision | `docs/decisions/library-image-hydration-before-bulk-ingress.md` | Workbench evidence | **local only — pending mirror** |
 | Image hydration handoff | `docs/agent-handoff-image-hydration.md` | Workbench evidence | **local only — pending mirror** |
 | Open work ledger | `docs/project-tracking/open-work-ledger.md` | Workbench events / project record | **pending Workbench event** |
@@ -34,12 +34,13 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 3. **Done:** Workbench manifest/hydration mirrored — xi-io.net commit `32fec7d`, product repo `37a71bb`
 4. **Pending:** Add Workbench preview event in `public/data/workbench-events.preview.json` (optional UI surfacing)
 
-## Sync commits (R1)
+## Sync commits (latest)
 
-| Repo | Commit | Branch |
-|------|--------|--------|
-| xi-io-emulator | `37a71bb` | master → origin/main |
-| xi-io.net | `32fec7d` | main |
+| Repo | Commit | Notes |
+|------|--------|-------|
+| xi-io-emulator | `a04d8b6` | Image hydration gate docs |
+| xi-io-emulator | `86090b3` | Image hydration handoff (user) |
+| xi-io.net | `93ab97c` | Image gate re-mirror |
 
 ## Blockers
 
@@ -47,7 +48,7 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 Workbench preview JSON event not yet added.
 Tauri end-to-end launch proof not yet confirmed on user machine.
 Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001 (decision 0f738f5, handoff 86090b3).
-Hydration state re-mirror to xi-io.net pending this pass.
+Hydration state re-mirror to xi-io.net complete (`93ab97c`).
 ```
 
 ## Freshness rule
