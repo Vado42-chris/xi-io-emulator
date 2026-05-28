@@ -15,6 +15,8 @@ import type { ProjectStatus } from '../data/projectStatus';
 import type { LibraryRoot } from '../services/db';
 import { GameTile } from './GameTile';
 import { detectDuplicateCandidates } from '../services/searchService';
+import { checkLaunchReadiness, simulateLaunchGame } from '../services/launchService';
+import type { LaunchBlocker, LaunchResult } from '../services/launchService';
 
 interface ArcadeHomeProps {
   games: GameRecord[];
@@ -29,7 +31,6 @@ interface ArcadeHomeProps {
 export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   games,
   status,
-  roots,
   onToggleAdminMode,
   onQuickSingleIngress,
   onQuickBatchIngress,
@@ -46,6 +47,21 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
   // Launch state
   const [launchingGame, setLaunchingGame] = useState<GameRecord | null>(null);
+  const [launchResult, setLaunchResult] = useState<LaunchResult | null>(null);
+  const [launchBlockers, setLaunchBlockers] = useState<LaunchBlocker[]>([]);
+
+  const handleLaunchGame = (game: GameRecord) => {
+    const readiness = checkLaunchReadiness(game);
+    setLaunchBlockers(readiness.blockers);
+    if (!readiness.ready) {
+      setLaunchingGame(game);
+      setLaunchResult({ success: false, command: '', error: readiness.blockers[0].desc });
+    } else {
+      const result = simulateLaunchGame(game);
+      setLaunchingGame(game);
+      setLaunchResult(result);
+    }
+  };
 
   // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
   const { shelves, allGames } = useMemo(() => {
@@ -128,7 +144,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         } else if (e.key === 'Enter') {
           const selected = filteredSearchGames[activeSearchIndex];
           if (selected) {
-            setLaunchingGame(selected);
+            handleLaunchGame(selected);
             setIsSearchOpen(false);
             setSearchQuery('');
             setActiveSearchIndex(0);
@@ -172,7 +188,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         }
         case 'Enter':
           if (activeGame) {
-            setLaunchingGame(activeGame);
+            handleLaunchGame(activeGame);
           }
           e.preventDefault();
           break;
@@ -292,24 +308,9 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
   // Derive Blocker/Diagnostic Message for active game
   const getBlockerMessage = (game: GameRecord) => {
-    if (game.launchStatus === 'ready') return null;
-
-    // Check if offline storage
-    if (game.ingressMode === 'batch_library' && game.libraryRootId) {
-      const root = roots.find((r) => r.id === game.libraryRootId);
-      if (root && !root.mounted) {
-        return {
-          title: 'Offline Storage Volume',
-          desc: 'The storage directory containing this game record is not currently mounted. Please go to Storage settings to mount the directory.',
-        };
-      }
-    }
-
-    // Default missing adapter/engine core
-    return {
-      title: 'Missing Emulator Engine Config',
-      desc: 'RetroArch binary path or core adapter settings are missing. Please launch Admin Mode and select Emulator Engines to map RetroArch paths.',
-    };
+    const readiness = checkLaunchReadiness(game);
+    if (readiness.ready) return null;
+    return readiness.blockers[0] || null;
   };
 
   const blocker = activeGame ? getBlockerMessage(activeGame) : null;
@@ -392,18 +393,27 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
             </p>
 
             {blocker ? (
-              <div className="arcade-hero-blocker-panel">
-                <div className="arcade-hero-blocker-title">
-                  <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                  {blocker.title}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '500px', margin: '12px 0' }}>
+                <div className="arcade-hero-blocker-panel" style={{ margin: 0 }}>
+                  <div className="arcade-hero-blocker-title">
+                    <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                    {blocker.title}
+                  </div>
+                  <div className="arcade-hero-blocker-desc">{blocker.desc}</div>
                 </div>
-                <div className="arcade-hero-blocker-desc">{blocker.desc}</div>
+                <button
+                  className="arcade-admin-btn"
+                  onClick={onToggleAdminMode}
+                  style={{ alignSelf: 'flex-start', padding: '10px 16px', fontSize: '0.85rem' }}
+                >
+                  <Settings size={14} /> Open Admin Console to Resolve
+                </button>
               </div>
             ) : (
               <div className="arcade-hero-actions">
                 <button
                   className="arcade-btn-launch"
-                  onClick={() => setLaunchingGame(activeGame)}
+                  onClick={() => handleLaunchGame(activeGame)}
                 >
                   <Play size={18} fill="#fff" /> PRESS ENTER TO PLAY
                 </button>
@@ -437,7 +447,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                   onClick={() => {
                     setActiveShelfIndex(shelfIdx);
                     setActiveGameIndex(gameIdx);
-                    setLaunchingGame(game);
+                    handleLaunchGame(game);
                   }}
                 />
               ))}
@@ -507,7 +517,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                     game={game}
                     isFocused={activeSearchIndex === idx}
                     onClick={() => {
-                      setLaunchingGame(game);
+                      handleLaunchGame(game);
                       setIsSearchOpen(false);
                       setSearchQuery('');
                     }}
@@ -523,12 +533,52 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         </div>
       )}
 
-      {/* Launch Overlay */}
+      {/* Launch / Blocker Overlay */}
       {launchingGame && (
-        <div className="launch-overlay">
-          <h1 className="launch-overlay-title">Launching {launchingGame.title}</h1>
-          <div className="launch-overlay-spinner" />
-          <p className="launch-overlay-hint">Press Escape to exit game and return to Arcade Home</p>
+        <div className="launch-overlay" style={{ flexDirection: 'column', padding: '40px', justifyContent: 'center' }}>
+          {launchBlockers.length > 0 ? (
+            <div style={{ maxWidth: '600px', width: '100%', backgroundColor: 'rgba(20, 21, 33, 0.95)', border: '1px solid var(--color-warning)', borderRadius: '12px', padding: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', color: 'var(--color-warning)' }}>
+                <AlertTriangle size={32} />
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Launch Blocked: System Check Failed</h2>
+              </div>
+              <p style={{ fontSize: '0.95rem', color: 'var(--color-text)', marginBottom: '24px', lineHeight: '1.5' }}>
+                We could not start <strong>{launchingGame.title}</strong> due to the following system path or volume blocker:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+                {launchBlockers.map((blocker, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#07080d', border: '1px solid var(--border-subtle)', padding: '16px', borderRadius: '8px' }}>
+                    <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-warning)' }}>{blocker.title}</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>{blocker.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button className="arcade-admin-btn" onClick={onToggleAdminMode} style={{ flex: 1, padding: '12px' }}>
+                  Open Settings & Fix Path
+                </button>
+                <button className="arcade-admin-btn" onClick={() => setLaunchingGame(null)} style={{ flex: 1, padding: '12px', opacity: 0.8 }}>
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="launch-overlay-title">Launching {launchingGame.title}</h1>
+              <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
+              
+              {launchResult?.command && (
+                <div style={{ maxWidth: '600px', width: '100%', margin: '20px auto', textAlign: 'left', backgroundColor: 'rgba(5, 6, 11, 0.8)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                  <span style={{ color: 'var(--color-text-muted)', display: 'block', marginBottom: '6px' }}>Resolved Adapter Launch Command:</span>
+                  <code style={{ color: '#60a5fa', wordBreak: 'break-all' }}>{launchResult.command}</code>
+                </div>
+              )}
+
+              <p className="launch-overlay-hint">Press Escape to exit game and return to Arcade Home</p>
+            </>
+          )}
         </div>
       )}
     </div>

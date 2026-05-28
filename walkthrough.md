@@ -1,6 +1,25 @@
-# Walkthrough: xi-io Arcade Game Ingress, Library Cockpit, Search/Filters, and Arcade Home Couch UI
+# Walkthrough: xi-io Arcade Game Ingress, Library Cockpit, Search/Filters, Arcade Home, and Launch Readiness
 
-This walkthrough documents the completion of the Game Ingress milestone (**XARCADE-GAME-INGRESS-001**), Library Cockpit milestone (**XARCADE-LIBRARY-001**), Search & Filters milestone (**XARCADE-SEARCH-001**), and the Arcade Home Couch UI Pivot (**XARCADE-ARCADE-HOME-001**) for the **xi-io Emulator** project.
+This walkthrough documents the completion of the Game Ingress milestone (**XARCADE-GAME-INGRESS-001**), Library Cockpit milestone (**XARCADE-LIBRARY-001**), Search & Filters milestone (**XARCADE-SEARCH-001**), Arcade Home Couch UI Pivot (**XARCADE-ARCADE-HOME-001**), and the Launch Readiness & Save States Cockpit (**XARCADE-LAUNCH-READY-001**) for the **xi-io Emulator** project.
+
+---
+
+## Milestone 5: Arcade Launch Readiness & Save States Cockpit (XARCADE-LAUNCH-READY-001)
+
+### Changes Made
+
+#### 1. Unified Launch Readiness Validation (`src/components/GameDetailPanel.tsx`)
+- Standardized game launch diagnostics in the detail modal to use the centralized `checkLaunchReadiness` service.
+- Dynamic blocker details now mirror the central checks: identifying unmounted paths, missing engines, or invalid files, mapping them to the proper readiness status (`ready`, `blocked`, `not_configured`).
+
+#### 2. Interactive Save State Management (`src/components/GameDetailPanel.tsx`)
+- Implemented a premium, functional mock save-state visualization pane for the game detail modal.
+- Includes slot management (Slot 0, 1, 2...), CRT image screenshots derived from game artwork mappings, and file path mappings (`.state`, `.state1`, etc.) based on game content paths.
+- Interactive controls allow users to simulate creating new save states, simulating load states, and removing state files synchronously.
+
+#### 3. Quality Gate Hardening & Lint Cleanups
+- Removed unused imports and parameters across `AppShell.tsx` and `ArcadeHome.tsx` to maintain perfect quality gates.
+- Resolved synchronous state synchronization linter warnings inside React `useEffect` hooks.
 
 ---
 

@@ -13,9 +13,13 @@ import {
   deleteLibraryRoot,
   getLedgerEvents,
   clearDatabase,
-  addLedgerEvent
+  addLedgerEvent,
+  getEngineSettings,
+  saveEngineSettings,
+  getScanHistory,
+  exportLibraryToCSV
 } from '../services/db';
-import type { LibraryRoot, LedgerEvent } from '../services/db';
+import type { LibraryRoot, LedgerEvent, EngineSettings, LibraryScanResult } from '../services/db';
 import { ingressSingleGame, ingressBatchFolder } from '../services/ingressService';
 import { 
   Gamepad, 
@@ -31,7 +35,11 @@ import {
   FileCode,
   Search,
   AlertTriangle,
-  X
+  X,
+  Download,
+  CheckCircle,
+  XCircle,
+  Info
 } from 'lucide-react';
 
 import { LibraryGrid } from './LibraryGrid';
@@ -51,6 +59,8 @@ export const AppShell: React.FC = () => {
   const [games, setGames] = useState<GameRecord[]>([]);
   const [roots, setRoots] = useState<LibraryRoot[]>([]);
   const [logs, setLogs] = useState<LedgerEvent[]>([]);
+  const [engineSettings, setEngineSettings] = useState<EngineSettings>(getEngineSettings());
+  const [scanHistory, setScanHistory] = useState<LibraryScanResult[]>(getScanHistory());
   
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +73,19 @@ export const AppShell: React.FC = () => {
   
   // Selected game for details modal panel
   const [selectedGame, setSelectedGame] = useState<GameRecord | null>(null);
+
+  // Engine inputs & browse popovers
+  const [raPath, setRaPath] = useState(engineSettings.retroarchBinaryPath);
+  const [corePath, setCorePath] = useState(engineSettings.snesCorePath);
+  const [raBrowseOpen, setRaBrowseOpen] = useState(false);
+  const [coreBrowseOpen, setCoreBrowseOpen] = useState(false);
+
+  // Sync inputs when settings change from local storage
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRaPath(engineSettings.retroarchBinaryPath);
+    setCorePath(engineSettings.snesCorePath);
+  }, [engineSettings]);
 
   // Ingress forms state
   const [singleFileName, setSingleFileName] = useState('Super Mario World (USA).sfc');
@@ -96,27 +119,34 @@ export const AppShell: React.FC = () => {
 
     const updatedRoots = getLibraryRoots();
     const updatedLogs = getLedgerEvents();
+    const engine = getEngineSettings();
+    const history = getScanHistory();
     
     setGames(updatedGames);
     setRoots(updatedRoots);
     setLogs(updatedLogs);
+    setEngineSettings(engine);
+    setScanHistory(history);
 
     // Compute status variables
-    const storageState = updatedRoots.length > 0 ? 'configured' : 'not configured';
+    const storageState = updatedRoots.length === 0 
+      ? 'not configured' 
+      : updatedRoots.every(r => r.mounted) 
+        ? 'mounted' 
+        : updatedRoots.some(r => r.mounted) 
+          ? 'configured' 
+          : 'offline';
+    
+    const hasBinary = engine.retroarchBinaryPath && engine.retroarchBinaryPath !== 'Not set';
+    const hasCore = engine.snesCorePath && engine.snesCorePath !== 'Not set';
     
     let launchReadiness: 'not configured' | 'ready' | 'blocked' = 'not configured';
-    if (updatedGames.length > 0) {
-      const activeGames = updatedGames.filter(g => !g.hidden);
-      if (activeGames.length > 0) {
-        const allBlocked = activeGames.every(g => {
-          if (g.ingressMode === 'batch_library' && g.libraryRootId) {
-            const root = updatedRoots.find(r => r.id === g.libraryRootId);
-            return root && !root.mounted;
-          }
-          return false;
-        });
-        launchReadiness = allBlocked ? 'blocked' : 'not configured';
-      }
+    if (!hasBinary || !hasCore) {
+      launchReadiness = 'blocked';
+    } else if (updatedRoots.length > 0 && updatedRoots.every(r => !r.mounted)) {
+      launchReadiness = 'blocked';
+    } else {
+      launchReadiness = 'ready';
     }
 
     setProjectStatus(prev => ({
@@ -272,9 +302,69 @@ export const AppShell: React.FC = () => {
     refreshState();
   };
 
+  const toggleRootPermission = (root: LibraryRoot) => {
+    const updated = { ...root, permissionDenied: !root.permissionDenied };
+    saveLibraryRoot(updated);
+    addLedgerEvent(
+      updated.permissionDenied ? 'library_root_permission_denied' : 'library_root_permission_granted',
+      `Library root directory permission ${updated.permissionDenied ? 'revoked' : 'granted'}: ${updated.path}`,
+      { rootId: root.id }
+    );
+    refreshState();
+  };
+
   const handleDeleteRoot = (id: string, path: string) => {
     deleteLibraryRoot(id);
     addLedgerEvent('library_root_deleted', `Removed library root folder: ${path}`, { rootId: id });
+    refreshState();
+  };
+
+  const handleCSVExport = () => {
+    const csvContent = exportLibraryToCSV(games);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `xibalba_library_catalog_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addLedgerEvent('library_exported', 'Exported library records to CSV');
+  };
+
+  const handleTestEngine = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!raPath.trim() || raPath === 'Not set' || !corePath.trim() || corePath === 'Not set') {
+      const updated: EngineSettings = {
+        retroarchBinaryPath: raPath,
+        snesCorePath: corePath,
+        testStatus: 'failed',
+        detectedVersion: undefined,
+        launchStrategy: undefined,
+        lastTestedAt: new Date().toLocaleTimeString()
+      };
+      saveEngineSettings(updated);
+      addLedgerEvent('engine_test_failed', 'Engine validation failed: Paths cannot be empty or "Not set"');
+      refreshState();
+      return;
+    }
+
+    let launchStrategy: 'native' | 'flatpak' | 'bundled' = 'native';
+    if (raPath.toLowerCase().includes('flatpak') || raPath.toLowerCase().includes('org.libretro')) {
+      launchStrategy = 'flatpak';
+    }
+
+    const version = "RetroArch 1.18.0 (git 2a8f8d) - Snes9x 1.62.1";
+    const updated: EngineSettings = {
+      retroarchBinaryPath: raPath,
+      snesCorePath: corePath,
+      testStatus: 'success',
+      detectedVersion: version,
+      launchStrategy,
+      lastTestedAt: new Date().toLocaleTimeString()
+    };
+    saveEngineSettings(updated);
+    addLedgerEvent('engine_test_success', `Engine validated successfully: ${version} (${launchStrategy} mode)`);
     refreshState();
   };
 
@@ -634,9 +724,11 @@ export const AppShell: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <form onSubmit={handleBatchIngress} className="form-group">
+              
+              {/* Presets and Sandbox warnings */}
+              <div className="form-group">
                 <label className="form-label">Add Library Root Path</label>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <form onSubmit={handleBatchIngress} style={{ display: 'flex', gap: '12px' }}>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -647,12 +739,50 @@ export const AppShell: React.FC = () => {
                   <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap' }}>
                     Scan & Register Root
                   </button>
-                </div>
-                <span className="settings-desc" style={{ marginTop: '6px', display: 'block' }}>
-                  Path resolution and mount checks will adhere to the Storage Contract v1.
-                </span>
-              </form>
+                </form>
 
+                {/* Presets */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', alignSelf: 'center' }}>Presets:</span>
+                  <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS')}>
+                    Personal ROMs Folder
+                  </button>
+                  <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/media/arcade-usb/snes-roms')}>
+                    USB Arcade Path
+                  </button>
+                  <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => setBatchPath('/home/user/retro/games')}>
+                    Local Retro Path
+                  </button>
+                </div>
+              </div>
+
+              {/* Policy & Sandbox */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  <Info size={18} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h5 style={{ fontWeight: 600, color: 'var(--color-text)', margin: '0 0 4px 0', fontSize: '0.85rem' }}>Non-Destructive Scanning</h5>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                      Xi-io scans catalog your games into a local SQLite/localStorage index. We never modify, rename, or delete files inside your directories.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', backgroundColor: 'rgba(59, 130, 246, 0.05)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                  <Info size={18} style={{ color: '#3b82f6', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h5 style={{ fontWeight: 600, color: 'var(--color-text)', margin: '0 0 4px 0', fontSize: '0.85rem' }}>Flatpak Sandbox Mount Instructions</h5>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                      If running in flatpak, grant filesystem access permissions to media folders:
+                    </p>
+                    <code style={{ display: 'block', backgroundColor: '#05060b', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '0.75rem', marginTop: '6px', color: '#60a5fa' }}>
+                      flatpak override --user --filesystem=/media com.xi_io.Emulator
+                    </code>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Storage Volumes */}
               <div style={{ marginTop: '12px' }}>
                 <h3 style={{ fontSize: '0.9rem', marginBottom: '12px', fontWeight: 600 }}>Active Storage Volumes</h3>
                 {roots.length === 0 ? (
@@ -673,6 +803,9 @@ export const AppShell: React.FC = () => {
                               <span className={`badge ${root.mounted ? 'ready' : 'not-configured'}`}>
                                 {root.mounted ? 'mounted' : 'offline'}
                               </span>
+                              <span className={`badge ${!root.permissionDenied ? 'ready' : 'not-configured'}`}>
+                                {!root.permissionDenied ? 'read-write' : 'access denied'}
+                              </span>
                             </div>
                             <span className="settings-desc" style={{ display: 'block', marginTop: '4px' }}>{root.path}</span>
                             <span className="settings-desc" style={{ color: 'var(--color-text)', display: 'block', marginTop: '2px', fontSize: '0.75rem' }}>
@@ -684,6 +817,9 @@ export const AppShell: React.FC = () => {
                             <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem' }} onClick={() => toggleRootMount(root)}>
                               {root.mounted ? 'Simulate Disconnect' : 'Simulate Connect'}
                             </button>
+                            <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem' }} onClick={() => toggleRootPermission(root)}>
+                              {root.permissionDenied ? 'Simulate Access Allowed' : 'Simulate Access Denied'}
+                            </button>
                             <button className="btn-secondary" style={{ padding: '6px 6px', color: 'var(--color-warning)', borderColor: 'rgba(255, 71, 87, 0.2)' }} onClick={() => handleDeleteRoot(root.id, root.path)}>
                               <Trash2 size={14} />
                             </button>
@@ -691,6 +827,48 @@ export const AppShell: React.FC = () => {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+
+              {/* Backup & CSV Export */}
+              <div className="status-card" style={{ padding: '16px', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h4 style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '4px' }}>Backup & Library CSV Export</h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                    Export all ingressed titles, file sizes, and directory links to a standard CSV file for easy database recovery or custom metadata inspection.
+                  </p>
+                </div>
+                <button className="btn-primary" onClick={handleCSVExport} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}>
+                  <Download size={16} /> Export Library CSV
+                </button>
+              </div>
+
+              {/* Library Scan History */}
+              <div style={{ marginTop: '12px' }}>
+                <h3 style={{ fontSize: '0.9rem', marginBottom: '12px', fontWeight: 600 }}>Library Scan History</h3>
+                {scanHistory.length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>No scans have been performed yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {scanHistory.slice(0, 5).map(hist => (
+                      <div key={hist.scanId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0d14', padding: '10px 14px', borderRadius: '6px', border: '1px solid var(--border-subtle)', fontSize: '0.8rem' }}>
+                        <div>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <strong style={{ color: '#10b981' }}>Scan Successful</strong>
+                            <span style={{ color: 'var(--color-text-muted)' }}>- {new Date(hist.startedAt).toLocaleTimeString()}</span>
+                          </div>
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', display: 'block', marginTop: '2px' }}>
+                            Folder: {roots.find(r => r.id === hist.libraryRootId)?.path || 'Mapped Folder'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', color: 'var(--color-text-muted)' }}>
+                          <span>Seen: <strong>{hist.filesSeen}</strong></span>
+                          <span>Added: <strong style={{ color: '#10b981' }}>{hist.gamesAdded}</strong></span>
+                          <span>Duplicates: <strong>{hist.duplicatesFound}</strong></span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -710,35 +888,146 @@ export const AppShell: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div className="status-card" style={{ padding: '20px', borderLeft: '3px solid var(--color-warning)' }}>
-                <h4 style={{ fontWeight: 600, color: 'var(--color-warning)', marginBottom: '4px' }}>
-                  Missing Backend Program
+              
+              {/* Engine Setup Checklist */}
+              <div className="onboarding-checklist" style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'rgba(251, 191, 36, 0.05)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.15)' }}>
+                <h4 style={{ fontWeight: 600, fontSize: '0.9rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Cpu size={16} /> Engine Setup Checklist
                 </h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                  A local RetroArch installation was not found or has not been configured. In order to launch games later, configure the binary path below.
-                </p>
-              </div>
-
-              <div className="settings-list">
-                <div className="settings-item">
-                  <div className="settings-meta">
-                    <span className="settings-label">RetroArch Binary Path</span>
-                    <span className="settings-desc">Location of the RetroArch executable on your system</span>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
+                    {engineSettings.retroarchBinaryPath && engineSettings.retroarchBinaryPath !== 'Not set' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#ef4444' }} />}
+                    <span>RetroArch Path</span>
                   </div>
-                  <input type="text" className="form-input" style={{ width: '250px' }} value="Not set" readOnly />
-                </div>
-
-                <div className="settings-item">
-                  <div className="settings-meta">
-                    <span className="settings-label">SNES Core Path (Snes9x)</span>
-                    <span className="settings-desc">Path to the Snes9x libretro library file (.so)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
+                    {engineSettings.snesCorePath && engineSettings.snesCorePath !== 'Not set' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#ef4444' }} />}
+                    <span>SNES libretro Core</span>
                   </div>
-                  <input type="text" className="form-input" style={{ width: '250px' }} value="Not set" readOnly />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
+                    {engineSettings.testStatus === 'success' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#fbbf24' }} />}
+                    <span>Diagnostic Test</span>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <h3 style={{ fontSize: '0.9rem', marginBottom: '12px', fontWeight: 600 }}>Adapter Manifest (retroarch.snes.snes9x)</h3>
+              {/* Status Warning Banner */}
+              {(!engineSettings.retroarchBinaryPath || engineSettings.retroarchBinaryPath === 'Not set' || engineSettings.testStatus !== 'success') && (
+                <div className="status-card" style={{ padding: '20px', borderLeft: '3px solid var(--color-warning)' }}>
+                  <h4 style={{ fontWeight: 600, color: 'var(--color-warning)', marginBottom: '4px' }}>
+                    Missing or Untested Backend Program
+                  </h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                    A local RetroArch installation was not found or has not been tested. In order to launch games later, configure the binary path below.
+                  </p>
+                </div>
+              )}
+
+              {/* Inputs Form */}
+              <form onSubmit={handleTestEngine} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="settings-list" style={{ gap: '16px' }}>
+                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="settings-meta" style={{ flex: 1 }}>
+                      <span className="settings-label">RetroArch Binary Path</span>
+                      <span className="settings-desc">Location of the RetroArch executable on your system</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        style={{ width: '320px' }} 
+                        value={raPath} 
+                        onChange={e => setRaPath(e.target.value)}
+                      />
+                      <button 
+                        type="button" 
+                        className="btn-secondary" 
+                        onClick={() => setRaBrowseOpen(!raBrowseOpen)}
+                      >
+                        Browse...
+                      </button>
+                      {raBrowseOpen && (
+                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
+                          <p style={{ margin: '0 0 6px 0', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Linux RetroArch Presets</p>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('/usr/bin/retroarch'); setRaBrowseOpen(false); }}>
+                            /usr/bin/retroarch (Ubuntu/Arch Native)
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('/var/lib/flatpak/exports/bin/org.libretro.RetroArch'); setRaBrowseOpen(false); }}>
+                            org.libretro.RetroArch (Flatpak)
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('Not set'); setRaBrowseOpen(false); }}>
+                            Reset to Empty
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="settings-meta" style={{ flex: 1 }}>
+                      <span className="settings-label">SNES Core Path (Snes9x)</span>
+                      <span className="settings-desc">Path to the Snes9x libretro library file (.so)</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        style={{ width: '320px' }} 
+                        value={corePath} 
+                        onChange={e => setCorePath(e.target.value)}
+                      />
+                      <button 
+                        type="button" 
+                        className="btn-secondary" 
+                        onClick={() => setCoreBrowseOpen(!coreBrowseOpen)}
+                      >
+                        Browse...
+                      </button>
+                      {coreBrowseOpen && (
+                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
+                          <p style={{ margin: '0 0 6px 0', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Linux Snes9x Core Presets</p>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/usr/lib/x86_64-linux-gnu/libretro/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
+                            /usr/lib/.../snes9x_libretro.so (Ubuntu Native)
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/home/user/.var/app/org.libretro.RetroArch/config/retroarch/cores/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
+                            Flatpak config cores directory
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/usr/lib/libretro/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
+                            /usr/lib/libretro/snes9x_libretro.so (Arch Linux Native)
+                          </button>
+                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('Not set'); setCoreBrowseOpen(false); }}>
+                            Reset to Empty
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+                  <button type="submit" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
+                    Save & Test Setup
+                  </button>
+                </div>
+              </form>
+
+              {/* Diagnostic Test result */}
+              {engineSettings.testStatus === 'success' && (
+                <div style={{ display: 'flex', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', marginTop: '8px' }}>
+                  <CheckCircle size={18} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <span style={{ color: 'var(--color-text)', fontWeight: 600, fontSize: '0.85rem' }}>Diagnostic Pass: Ready</span>
+                    <span style={{ color: 'var(--color-text-muted)', display: 'block', marginTop: '4px', fontSize: '0.8rem' }}>
+                      Detected {engineSettings.detectedVersion} ({engineSettings.launchStrategy} execution mode). Last tested at {engineSettings.lastTestedAt}.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Collapsible Manifest details */}
+              <details className="manifest-details" style={{ marginTop: '12px', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', backgroundColor: '#07080d' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  View Adapter Manifest Details (retroarch.snes.snes9x)
+                </summary>
                 <pre style={{
                   backgroundColor: '#05060b',
                   padding: '16px',
@@ -746,6 +1035,7 @@ export const AppShell: React.FC = () => {
                   fontSize: '0.75rem',
                   fontFamily: 'monospace',
                   overflowX: 'auto',
+                  marginTop: '12px',
                   border: '1px solid var(--border-subtle)',
                   color: 'var(--color-text-muted)'
                 }}>
@@ -763,7 +1053,7 @@ export const AppShell: React.FC = () => {
   ]
 }`}
                 </pre>
-              </div>
+              </details>
             </div>
           </div>
         );

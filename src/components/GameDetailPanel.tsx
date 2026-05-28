@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { 
   X, Eye, EyeOff, Image as ImageIcon, BookOpen, 
-  Code, ShieldAlert, Cpu, Heart, Database, AlertCircle
+  Code, ShieldAlert, Cpu, Heart, Database, AlertCircle,
+  Save, Trash2, Play
 } from 'lucide-react';
 import type { GameRecord } from '../data/gameModels';
 import type { LibraryRoot } from '../services/db';
 import { ReadinessBadge } from './ReadinessBadge';
 import { TagPill } from './TagPill';
+import { checkLaunchReadiness } from '../services/launchService';
 
 interface GameDetailPanelProps {
   game: GameRecord;
@@ -16,7 +18,14 @@ interface GameDetailPanelProps {
   onToggleHidden: (game: GameRecord) => void;
 }
 
-type TabType = 'artwork' | 'guides' | 'cheats' | 'patches' | 'hacks' | 'controller';
+type TabType = 'artwork' | 'guides' | 'cheats' | 'patches' | 'hacks' | 'controller' | 'savestates';
+
+interface SaveStateMock {
+  slot: number;
+  timestamp: string;
+  thumbnail: string;
+  filePath: string;
+}
 
 export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
   game,
@@ -27,18 +36,45 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('artwork');
 
-  // Compute status
-  const isRootMounted = libraryRoot ? libraryRoot.mounted : true;
-  const currentStatus = (game.ingressMode === 'batch_library' && !isRootMounted) 
-    ? 'blocked' 
-    : game.launchStatus;
+  // Computed status using the standardized launchService
+  const readiness = checkLaunchReadiness(game);
+  const currentStatus = readiness.ready 
+    ? 'ready' 
+    : (readiness.blockers.some(b => b.code === 'missing_engine' || b.code === 'missing_core') 
+      ? 'not_configured' 
+      : 'blocked');
+  const blockers = readiness.blockers.map(b => b.desc);
 
-  const blockers = [];
-  if (game.ingressMode === 'batch_library' && !isRootMounted) {
-    blockers.push(`Drive Offline: Mount root path "${libraryRoot?.path}" to launch.`);
-  }
-  // RetroArch is currently always not configured in the mockup
-  blockers.push("RetroArch binary path not set. Define path in engines tab.");
+  // Mock Save States management
+  const [saveStates, setSaveStates] = useState<SaveStateMock[]>([
+    {
+      slot: 0,
+      timestamp: '10 minutes ago',
+      thumbnail: game.mappings?.artwork?.screenshot || '',
+      filePath: `${game.contentPath.substring(0, game.contentPath.lastIndexOf('.')) || game.contentPath}.state`
+    },
+    {
+      slot: 1,
+      timestamp: 'Yesterday, 8:42 PM',
+      thumbnail: game.mappings?.artwork?.background || '',
+      filePath: `${game.contentPath.substring(0, game.contentPath.lastIndexOf('.')) || game.contentPath}.state1`
+    }
+  ]);
+
+  const handleCreateMockSave = () => {
+    const nextSlot = saveStates.length > 0 ? Math.max(...saveStates.map(s => s.slot)) + 1 : 0;
+    const newSave: SaveStateMock = {
+      slot: nextSlot,
+      timestamp: 'Just now',
+      thumbnail: game.mappings?.artwork?.screenshot || game.mappings?.artwork?.background || '',
+      filePath: `${game.contentPath.substring(0, game.contentPath.lastIndexOf('.')) || game.contentPath}.state${nextSlot}`
+    };
+    setSaveStates([newSave, ...saveStates]);
+  };
+
+  const handleDeleteSaveState = (slot: number) => {
+    setSaveStates(saveStates.filter(s => s.slot !== slot));
+  };
 
   const formatBytes = (bytes?: number) => {
     if (!bytes) return 'Unknown size';
@@ -226,6 +262,78 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
             </button>
           </div>
         );
+      case 'savestates':
+        return (
+          <div className="tab-pane-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <h4 className="tab-section-header" style={{ margin: 0 }}>Save States ({saveStates.length})</h4>
+                <p className="tab-section-desc" style={{ margin: '4px 0 0 0' }}>Preserved virtual console RAM snapshots for quick resuming.</p>
+              </div>
+              <button 
+                className="btn-primary"
+                onClick={handleCreateMockSave}
+                style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px', width: 'auto', marginTop: 0 }}
+              >
+                <Save size={12} /> Create State
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px', maxHeight: '240px', overflowY: 'auto', paddingRight: '4px' }}>
+              {saveStates.length > 0 ? (
+                saveStates.map((state) => (
+                  <div key={state.slot} style={{ display: 'flex', gap: '12px', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '8px' }}>
+                    <div style={{ width: '80px', height: '60px', borderRadius: '4px', overflow: 'hidden', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      {state.thumbnail ? (
+                        <img src={state.thumbnail} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <ImageIcon size={16} style={{ opacity: 0.3 }} />
+                      )}
+                      <span style={{ position: 'absolute', bottom: '2px', right: '4px', backgroundColor: 'rgba(0,0,0,0.7)', padding: '1px 4px', borderRadius: '2px', fontSize: '0.6rem', fontWeight: 600 }}>
+                        Slot {state.slot}
+                      </span>
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>QuickSave Slot {state.slot}</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 'normal' }}>({state.timestamp})</span>
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontFamily: 'monospace', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginTop: '4px' }} title={state.filePath}>
+                        {state.filePath}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <button 
+                        className="btn-secondary" 
+                        title="Simulate Load State"
+                        onClick={() => alert(`Simulating state restore from slot ${state.slot}`)}
+                        style={{ padding: '6px', borderRadius: '4px' }}
+                      >
+                        <Play size={12} fill="currentColor" />
+                      </button>
+                      <button 
+                        className="btn-secondary" 
+                        title="Delete Save State"
+                        onClick={() => handleDeleteSaveState(state.slot)}
+                        style={{ padding: '6px', borderRadius: '4px', color: 'var(--color-warning)' }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--color-text-muted)', border: '1px dashed var(--border-subtle)', borderRadius: '8px' }}>
+                  <Save size={24} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                  <p style={{ margin: 0, fontSize: '0.8rem' }}>No Save States Recorded</p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', opacity: 0.7 }}>Launch game and use F5 (Save) / F7 (Load) to manage save states.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
     }
   };
 
@@ -375,6 +483,7 @@ export const GameDetailPanel: React.FC<GameDetailPanelProps> = ({
             {/* Tabs Navigation */}
             <div className="detail-tabs">
               <button className={`detail-tab-btn ${activeTab === 'artwork' ? 'active' : ''}`} onClick={() => setActiveTab('artwork')}>Artwork</button>
+              <button className={`detail-tab-btn ${activeTab === 'savestates' ? 'active' : ''}`} onClick={() => setActiveTab('savestates')}>Saves</button>
               <button className={`detail-tab-btn ${activeTab === 'guides' ? 'active' : ''}`} onClick={() => setActiveTab('guides')}>Guides</button>
               <button className={`detail-tab-btn ${activeTab === 'cheats' ? 'active' : ''}`} onClick={() => setActiveTab('cheats')}>Cheats</button>
               <button className={`detail-tab-btn ${activeTab === 'patches' ? 'active' : ''}`} onClick={() => setActiveTab('patches')}>Patches</button>
