@@ -86,13 +86,24 @@ cargo check         # fail — missing libsoup-3.0
 
 ## Pass / fail results
 
-| Gate | Result |
-|------|--------|
-| typecheck | pass |
-| lint | pass |
-| build | pass |
-| Tauri compile | **blocked** (system deps) |
-| End-to-end launch on user machine | **pending user test** in `tauri:dev` |
+| Gate | Result | Verified |
+|------|--------|----------|
+| typecheck | pass | 2026-05-28 |
+| lint | pass (0 errors, 0 warnings) | 2026-05-28 |
+| build | pass | 2026-05-28 |
+| git commit | pass (`c6108ab`) | 2026-05-28 |
+| Tauri compile (`cargo check`) | **fail** — `libsoup-3.0-dev` not installed | 2026-05-28 |
+| End-to-end launch on user machine | **pending** | not verified |
+| GitHub push | **pending user approval** | not verified |
+| xi-io.net Workbench mirror | **pending** | not verified |
+
+## Compliance pass (2026-05-28)
+
+- Fixed ArcadeHome exhaustive-deps lint warning (`useCallback`)
+- Updated `docs/backlog.md`, `walkthrough.md`, `docs/INDEX.md`
+- Added `docs/framework/xi-io-net-sync-status.md` for two-way framework tracking
+- Added `src-tauri/target` to `.gitignore`
+- Committed on `master` as `c6108ab`
 
 ## Known blockers
 
