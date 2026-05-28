@@ -208,10 +208,59 @@ Tags:
 #risk:private-path-leak
 ```
 
+### 008, Non-mutating local SNES library import
+
+Status: **decision committed (`9aa2c97`) — implementation deferred until after Pass B/C and image hydration.**
+
+Canonical doc:
+
+```txt
+docs/decisions/non-mutating-local-library-import.md
+```
+
+Known user source root, documented for local ops only and not to be hardcoded in source:
+
+```txt
+/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+```
+
+Decision:
+
+```txt
+The SNES library is an external, user-owned source library.
+xi-io Emulator may index, tag, hydrate, map artwork, create display titles, and store Rosetta metadata internally.
+xi-io Emulator must not move, rename, delete, rewrite, patch, or reorganize the physical ROM files during default import/hydration.
+```
+
+Default cleanup is metadata-only:
+
+```txt
+preserve sourcePath
+preserve rawFilename
+create displayTitle
+create sortTitle
+create canonicalIdentityCandidate
+create aliases
+attach tags
+attach artworkMapping
+assign reviewStatus
+```
+
+Tags:
+
+```txt
+#xio:emulator/storage/non-mutating
+#xio:emulator/library/source-root
+#xio:emulator/metadata/tagging
+#xio:emulator/rosetta/tags
+#risk:accidental-file-mutation
+#todo:storage/read-only-source-root
+```
+
 ## Deferred until launch proof passes
 
 ```txt
-bulk local library hydration (also gated by XARCADE-IMAGE-HYDRATION-001)
+bulk local library hydration (also gated by XARCADE-IMAGE-HYDRATION-001 and non-mutating import rules)
 SQLite migration
 full storage root scan
 automatic artwork/provider downloads
@@ -219,6 +268,7 @@ cheat execution
 patch execution
 PS1/PS2
 media/debrid features
+physical ROM renames/moves/deletes
 ```
 
 ## Known risks
@@ -229,6 +279,7 @@ Tauri process spawning not yet proven on user hardware.
 Controller in-game verification requires explicit user action (Mark In-Game Verified).
 Local master synced with origin/main (`86090b3` includes image hydration decision).
 Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001 — no text-only GameRecord scan.
+Full SNES source root contains 11,337 ROMs and must be imported read-only by reference.
 Flatpak may complicate filesystem and device access.
 FCEUX path and launch arguments need validation on user machine.
 RetroArch SNES core path needs validation on user machine.
