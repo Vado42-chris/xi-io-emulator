@@ -43,8 +43,8 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | xi-io-emulator | `d3cb2af` | Pass B proof-safety fixes + final evidence report |
 | xi-io-emulator | `cf4fcdb` | Hydration sync_metadata product_repo_commit |
 | xi-io.net | `d338880` | Pass B partial hydration/manifest re-mirror 2026-05-29 |
-| xi-io-emulator | pending pass 3 | Proof-mode UX + sync doc updates |
-| xi-io.net | pending pass 3 | Workbench preview event Pass B partial |
+| xi-io-emulator | `bf20219` | Proof-mode UX + sync docs pass 3 |
+| xi-io.net | `6749225` | Workbench preview event Pass B partial |
 
 ## Blockers
 
