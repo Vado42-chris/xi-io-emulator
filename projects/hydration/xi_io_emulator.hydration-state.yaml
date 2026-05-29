@@ -84,5 +84,5 @@ bulk_hydration_gate:
 sync_metadata:
   xi_io_net_mirror: pending_2026_05_29_pass_b
   workbench_preview_event: pending
-  product_repo_commit: pending_after_pass_b_commit
+  product_repo_commit: "d3cb2af"
   last_agent_pass: 2026-05-29
