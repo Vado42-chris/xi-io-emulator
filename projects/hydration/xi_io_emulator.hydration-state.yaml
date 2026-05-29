@@ -82,7 +82,7 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: pending_2026_05_29_pass_b
+  xi_io_net_mirror: mirrored_2026_05_29_d338880
   workbench_preview_event: pending
   product_repo_commit: "d3cb2af"
   last_agent_pass: 2026-05-29

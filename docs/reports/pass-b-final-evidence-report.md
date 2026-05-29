@@ -286,7 +286,7 @@ Until then, do not close the milestone or start Pass C.
 | 1 | 2026-05-29 | SNES xi-io GUI launch | **not run** | ledger has no SNES launch_* events |
 | 1 | 2026-05-29 | NES xi-io launch (prior session) | **partial** | ledger launch_started + launch_failed exit null |
 | 1 | 2026-05-29 | Framework manifest/hydration update | **done** | files written locally |
-| 1 | 2026-05-29 | xi-io.net mirror | **pending commit** | see sync status doc |
+| 1 | 2026-05-29 | xi-io.net mirror commit | **pass** (`d338880`) | git log verified |
 
 ### Remaining passes estimate (honest)
 
