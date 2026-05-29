@@ -85,6 +85,7 @@ docs/decisions/rosetta-stone-artwork-identity-resolution.md
 docs/decisions/ibal-assistant-and-local-ai-strategy.md
 docs/decisions/non-mutating-local-library-import.md
 docs/decisions/generic-usb-controller-proof-policy.md
+docs/decisions/agent-led-pass-b-hardware-proof.md
 ```
 
 ## Reviews

@@ -29,7 +29,14 @@ visible ledger events
 
 ### 001, Cursor controller launch proof
 
-Status: **R1 approved — Pass B blocked on sudo/Tauri deps — pending user hardware verification in `npm run tauri:dev`.**
+Status: **R1 approved — Pass B agent-led (user-assisted) — blocked on sudo/Tauri deps until WebKitGTK/libsoup installed; then `npm run tauri:dev` hardware proof.**
+
+Operating model:
+
+```txt
+docs/decisions/agent-led-pass-b-hardware-proof.md
+docs/agent-master-prompt-pass-b-pass-c.md
+```
 
 Pass B agent check (2026-05-28):
 
