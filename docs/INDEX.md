@@ -86,6 +86,7 @@ docs/decisions/ibal-assistant-and-local-ai-strategy.md
 docs/decisions/non-mutating-local-library-import.md
 docs/decisions/generic-usb-controller-proof-policy.md
 docs/decisions/agent-led-pass-b-hardware-proof.md
+docs/decisions/platform-engine-registry-and-library-facets.md
 ```
 
 ## Reviews
@@ -131,6 +132,7 @@ docs/project-tracking/open-work-ledger.md
 
 ```txt
 docs/reports/controller-launch-proof-report.md
+docs/reports/pass-b-peer-review-report.md
 docs/reports/standardization-audit-report.md
 ```
 

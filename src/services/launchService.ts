@@ -7,6 +7,7 @@ import {
   validateAdapterReadiness,
 } from './adapterService';
 import { isTauriRuntime, launchEmulatorProcess } from './tauriService';
+import { classifyEmulatorExit, emulatorExitSummary } from './launchExitService';
 
 export interface LaunchBlocker {
   code:
@@ -33,6 +34,8 @@ export interface LaunchResult {
   command: string;
   error?: string;
   exitCode?: number | null;
+  /** True when the emulator process ended and the shell should return to Arcade Home. */
+  returnedCleanly?: boolean;
 }
 
 const isDemoMode = (): boolean => localStorage.getItem('xibalba_demo_mode') === 'true';
@@ -124,7 +127,7 @@ export const simulateLaunchGame = (game: GameRecord): LaunchResult => {
     demoMode: true,
   });
 
-  return { success: true, command };
+  return { success: true, command, returnedCleanly: true };
 };
 
 // #ledger:launch_requested
@@ -167,9 +170,10 @@ export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
 
   try {
     const result = await launchEmulatorProcess(plan.program, plan.args);
+    const exitKind = classifyEmulatorExit(result.exit_code);
 
-    if (result.success) {
-      addLedgerEvent('emulator_exited', `${game.title} exited normally`, {
+    if (exitKind === 'clean') {
+      addLedgerEvent('emulator_exited', `${game.title}: ${emulatorExitSummary(result.exit_code)}`, {
         gameId: game.id,
         exitCode: result.exit_code,
       });
@@ -178,6 +182,7 @@ export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
       });
       return {
         success: true,
+        returnedCleanly: true,
         command: plan.commandDisplay,
         exitCode: result.exit_code,
       };
@@ -190,8 +195,9 @@ export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
     });
     return {
       success: false,
+      returnedCleanly: false,
       command: plan.commandDisplay,
-      error: result.stderr || `Process exited with code ${result.exit_code}`,
+      error: result.stderr || emulatorExitSummary(result.exit_code),
       exitCode: result.exit_code,
     };
   } catch (err) {

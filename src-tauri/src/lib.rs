@@ -37,6 +37,24 @@ fn path_exists(path: String) -> PathCheckResult {
 }
 
 // #xar:controller-launch-proof/launch/active
+async fn restore_shell_focus(app: &AppHandle, window: &Window) {
+    use std::time::Duration;
+
+    for _ in 0..3 {
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+
+        if let Some(main_window) = app.get_webview_window("main") {
+            let _ = main_window.show();
+            let _ = main_window.unminimize();
+            let _ = main_window.set_focus();
+        }
+
+        tokio::time::sleep(Duration::from_millis(200)).await;
+    }
+}
+
 #[tauri::command]
 async fn launch_emulator(
     app: AppHandle,
@@ -55,26 +73,24 @@ async fn launch_emulator(
         .spawn()
         .map_err(|e| format!("Failed to spawn {}: {}", program, e))?;
 
-    let output = child
-        .wait_with_output()
+    let status = child
+        .wait()
         .await
-        .map_err(|e| format!("Failed waiting for emulator exit: {}", e))?;
+        .map_err(|e| format!("Failed waiting for emulator exit: {} ({})", program, e))?;
 
-    let _ = window.show();
-    let _ = window.unminimize();
-    let _ = window.set_focus();
+    restore_shell_focus(&app, &window).await;
 
-    if let Some(main_window) = app.get_webview_window("main") {
-        let _ = main_window.show();
-        let _ = main_window.unminimize();
-        let _ = main_window.set_focus();
-    }
+    let exit_code = status.code();
+    let success = match exit_code {
+        None | Some(0) | Some(130) | Some(143) => true,
+        Some(_) => false,
+    };
 
     Ok(SpawnResult {
-        success: output.status.success(),
-        exit_code: output.status.code(),
-        stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-        stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+        success,
+        exit_code,
+        stdout: String::new(),
+        stderr: String::new(),
     })
 }
 

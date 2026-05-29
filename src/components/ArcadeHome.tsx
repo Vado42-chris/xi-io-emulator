@@ -78,6 +78,21 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     }
   }, [demoMode, onLaunchComplete]);
 
+  // Return to Arcade Home automatically after a clean emulator exit.
+  useEffect(() => {
+    if (!launchingGame || isLaunching || !launchResult?.returnedCleanly) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setLaunchingGame(null);
+      setLaunchResult(null);
+      setLaunchBlockers([]);
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [launchingGame, isLaunching, launchResult]);
+
   // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
   const { shelves, allGames } = useMemo(() => {
     const activeGames = games.filter((g) => !g.hidden);
@@ -605,14 +620,26 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           ) : (
             <>
               <h1 className="launch-overlay-title">
-                {isLaunching ? `Launching ${launchingGame.title}...` : launchResult?.success ? `${launchingGame.title} finished` : `Launching ${launchingGame.title}`}
+                {isLaunching
+                  ? `Launching ${launchingGame.title}...`
+                  : launchResult?.returnedCleanly
+                    ? `Returned from ${launchingGame.title}`
+                    : launchResult?.success
+                      ? `${launchingGame.title} finished`
+                      : `Could not launch ${launchingGame.title}`}
               </h1>
               {isLaunching && (
                 <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
               )}
               
-              {!isLaunching && launchResult?.error && (
+              {!isLaunching && launchResult?.error && !launchResult.returnedCleanly && (
                 <p style={{ color: 'var(--color-warning)', maxWidth: '600px', textAlign: 'center' }}>{launchResult.error}</p>
+              )}
+
+              {!isLaunching && launchResult?.returnedCleanly && (
+                <p style={{ color: 'var(--color-text-muted)', maxWidth: '600px', textAlign: 'center' }}>
+                  Returning to Arcade Home...
+                </p>
               )}
               
               {launchResult?.command && (
@@ -624,10 +651,12 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
               <p className="launch-overlay-hint">
                 {isLaunching
-                  ? 'Emulator is running in the background. Wait for it to exit, or quit from the emulator window.'
-                  : launchResult?.success
-                    ? 'Emulator exited. Press Escape to close this overlay and return to Arcade Home.'
-                    : 'Press Escape to close this overlay. This does not stop a running emulator process.'}
+                  ? 'Emulator is running. Quit from the emulator window to return here.'
+                  : launchResult?.returnedCleanly
+                    ? 'Arcade Home will restore automatically.'
+                    : launchResult?.success
+                      ? 'Press Escape to close this overlay.'
+                      : 'Press Escape to close this overlay. If an emulator is still running, quit it from its window.'}
               </p>
             </>
           )}
