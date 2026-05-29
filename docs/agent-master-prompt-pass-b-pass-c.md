@@ -15,8 +15,8 @@ Use this instead of piecemeal chat notes.
 ```txt
 Repo: Vado42-chris/xi-io-emulator
 Current milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
-Current active work: Pass B hardware proof, owned by user
-Agent state: paused until user returns Pass B checklist
+Current active work: Pass B hardware proof, agent-led (user-assisted)
+Agent state: Pass B in progress until evidence-backed checklist exists; Pass C blocked until then
 ```
 
 ## First-read sequence
@@ -35,6 +35,7 @@ docs/reports/standardization-audit-report.md
 docs/agent-handoff-controller-launch.md
 docs/decisions/controller-launch-first-decision.md
 docs/decisions/generic-usb-controller-proof-policy.md
+docs/decisions/agent-led-pass-b-hardware-proof.md
 docs/decisions/non-mutating-local-library-import.md
 docs/decisions/library-image-hydration-before-bulk-ingress.md
 docs/decisions/rosetta-stone-artwork-identity-resolution.md
@@ -45,38 +46,45 @@ projects/manifests/xi_io_emulator.project-manifest.yaml
 projects/hydration/xi_io_emulator.hydration-state.yaml
 ```
 
-## Absolute stop rule
+## Pass C gate during Pass B
 
-If the user has not returned a filled Pass B checklist, stop.
+Do not start Pass C until Pass B evidence is complete (evidence-backed checklist).
 
-Do not code.
-Do not edit docs.
-Do not run feature work.
-Do not start image hydration.
-Do not start storage.
-Do not start Ibal.
-Do not scan the full SNES library.
+During Pass B, agents orchestrate local proof. Do not start image hydration, storage, Ibal, or full SNES library work.
 
-Reply only with the required Pass B checklist and any narrowly relevant local instructions.
+If Pass B is blocked (for example missing Tauri deps or pending user sudo/GUI confirmation), report blockers and checklist state. Do not fake completion.
 
-## Pass B is user-owned
+## Pass B is agent-led and user-assisted
 
-The user must run the local hardware proof because it requires:
+Canonical operating model:
 
 ```txt
-sudo password
-Linux Tauri package install
-GUI app launch
-emulator configuration
-physical controller testing
-manual in-game verification
+docs/decisions/agent-led-pass-b-hardware-proof.md
 ```
 
-Agents cannot honestly complete Pass B without the user.
+Agents:
 
-## User's Pass B command
+```txt
+run commands
+capture logs
+diagnose blockers
+orchestrate proof steps
+produce the evidence-backed checklist
+```
 
-Recommended local command for user:
+User assists only with:
+
+```txt
+sudo password when prompted
+physical controller input when requested
+narrow visual confirmation when the agent cannot inspect the emulator GUI directly
+```
+
+Agents must not mark Pass B success without evidence. CLI emulator smoke tests alone do not complete Pass B.
+
+## Pass B local commands
+
+Agent runs these; user enters sudo password when prompted:
 
 ```bash
 sudo apt update
@@ -133,9 +141,9 @@ The product proof is real in-game input through FCEUX and RetroArch.
 
 Browser/app detection is useful but not the sole proof.
 
-## Pass B checklist required from user
+## Pass B checklist (agent-produced)
 
-The user must return this filled checklist:
+The agent produces this filled checklist after orchestration. Label each GUI item as agent-observed or user-confirmed:
 
 ```txt
 Pass B hardware proof result
@@ -218,7 +226,7 @@ Do not block the entire milestone on browser detection if real emulator input wo
 
 ## Pass C task
 
-Only after Pass B checklist exists, run Pass C.
+Only after Pass B evidence-backed checklist exists, run Pass C.
 
 Pass C goal:
 
@@ -345,7 +353,7 @@ Final response must include:
 
 ```txt
 Summary
-Pass B input received
+Pass B evidence received (agent-produced checklist)
 Interpretation: full pass / partial pass / blocked
 Files changed
 Commands run
@@ -400,6 +408,7 @@ Use these where appropriate:
 #xar:controller-launch-proof/current
 #xio:emulator/controller/generic-usb
 #xio:emulator/controller/wired-proof
+#xio:emulator/pass-b/agent-led
 #adapter:fceux/nes
 #adapter:retroarch/snes
 #ledger:launch_requested

@@ -11,8 +11,8 @@ Agents must not rely on chat history. Start here.
 ## Current lock
 
 ```txt
-Current active work: Pass B user hardware proof
-Agents: paused until user returns Pass B checklist
+Current active work: Pass B hardware proof, agent-led (user-assisted)
+Agents: orchestrate Pass B per docs/agent-master-prompt-pass-b-pass-c.md; Pass C blocked until evidence-backed checklist exists
 Current repo state: post standardization audit + non-mutating local library import decision
 ```
 
@@ -24,19 +24,18 @@ You are working in:
 Vado42-chris/xi-io-emulator
 
 CURRENT STATE:
-Agents are paused. Do not implement new product features until the user returns Pass B hardware proof results.
+Do not implement new product features unrelated to Pass B until Pass B evidence is complete.
 
 CURRENT ACTIVE WORK:
-Pass B, owned by user:
-- Install Tauri Linux dependencies
+Pass B, agent-led (user-assisted) — canonical prompt: docs/agent-master-prompt-pass-b-pass-c.md
+- Agent runs commands, captures logs, diagnoses blockers, produces checklist
+- User supplies sudo password, physical controller input, narrow GUI confirmations when needed
+- Install Tauri Linux dependencies (user-assisted sudo)
 - Run npm run tauri:dev
-- Register one NES proof ROM
-- Register one SNES proof ROM
-- Launch NES through FCEUX
-- Launch SNES through RetroArch
+- Register one NES proof ROM and one SNES proof ROM
+- Launch NES through FCEUX and SNES through RetroArch via xi-io app
 - Verify controller input in-game
-- Click Mark In-Game Verified manually
-- Return Pass B checklist
+- Mark In-Game Verified (observed or user-confirmed)
 
 YOUR NEXT AGENT TASK AFTER PASS B:
 Pass C — close XARCADE-CONTROLLER-LAUNCH-PROOF-001.

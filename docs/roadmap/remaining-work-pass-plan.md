@@ -12,7 +12,7 @@ It exists so Cursor agents and future xi-io agents can continue from a shared pa
 
 ```txt
 Current repo state: post XARCADE-STANDARDIZATION-AUDIT-001
-Current active work: Pass B user hardware proof
+Current active work: Pass B hardware proof, agent-led (user-assisted)
 Current implementation state: controller + launch proof implemented, pending local Tauri verification
 Current major gate: no bulk hydration until image hydration exists
 ```
@@ -20,7 +20,7 @@ Current major gate: no bulk hydration until image hydration exists
 ## Locked immediate slice order
 
 ```txt
-Pass B  → user hardware proof with two hand-picked games
+Pass B  → agent-led hardware proof with two hand-picked games (user-assisted sudo/controller/GUI)
 Pass C  → close controller launch proof milestone docs/hydration/framework sync
 Pass D  → XARCADE-IMAGE-HYDRATION-001 pass 1, Rosetta models + fallback + local candidate matching
 Pass E  → XARCADE-IMAGE-HYDRATION-001 pass 2, review UI + artwork health + report polish
@@ -53,9 +53,9 @@ docs/decisions/non-mutating-local-library-import.md
 
 ## Pass estimates
 
-### Pass B, user hardware proof
+### Pass B, agent-led hardware proof
 
-Owner: user
+Owner: agent-led (user-assisted)
 
 Goal:
 

@@ -59,6 +59,8 @@ Any doc that states Pass B is exclusively user-owned without agent orchestration
 docs/agent-master-prompt-pass-b-pass-c.md
 ```
 
+That prompt must describe Pass B as agent-led and user-assisted (same division of labor as this decision). Older "Pass B is user-owned" / "agents paused" wording in that file is superseded.
+
 ## Serialized tags
 
 ```txt
