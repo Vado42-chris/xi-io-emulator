@@ -92,6 +92,43 @@ export const pollControllerDevices = async (): Promise<ControllerSnapshot> => {
   return snapshot;
 };
 
+/** Update detection snapshot without spamming the ledger (Arcade Home polling). */
+export const syncLiveControllerSnapshot = async (): Promise<ControllerSnapshot> => {
+  const prev = getControllerSnapshot();
+  const browserPads = navigator.getGamepads?.() ?? [];
+  const connectedPads = Array.from(browserPads).filter(Boolean);
+  const browserLabels = connectedPads.map((p) => p?.id ?? 'Unknown gamepad');
+
+  let linuxDevices: InputDeviceInfo[] = prev.devices;
+  if (isTauriRuntime()) {
+    try {
+      linuxDevices = await listLinuxInputDevices();
+    } catch {
+      linuxDevices = prev.devices;
+    }
+  }
+
+  const detected = linuxDevices.length > 0 || connectedPads.length > 0;
+  let nextState: ControllerProofState = 'not_detected';
+  if (detected) {
+    if (prev.state === 'in_game_verified' || prev.state === 'test_passed') {
+      nextState = prev.state;
+    } else {
+      nextState = 'detected';
+    }
+  }
+
+  const snapshot: ControllerSnapshot = {
+    ...prev,
+    state: nextState,
+    devices: linuxDevices,
+    browserGamepadCount: connectedPads.length,
+    browserGamepadLabels: browserLabels,
+  };
+  saveControllerSnapshot(snapshot);
+  return snapshot;
+};
+
 const waitForGamepadButtonPress = (timeoutMs: number): Promise<boolean> =>
   new Promise((resolve) => {
     const deadline = Date.now() + timeoutMs;

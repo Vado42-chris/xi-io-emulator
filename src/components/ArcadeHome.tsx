@@ -14,6 +14,10 @@ import type { GameRecord } from '../data/gameModels';
 import type { ProjectStatus } from '../data/projectStatus';
 import type { LibraryRoot } from '../services/db';
 import { getProofLaunchGames } from '../services/proofGameService';
+import {
+  pollArcadeGamepadEdges,
+  type ArcadeGamepadPollState,
+} from '../services/arcadeGamepadService';
 import { GameTile } from './GameTile';
 import { detectDuplicateCandidates } from '../services/searchService';
 import { checkLaunchReadiness, launchGame, getDemoMode, simulateLaunchGame } from '../services/launchService';
@@ -49,6 +53,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchIndex, setActiveSearchIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const gamepadPollRef = useRef<ArcadeGamepadPollState>({ connected: false, label: '', pressed: [], axes: [] });
 
   // Launch state
   const [launchingGame, setLaunchingGame] = useState<GameRecord | null>(null);
@@ -293,6 +298,100 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     handleLaunchGame,
   ]);
 
+  // Gamepad navigation (W3C Gamepad API — complements keyboard handler above).
+  useEffect(() => {
+    let frame = 0;
+    const tick = () => {
+      const { edges, state } = pollArcadeGamepadEdges(gamepadPollRef.current);
+      gamepadPollRef.current = state;
+
+      if (launchingGame) {
+        if (edges.menu) setLaunchingGame(null);
+        frame = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      if (isSearchOpen) {
+        const filteredSearchGames = allGames.filter((g) =>
+          g.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        if (edges.menu) {
+          setIsSearchOpen(false);
+          setSearchQuery('');
+          setActiveSearchIndex(0);
+        } else if (edges.left) {
+          setActiveSearchIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        } else if (edges.right) {
+          setActiveSearchIndex((prev) =>
+            prev < filteredSearchGames.length - 1 ? prev + 1 : prev
+          );
+        } else if (edges.confirm) {
+          const selected = filteredSearchGames[activeSearchIndex];
+          if (selected) {
+            handleLaunchGame(selected);
+            setIsSearchOpen(false);
+            setSearchQuery('');
+            setActiveSearchIndex(0);
+          }
+        }
+        frame = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      if (shelves.length === 0) {
+        frame = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      if (edges.up) {
+        setActiveShelfIndex((prev) => {
+          const next = prev > 0 ? prev - 1 : prev;
+          setActiveGameIndex(0);
+          return next;
+        });
+      } else if (edges.down) {
+        setActiveShelfIndex((prev) => {
+          const next = prev < shelves.length - 1 ? prev + 1 : prev;
+          setActiveGameIndex(0);
+          return next;
+        });
+      } else if (edges.left) {
+        setActiveGameIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      } else if (edges.right) {
+        const currentShelfGames = shelves[activeShelfIndex]?.games || [];
+        setActiveGameIndex((prev) =>
+          prev < currentShelfGames.length - 1 ? prev + 1 : prev
+        );
+      } else if (edges.confirm && activeGame) {
+        handleLaunchGame(activeGame);
+      } else if (edges.favorite && activeGame) {
+        onToggleFavorite(activeGame);
+      } else if (edges.search) {
+        setIsSearchOpen(true);
+      } else if (edges.menu) {
+        onToggleAdminMode();
+      }
+
+      frame = window.requestAnimationFrame(tick);
+    };
+
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [
+    shelves,
+    activeShelfIndex,
+    activeGameIndex,
+    activeGame,
+    isSearchOpen,
+    searchQuery,
+    activeSearchIndex,
+    launchingGame,
+    allGames,
+    onToggleFavorite,
+    onToggleAdminMode,
+    handleLaunchGame,
+  ]);
+
   // Onboarding Layout
   if (games.length === 0) {
     return (
@@ -346,7 +445,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           </div>
           <div className="arcade-onboarding-check-item">
             <span
-              className={`arcade-status-dot ${status.controllerState === 'connected' ? 'active' : 'inactive'}`}
+              className={`arcade-status-dot ${status.controllerState === 'connected' || status.controllerState === 'unmapped' ? 'active' : 'inactive'}`}
             />
             <span>Controller: {status.controllerState}</span>
           </div>
@@ -411,7 +510,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           </div>
           <div className="arcade-status-item">
             <span
-              className={`arcade-status-dot ${status.controllerState === 'connected' ? 'active' : 'inactive'}`}
+              className={`arcade-status-dot ${status.controllerState === 'connected' || status.controllerState === 'unmapped' ? 'active' : 'inactive'}`}
             />
             <span>Controller</span>
           </div>

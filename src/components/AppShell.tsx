@@ -62,7 +62,7 @@ import {
 } from '../services/launchService';
 import {
   controllerStateForStatusPanel,
-  getControllerSnapshot,
+  syncLiveControllerSnapshot,
 } from '../services/controllerService';
 import { computeProofReadiness, launchReadinessFromProof } from '../services/proofReadinessService';
 import { checkPathExists, isTauriRuntime } from '../services/tauriService';
@@ -165,7 +165,7 @@ export const AppShell: React.FC = () => {
     const proofSummary = await computeProofReadiness();
     const launchReadiness = launchReadinessFromProof(proofSummary);
 
-    const ctrlSnapshot = getControllerSnapshot();
+    const ctrlSnapshot = await syncLiveControllerSnapshot();
 
     setProjectStatus(prev => ({
       ...prev,
@@ -193,6 +193,22 @@ export const AppShell: React.FC = () => {
       void refreshState();
     }, 0);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Keep controller status live on Arcade Home (Gamepad API requires periodic polling).
+  useEffect(() => {
+    const sync = () => {
+      void refreshState();
+    };
+    const onGamepad = () => sync();
+    window.addEventListener('gamepadconnected', onGamepad);
+    window.addEventListener('gamepaddisconnected', onGamepad);
+    const interval = window.setInterval(sync, 1500);
+    return () => {
+      window.removeEventListener('gamepadconnected', onGamepad);
+      window.removeEventListener('gamepaddisconnected', onGamepad);
+      window.clearInterval(interval);
+    };
   }, []);
 
   const handleSingleIngress = async (e: React.FormEvent) => {
