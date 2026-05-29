@@ -17,6 +17,8 @@ docs/project-tracking/open-work-ledger.md
 docs/roadmap/remaining-work-pass-plan.md
 docs/agent-master-prompt-current-next.md
 docs/agent-master-prompt-pass-b-pass-c.md
+docs/operations/launch-failure-codes.md
+docs/operations/troubleshooting-pass-b.md
 docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
 docs/arcade-ui-product-pivot.md
@@ -117,6 +119,13 @@ docs/agent-master-prompt-pass-b-pass-c.md
 docs/agent-master-prompt-cursor-current.md
 docs/agent-master-prompt-image-hydration.md
 docs/agent-master-prompt-standardization-audit.md
+```
+
+## Operations (Pass B troubleshooting)
+
+```txt
+docs/operations/launch-failure-codes.md
+docs/operations/troubleshooting-pass-b.md
 ```
 
 ## Framework and tracking docs

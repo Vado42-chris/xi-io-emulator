@@ -45,7 +45,28 @@ GitHub: origin/main synced through f1b257e (emulator) and d338880 (xi-io.net)
 Workbench: evt-xi-io-emulator-pass-b-partial-001 added
 UX: proof-only library hides duplicate shelves; Storage shows configured when proof paths set
 Hardware proof rows: still pending user (SNES launch, NES exit, A/B, Mark Verified)
+Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/troubleshooting-pass-b.md
 ```
+
+**Pass B status:** partial / blocked. **Pass C:** not safe. Operations docs do not close the milestone.
+
+### Pass B edge-case matrix (lifecycle / display / controller)
+
+| Edge case | XIO code | Ledger today | Status |
+|-----------|----------|--------------|--------|
+| FCEUX ROM closed but emulator alive (black screen) | XIO-LCH-011 | none | Fix in progress; user retest pending |
+| Stale demo/mock `/media/arcade-usb/` records | XIO-LCH-010 | `launch_blocked` | Mitigated — proof shelf + blocker copy |
+| Duplicate xi-io instance | XIO-LCH-012 | none | `single_instance` flock; user verify pending |
+| Shell focus restore failure | XIO-LCH-008 | `shell_focus_restored` only | Failure event not emitted |
+| Display identify silent failure | XIO-LCH-009 | none | UI silent; runbook documents |
+| A/B not mapped at launch | — | none | **Pass B blocker** |
+| xdotool missing (window-title fallback) | XIO-LCH-011 | none | FD-only fallback; document in runbook |
+| bsnes temporary smoke only (not Snes9x) | XIO-LCH-002 | — | SNES proof must use Snes9x + real `.smc` |
+| Premature lifecycle kill at spawn | XIO-LCH-011 | none | Fixed (`content_ever_active`); retest pending |
+| Display picker blocked launch UX | XIO-LCH-009 | none | Fixed (single-monitor skip, picker flow) |
+| Demo mode simulated launch | XIO-LCH-013 | `launch_started` demo flag | Banner + runbook |
+
+Runbook: `docs/operations/troubleshooting-pass-b.md`. Codes: `docs/operations/launch-failure-codes.md`.
 
 Reports:
 
