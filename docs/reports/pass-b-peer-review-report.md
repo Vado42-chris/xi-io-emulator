@@ -65,6 +65,10 @@ Peer-reviewed product direction (platform-scoped engines, metadata facets, chunk
 - **Standalone CLI:** RetroArch + bsnes launches proof ROM (timeout test)
 - **xi-io GUI launch:** Not evidenced in ledger during Pass B run
 
+### SNES launch blocker correction (2026-05-29)
+
+User attempted launch from a **stale demo/mock batch record** (`Donkey Kong Country` @ `/media/arcade-usb/snes-roms/`), not the registered proof ROM. **Not classified as missing user-owned ROM.** Pass B must launch **Super Mario World (E) (V1.1) `[!].smc`** from the **Pass B Launch Proof** shelf only.
+
 ---
 
 ## Tauri status
@@ -217,5 +221,6 @@ Do not approve Pass C, bulk SNES scan, image hydration implementation, or platfo
 
 ```txt
 Pass B remains partial/blocked. Pass C is not safe.
-Awaiting peer review of this report before Pass C or hydration workstreams.
+Confirmed partial/blocked by ChatGPT peer review (2026-05-29). Phase 7a–9 evidence:
+docs/reports/pass-b-final-evidence-report.md
 ```

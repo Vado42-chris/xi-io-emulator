@@ -29,7 +29,7 @@ visible ledger events
 
 ### 001, Cursor controller launch proof
 
-Status: **R1 approved — Pass B agent-led (user-assisted) — blocked on sudo/Tauri deps until WebKitGTK/libsoup installed; then `npm run tauri:dev` hardware proof.**
+Status: **Pass B partial / blocked — agent-led, user-assisted. Tauri running; proof-only localStorage seeded; stale demo ingress mitigated.**
 
 Operating model:
 
@@ -38,19 +38,24 @@ docs/decisions/agent-led-pass-b-hardware-proof.md
 docs/agent-master-prompt-pass-b-pass-c.md
 ```
 
-Pass B agent check (2026-05-28):
+Pass B agent status (2026-05-29):
 
 ```txt
-sudo apt install … failed (password required in agent shell)
-cargo check still blocked until user installs webkit2gtk + libsoup
-FCEUX found at /usr/games/fceux
-RetroArch Flatpak found at ~/.local/share/flatpak/exports/bin/org.libretro.RetroArch
-snes9x core not found on disk — install via RetroArch or configure core path in Engines UI
+typecheck + lint: pass
+tauri:dev + Vite :5173: running
+proof-only games: NES Zelda + SNES Super Mario World (no /media/arcade-usb/)
+NES xi-io launch: partial (ledger launch_started; exit null pre-fix — re-test pending)
+SNES xi-io launch: not evidenced in ledger
+SNES CLI smoke (RetroArch + bsnes + proof ROM): pass (timeout 8s)
+Controller: D-pad/Start/Select partial; A/B fail; Mark Verified not done
+Stale demo blocker: reclassified — not missing user ROM
 ```
 
-Report:
+Reports:
 
 ```txt
+docs/reports/pass-b-peer-review-report.md
+docs/reports/pass-b-final-evidence-report.md
 docs/reports/controller-launch-proof-report.md
 ```
 

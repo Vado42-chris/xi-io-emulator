@@ -13,6 +13,7 @@ import {
 import type { GameRecord } from '../data/gameModels';
 import type { ProjectStatus } from '../data/projectStatus';
 import type { LibraryRoot } from '../services/db';
+import { getProofLaunchGames } from '../services/proofGameService';
 import { GameTile } from './GameTile';
 import { detectDuplicateCandidates } from '../services/searchService';
 import { checkLaunchReadiness, launchGame, getDemoMode, simulateLaunchGame } from '../services/launchService';
@@ -94,8 +95,9 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   }, [launchingGame, isLaunching, launchResult]);
 
   // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
-  const { shelves, allGames } = useMemo(() => {
+  const { shelves, allGames, proofLaunchGames } = useMemo(() => {
     const activeGames = games.filter((g) => !g.hidden);
+    const proofLaunchGames = !demoMode ? getProofLaunchGames(activeGames) : [];
 
     const recentlyAdded = [...activeGames]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -111,6 +113,15 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
     const list: { id: string; title: string; count: number; games: GameRecord[] }[] = [];
 
+    // #xar:controller-launch-proof/pass-b — proof shelf first so stale demo tiles are not default focus
+    if (proofLaunchGames.length > 0) {
+      list.push({
+        id: 'passb_proof',
+        title: 'Pass B Launch Proof (use these)',
+        count: proofLaunchGames.length,
+        games: proofLaunchGames,
+      });
+    }
     if (recentlyAdded.length > 0) {
       list.push({ id: 'recent', title: 'Recently Added', count: recentlyAdded.length, games: recentlyAdded });
     }
@@ -127,8 +138,8 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       list.push({ id: 'duplicates', title: 'Duplicate Candidates', count: duplicates.length, games: duplicates });
     }
 
-    return { shelves: list, allGames: all };
-  }, [games]);
+    return { shelves: list, allGames: all, proofLaunchGames };
+  }, [games, demoMode]);
 
   // Active focused game in the carousel
   const activeShelf = shelves[activeShelfIndex];
@@ -407,6 +418,23 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           </button>
         </div>
       </header>
+
+      {proofLaunchGames.length > 0 && !demoMode && (
+        <div
+          style={{
+            margin: '0 24px 8px',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            border: '1px solid rgba(16, 185, 129, 0.35)',
+            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+            fontSize: '0.8rem',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          Pass B: launch only from the <strong>Pass B Launch Proof</strong> shelf. Ignore demo/batch tiles under
+          /media/arcade-usb/ — they are mock records, not your real library.
+        </div>
+      )}
 
       {/* Hero Area */}
       {activeGame && (

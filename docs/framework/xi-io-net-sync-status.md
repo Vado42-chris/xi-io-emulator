@@ -1,7 +1,7 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-28 (standardization audit complete)  
-Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/current` `#xio:emulator/pathing/standard`
+Date: 2026-05-29 (Pass B partial — agent pass 1)  
+Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/pass-b` `#xio:emulator/pathing/standard`
 
 ## Purpose
 
@@ -16,7 +16,8 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Image hydration decision | `docs/decisions/library-image-hydration-before-bulk-ingress.md` | Workbench evidence | **local only — pending mirror** |
 | Image hydration handoff | `docs/agent-handoff-image-hydration.md` | Workbench evidence | **local only — pending mirror** |
 | Open work ledger | `docs/project-tracking/open-work-ledger.md` | Workbench events / project record | **pending Workbench event** |
-| Slice report | `docs/reports/standardization-audit-report.md` | Project evidence | **pending Workbench event** |
+| Slice report | `docs/reports/pass-b-final-evidence-report.md` | Project evidence | **local — pending mirror after commit** |
+| Pass B peer review | `docs/reports/pass-b-peer-review-report.md` | Project evidence | **local — pending mirror** |
 | Milestone tags | serialized hashtags in code + docs | Workbench facet filters | **local only** |
 
 ## xi-io.net → Emulator repo (inbound)
@@ -38,17 +39,17 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 
 | Repo | Commit | Notes |
 |------|--------|-------|
-| xi-io-emulator | `5b221d3` | Standardization audit complete |
-| xi-io-emulator | `b329913` | Standardization checkpoint (user) |
-| xi-io.net | `9c33543` | Audit hydration re-mirror |
+| xi-io-emulator | `b34a60d` | Exit/return fix + Pass B peer review doc |
+| xi-io-emulator | pending | Pass B proof-safety fixes + final evidence report |
+| xi-io.net | pending | Pass B hydration/manifest re-mirror 2026-05-29 |
 
 ## Blockers
 
 ```txt
+Pass B partial: SNES xi-io GUI launch + NES exit re-test + A/B + Mark Verified pending user.
 Workbench preview JSON event not yet added.
-Tauri end-to-end launch proof not yet confirmed on user machine.
-Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001 (decision 0f738f5, handoff 86090b3).
-Hydration state re-mirror to xi-io.net complete (`93ab97c`).
+Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001.
+Stale /media/arcade-usb/ demo records mitigated — not a missing user ROM issue.
 ```
 
 ## Freshness rule

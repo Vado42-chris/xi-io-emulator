@@ -4,7 +4,7 @@ project_id: xi_io_emulator
 project_name: xi-io Emulator
 project_type: desktop_app
 management_mode: first_party_product
-implementation_focus: controller_launch_proof_r1_pending_user_test
+implementation_focus: pass_b_partial_blocked_user_hardware_proof
 description: Linux-first arcade shell wrapping FCEUX, RetroArch, and future engine adapters.
 
 repository:
@@ -17,18 +17,20 @@ repository:
 
 status:
   milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
-  phase: launch_proof_implemented_r1
-  next_milestone: Pass-B-user-hardware-proof
-  next_milestone_after: Pass-C-then-XARCADE-IMAGE-HYDRATION-001
+  phase: pass_b_partial_blocked
+  next_milestone: Pass-C-after-pass-b-close
+  next_milestone_after: XARCADE-IMAGE-HYDRATION-001
   lifecycle_state: in_build
-  freshness_state: needs_review
-  validation_state: not_checked
-  repo_sync_state: synced
+  freshness_state: updated_2026_05_29
+  validation_state: agent_verified_partial
+  repo_sync_state: pending_commit_push
   known_blockers:
-    - Tauri compile requires libsoup-3.0 / WebKitGTK on Linux
-    - End-to-end NES/SNES launch proof pending user npm run tauri:dev test
-    - Bulk ingress gated by image hydration + standardization audit complete
-  next_action: Pass B hardware proof; Pass C close; then XARCADE-IMAGE-HYDRATION-001
+    - SNES xi-io GUI launch not evidenced in ledger (standalone RetroArch CLI smoke pass)
+    - NES exit return re-test pending after b34a60d null-exit fix
+    - Controller A/B in-game not mapped at launch
+    - Mark In-Game Verified not completed
+    - Stale demo /media/arcade-usb/ records mitigated via proof-only bootstrap (not missing user ROM)
+  next_action: User SNES launch from Pass B Launch Proof shelf; NES exit re-test; A/B; Mark Verified
 
 runtime:
   local_preview:
@@ -39,10 +41,18 @@ runtime:
     status: implemented
     command: npm run tauri:dev
     working_directory: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
-    notes: Requires Linux Tauri prerequisites
+    notes: Requires Linux Tauri prerequisites; CARGO_TARGET_DIR on Storage when /tmp full
+
+proof_roms:
+  nes:
+    path: "/media/chrishallberg/Storage 22/Games/emulators/Legend of Zelda, The (USA) (Rev 1).nes"
+    engine: fceux
+  snes:
+    path: "/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS/Super Mario World (E) (V1.1) [!].smc"
+    engine: retroarch_bsnes_smoke
 
 notes:
-  - R1 peer-review fixes applied 2026-05-28.
-  - Image hydration + Rosetta + Ibal optional decisions locked (0f738f5–b329913).
-  - XARCADE-STANDARDIZATION-AUDIT-001 complete before image hydration coding.
-  - Slice order Pass B → Pass C → IMAGE-HYDRATION → IBAL-SLOT (optional) → STORAGE.
+  - Pass B peer review confirmed stale demo ingress blocker (not missing user ROM) 2026-05-29.
+  - proofGameService + Pass B Launch Proof shelf + proof-only localStorage bootstrap.
+  - b34a60d exit/return fix merged; user re-test pending.
+  - Do not bulk-scan SNES library; do not start Pass C until checklist complete.

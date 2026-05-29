@@ -8,6 +8,7 @@ import {
 } from './adapterService';
 import { isTauriRuntime, launchEmulatorProcess } from './tauriService';
 import { classifyEmulatorExit, emulatorExitSummary } from './launchExitService';
+import { isStaleDemoContentPath, staleDemoLaunchBlocker } from './proofGameService';
 
 export interface LaunchBlocker {
   code:
@@ -58,6 +59,16 @@ export const checkLaunchReadiness = async (game: GameRecord): Promise<LaunchRead
       desc: `No adapter registered for system "${game.systemId}".`,
     });
     return { ready: false, blockers };
+  }
+
+  if (isStaleDemoContentPath(game.contentPath)) {
+    const stale = staleDemoLaunchBlocker(game);
+    blockers.push({ code: 'missing_content', title: stale.title, desc: stale.desc });
+    return {
+      ready: false,
+      blockers,
+      adapterId: adapter.adapter_id,
+    };
   }
 
   if (game.ingressMode === 'batch_library' && game.libraryRootId) {

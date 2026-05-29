@@ -133,6 +133,7 @@ docs/project-tracking/open-work-ledger.md
 ```txt
 docs/reports/controller-launch-proof-report.md
 docs/reports/pass-b-peer-review-report.md
+docs/reports/pass-b-final-evidence-report.md
 docs/reports/standardization-audit-report.md
 ```
 

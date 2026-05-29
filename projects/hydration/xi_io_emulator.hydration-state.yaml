@@ -1,15 +1,16 @@
 xiio_version: "0.1.0"
 schema_version: "1.0.0"
-hydration_id: "xi_io_emulator.hydration.2026-05-28.standardization-audit"
+hydration_id: "xi_io_emulator.hydration.2026-05-29.pass-b-partial"
 project_id: xi_io_emulator
 project_name: xi-io Emulator
 management_mode: first_party_product
-overall_state: launch_proof_implemented_pending_user_test
+overall_state: pass_b_partial_blocked
 
 current_milestone:
   id: XARCADE-CONTROLLER-LAUNCH-PROOF-001
   tags:
     - "#xar:controller-launch-proof/current"
+    - "#xar:controller-launch-proof/pass-b"
     - "#adapter:fceux/nes"
     - "#adapter:retroarch/snes"
 
@@ -21,49 +22,55 @@ completed_in_repo:
   - Per-system proof readiness (nesProofReady, snesProofReady, overallProofState)
   - Proof game registration UI (no bulk scan)
   - Demo mode banner on Arcade Home
-  - docs/reports/controller-launch-proof-report.md (R1 peer-review pass)
+  - b34a60d emulator exit/return hardening (null exit → clean)
+  - proofGameService stale /media/arcade-usb/ blocker labeling
+  - Pass B Launch Proof shelf pinned first on Arcade Home
+  - docs/reports/pass-b-peer-review-report.md
+  - docs/reports/pass-b-final-evidence-report.md
   - Image hydration decision and handoff (0f738f5, 86090b3)
-  - Rosetta identity + Ibal optional strategy decisions (d267efd, f0f718d)
-  - Naming/pathing standard + conversation decision backlog (bd181ea, a88f413)
   - Standardization audit report (XARCADE-STANDARDIZATION-AUDIT-001)
+
+pass_b_evidence:
+  nes_xi_io_launch: partial
+  nes_exit_return: pending_user_retest
+  snes_xi_io_launch: not_evidenced
+  snes_cli_smoke: pass
+  controller_dpad_start_select: partial
+  controller_ab: fail
+  mark_in_game_verified: not_done
+  stale_demo_blocker: mitigated
 
 planned_next_slices:
   - id: Pass-B
-    state: pending_user
-    gate: Tauri deps + dual launch hardware proof
+    state: in_progress_user_assisted
+    gate: SNES xi-io launch + exit re-test + A/B + Mark Verified
   - id: Pass-C
-    state: pending
-    gate: after Pass B checklist
+    state: blocked
+    gate: Pass B checklist complete
   - id: XARCADE-IMAGE-HYDRATION-001
     state: planned
     tags:
       - "#xar:image-hydration/planning"
       - "#xio:emulator/artwork/local-first"
-      - "#xar:image-hydration/rosetta"
-    gate: after Pass B/C; before bulk XARCADE-STORAGE-001
-  - id: XARCADE-IBAL-SLOT-001
-    state: reserved_optional
-    tags:
-      - "#xio:emulator/ibal/optional"
-      - "#xar:ibal-slot/future"
-    gate: not blocking image hydration
+    gate: after Pass B/C
   - id: XARCADE-STORAGE-001
     state: deferred
     gate: requires image hydration — no text-only bulk scan
 
-deferred_until_user_launch_proof:
-  - bulk local library hydration (requires IMAGE-HYDRATION-001)
+deferred_until_pass_b_close:
+  - bulk local library hydration
   - SQLite migration
   - full storage root scan
   - automatic artwork/provider downloads
   - Ibal assistant implementation
-  - cheat and patch execution
-  - PS1/PS2
-  - media/debrid features
+  - platform engine registry implementation
+  - MCP integration
 
 blockers:
-  - Tauri compile requires libsoup-3.0 / WebKitGTK system packages
-  - End-to-end launch requires npm run tauri:dev on user machine
+  - SNES launch through xi-io GUI not in ledger
+  - NES exit overlay re-test after b34a60d
+  - Controller A/B not applied at engine launch
+  - Mark In-Game Verified incomplete
 
 next_slice: Pass-B-user-hardware-proof
 
@@ -73,15 +80,9 @@ bulk_hydration_gate:
     - Pass C launch proof milestone close
     - XARCADE-IMAGE-HYDRATION-001 implemented
   rule: never bulk-scan as text-only GameRecords
-  canonical_decision: docs/decisions/library-image-hydration-before-bulk-ingress.md
-
-phase2_community_parity:
-  - Real gamepad shell navigation
-  - Storage hardening and missing-drive diagnostics
-  - Optional scraping with confidence scores
 
 sync_metadata:
-  xi_io_net_mirror: mirrored_2026_05_28_audit_9c33543
+  xi_io_net_mirror: pending_2026_05_29_pass_b
   workbench_preview_event: pending
-  product_repo_commit: "5b221d3"
-  standardization_audit: XARCADE-STANDARDIZATION-AUDIT-001-complete
+  product_repo_commit: pending_after_pass_b_commit
+  last_agent_pass: 2026-05-29
