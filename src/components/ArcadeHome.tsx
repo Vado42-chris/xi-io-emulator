@@ -122,20 +122,30 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         games: proofLaunchGames,
       });
     }
-    if (recentlyAdded.length > 0) {
-      list.push({ id: 'recent', title: 'Recently Added', count: recentlyAdded.length, games: recentlyAdded });
-    }
-    if (favorites.length > 0) {
-      list.push({ id: 'favorites', title: 'Favorites', count: favorites.length, games: favorites });
-    }
-    if (needsConfig.length > 0) {
-      list.push({ id: 'needs_config', title: 'Needs Configuration', count: needsConfig.length, games: needsConfig });
-    }
-    if (all.length > 0) {
-      list.push({ id: 'all', title: 'All Games', count: all.length, games: all });
-    }
-    if (duplicates.length > 0) {
-      list.push({ id: 'duplicates', title: 'Duplicate Candidates', count: duplicates.length, games: duplicates });
+
+    const proofIds = new Set(proofLaunchGames.map((g) => g.id));
+    const isProofOnlyLibrary =
+      proofLaunchGames.length > 0 &&
+      activeGames.length === proofLaunchGames.length &&
+      activeGames.every((g) => proofIds.has(g.id));
+
+    // Pass B proof-only: avoid duplicate Recently Added / Favorites / All shelves (same 2 tiles)
+    if (!isProofOnlyLibrary) {
+      if (recentlyAdded.length > 0) {
+        list.push({ id: 'recent', title: 'Recently Added', count: recentlyAdded.length, games: recentlyAdded });
+      }
+      if (favorites.length > 0) {
+        list.push({ id: 'favorites', title: 'Favorites', count: favorites.length, games: favorites });
+      }
+      if (needsConfig.length > 0) {
+        list.push({ id: 'needs_config', title: 'Needs Configuration', count: needsConfig.length, games: needsConfig });
+      }
+      if (all.length > 0) {
+        list.push({ id: 'all', title: 'All Games', count: all.length, games: all });
+      }
+      if (duplicates.length > 0) {
+        list.push({ id: 'duplicates', title: 'Duplicate Candidates', count: duplicates.length, games: duplicates });
+      }
     }
 
     return { shelves: list, allGames: all, proofLaunchGames };

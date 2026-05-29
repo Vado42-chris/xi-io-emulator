@@ -38,17 +38,13 @@ docs/decisions/agent-led-pass-b-hardware-proof.md
 docs/agent-master-prompt-pass-b-pass-c.md
 ```
 
-Pass B agent status (2026-05-29):
+Pass B agent status (2026-05-29, pass 3):
 
 ```txt
-typecheck + lint: pass
-tauri:dev + Vite :5173: running
-proof-only games: NES Zelda + SNES Super Mario World (no /media/arcade-usb/)
-NES xi-io launch: partial (ledger launch_started; exit null pre-fix — re-test pending)
-SNES xi-io launch: not evidenced in ledger
-SNES CLI smoke (RetroArch + bsnes + proof ROM): pass (timeout 8s)
-Controller: D-pad/Start/Select partial; A/B fail; Mark Verified not done
-Stale demo blocker: reclassified — not missing user ROM
+GitHub: origin/main synced through f1b257e (emulator) and d338880 (xi-io.net)
+Workbench: evt-xi-io-emulator-pass-b-partial-001 added
+UX: proof-only library hides duplicate shelves; Storage shows configured when proof paths set
+Hardware proof rows: still pending user (SNES launch, NES exit, A/B, Mark Verified)
 ```
 
 Reports:

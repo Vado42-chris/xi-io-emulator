@@ -287,6 +287,10 @@ Until then, do not close the milestone or start Pass C.
 | 1 | 2026-05-29 | NES xi-io launch (prior session) | **partial** | ledger launch_started + launch_failed exit null |
 | 1 | 2026-05-29 | Framework manifest/hydration update | **done** | files written locally |
 | 1 | 2026-05-29 | xi-io.net mirror commit | **pass** (`d338880`) | git log verified |
+| 3 | 2026-05-29 | GitHub push both repos | **pass** | emulator `f1b257e`, xi-io.net `d338880` |
+| 3 | 2026-05-29 | Workbench preview event | **pass** | `evt-xi-io-emulator-pass-b-partial-001` |
+| 3 | 2026-05-29 | Proof-only shelf dedup UX | **pass** | hides duplicate Recently Added when 2 proof games only |
+| 3 | 2026-05-29 | Storage status in proof mode | **pass** | `configured` when proof paths set, no bulk roots |
 
 ### Remaining passes estimate (honest)
 

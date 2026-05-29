@@ -62,6 +62,7 @@ export const checkLaunchReadiness = async (game: GameRecord): Promise<LaunchRead
   }
 
   if (isStaleDemoContentPath(game.contentPath)) {
+    // #xar:controller-launch-proof/pass-b — mock /media/arcade-usb/ batch ingress, not missing user ROM
     const stale = staleDemoLaunchBlocker(game);
     blockers.push({ code: 'missing_content', title: stale.title, desc: stale.desc });
     return {

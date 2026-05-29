@@ -149,13 +149,18 @@ export const AppShell: React.FC = () => {
     setScanHistory(history);
 
     // Compute status variables
-    const storageState = updatedRoots.length === 0 
-      ? 'not configured' 
-      : updatedRoots.every(r => r.mounted) 
-        ? 'mounted' 
-        : updatedRoots.some(r => r.mounted) 
-          ? 'configured' 
-          : 'offline';
+    const proofSettings = getProofGameSettings();
+    const hasProofPaths = Boolean(proofSettings.nesContentPath && proofSettings.snesContentPath);
+    const storageState =
+      updatedRoots.length === 0
+        ? hasProofPaths
+          ? 'configured' // #xar:controller-launch-proof/pass-b — proof ROM paths only; bulk roots deferred
+          : 'not configured'
+        : updatedRoots.every((r) => r.mounted)
+          ? 'mounted'
+          : updatedRoots.some((r) => r.mounted)
+            ? 'configured'
+            : 'offline';
 
     const proofSummary = await computeProofReadiness();
     const launchReadiness = launchReadinessFromProof(proofSummary);
