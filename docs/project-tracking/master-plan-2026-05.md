@@ -225,7 +225,7 @@ Update: proof report, ledger, hydration YAML, framework sync per `docs/agent-mas
 |----|-----------------|------|
 | PRH-01 | SQLite for play/session data (migrate off localStorage) | User data durability |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** @ `897a97d` — HW retest in PRH-04 |
-| PRH-03 | Commit + push WIP branch; mirror xi-io.net | **Done** (GitHub @ `afbb359`; Pass 7 xi-io.net push pending) |
+| PRH-03 | Commit + push WIP branch; mirror xi-io.net | **Done** (GitHub @ `a7c7305`; Pass 7 xi-io.net push pending) |
 | PRH-04 | Pass B evidence report + peer review signed | **In progress** — report @ `e7530b8`; user sign-off pending |
 
 Run `npm run verify:deps` at start of any security or dependency slice.

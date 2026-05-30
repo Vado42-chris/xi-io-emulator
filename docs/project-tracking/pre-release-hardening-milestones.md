@@ -22,7 +22,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** (code + guardrails; user HW retest in PRH-04) | Yes |
-| PRH-03 | Commit + push WIP branch to GitHub | **Done** — GitHub @ `afbb359`; xi-io.net Pass 7 freshness mirror pending push | Yes |
+| PRH-03 | Commit + push WIP branch to GitHub | **Done** — GitHub @ `a7c7305`; xi-io.net Pass 7 freshness mirror pending push | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** — evidence report refreshed @ `e7530b8`; **user sign-off pending** | Yes |
 
 **Last verified:** 2026-05-30 — framework security audit pass; public manifest path-sanitized; `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.
@@ -124,7 +124,7 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 
 - [x] Branch `wip/pass-b-lifecycle-display-shell` has **focused commits** (18 ahead of main — review slice before merge)
 - [x] `git push -u origin wip/pass-b-lifecycle-display-shell` completed
-- [x] `projects/hydration/xi_io_emulator.hydration-state.yaml` `product_repo_commit` updated to current head (`afbb359`)
+- [x] `projects/hydration/xi_io_emulator.hydration-state.yaml` `product_repo_commit` updated to current head (`a7c7305`)
 - [x] xi-io.net security evidence mirrored @ `f2c9230` (see [xi-io-net-sync-status.md](../framework/xi-io-net-sync-status.md))
 - [ ] xi-io.net Pass 7 planning/hydration mirror pushed (Pass 7 in progress)
 - [x] README and manifest list branch + SHAs for Pass B retest
@@ -135,13 +135,13 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 |-------|-----|---------|
 | **Launch + hardening code** | `45d55ee` | Session supervisor, gamepad GUID, shell restore, verify scripts |
 | **Docs-only status update** | `95e2426` | Records GitHub push; no new launch code |
-| **Current WIP branch head** | `afbb359` | Pass 7 hydration + sync prep |
+| **Current WIP branch head** | `a7c7305` | Pass 7 hydration + sync prep |
 | **PRH-04 docs** | `e7530b8` | Evidence report + retest checklist |
 | **PRH-02 code** | `897a97d` | shell_focus_restore_failed ledger |
 | **xi-io.net Pass 3 security mirror** | `f2c9230` | Hub `security/` + product evidence @ source `afa9349` |
-| **xi-io.net Pass 7 freshness** | **pending** | Hydration + planning docs @ `afbb359` |
+| **xi-io.net Pass 7 freshness** | **pending** | Hydration + planning docs @ `a7c7305` |
 
-PRH-03 **code push** is satisfied at `45d55ee` and included in head `afbb359`.  
+PRH-03 **code push** is satisfied at `45d55ee` and included in head `a7c7305`.  
 PRH-03 **hydration-state SHA** updated @ Pass 7. xi-io.net Pass 7 mirror push pending.
 
 ### Suggested commit split (plain language)
@@ -154,7 +154,7 @@ PRH-03 **hydration-state SHA** updated @ Pass 7. xi-io.net Pass 7 mirror push pe
 
 ### Current gap (2026-05-30)
 
-GitHub push complete @ `afbb359`. xi-io.net Pass 3 security mirror @ `f2c9230`. Pass 7 planning/hydration mirror in progress.
+GitHub push complete @ `a7c7305`. xi-io.net Pass 3 security mirror @ `f2c9230`. Pass 7 planning/hydration mirror in progress.
 
 ---
 

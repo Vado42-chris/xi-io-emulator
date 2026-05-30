@@ -13,7 +13,7 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `afbb359` (Pass 7) |
+| Product source commit | `a7c7305` (Pass 7) |
 | Prior substantive commit | `e7530b8` (PRH-04 evidence refresh) |
 | xi-io.net mirror commit | **pending Pass 7 push** |
 | Prior mirror commit | `f2c9230` (Pass 3 security hub) |
@@ -53,8 +53,8 @@ incident-playbook.md
 | Artifact | Local path | xi-io.net target | Status |
 |----------|------------|------------------|--------|
 | Security framework standard | `docs/security/framework-security-standard-v1.md` | `security/` | **mirrored @ f2c9230** |
-| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `projects/hydration/` | **Pass 7 @ afbb359** |
-| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `projects/manifests/` + evidence | **Pass 7 @ afbb359** |
+| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `projects/hydration/` | **Pass 7 @ a7c7305** |
+| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `projects/manifests/` + evidence | **Pass 7 @ a7c7305** |
 | Master plan | `docs/project-tracking/master-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **Pass 7 refresh** |
 | Repo health audit | `docs/project-tracking/repo-health-audit-2026-05.md` | `projects/evidence/xi_io_emulator/` | **Pass 7 refresh** |
 | WIP branch map | `docs/project-tracking/wip-branch-map-2026-05.md` | `projects/evidence/xi_io_emulator/` | **Pass 7 refresh** |
@@ -74,7 +74,7 @@ incident-playbook.md
 
 | Repo | Commit | Notes |
 |------|--------|-------|
-| xi-io-emulator | `afbb359` | Pass 7 hydration SHA + sync prep |
+| xi-io-emulator | `a7c7305` | Pass 7 hydration SHA + sync prep |
 | xi-io-emulator | `19d4a72` | Pass 6 manifest alignment (prior HEAD) |
 | xi-io-emulator | `e7530b8` | PRH-04 evidence refresh |
 | xi-io-emulator | `897a97d` | PRH-02 restore failure ledger |

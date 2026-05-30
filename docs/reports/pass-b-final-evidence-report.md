@@ -383,7 +383,7 @@ Until then, do not close the milestone or start Pass C.
 | 5 | 2026-05-30 | PRH-02 restore failure ledger | **pushed** | `897a97d` |
 | 6 | 2026-05-30 | Security + path hygiene + USB product docs | **pushed** | `5705344` |
 | 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **pushed** | `e7530b8`; verify:shell-restore + verify:session-idle exit 0 |
-| 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **commit afbb359** | verify exit 0; xi-io.net push pending |
+| 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **commit a7c7305** | verify exit 0; xi-io.net push pending |
 | 8 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 
 ### Remaining passes estimate (2026-05-30)

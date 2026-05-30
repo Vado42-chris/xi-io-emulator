@@ -36,7 +36,7 @@ security:
 
 branch_policy:
   active_wip: wip/pass-b-lifecycle-display-shell
-  wip_head_sha: "afbb359"
+  wip_head_sha: "a7c7305"
   launch_hardening_code_sha: "45d55ee"
   security_docs_sha: "ab4365c"
   path_hygiene_sha: "afa9349"
@@ -53,7 +53,7 @@ status:
   lifecycle_state: in_build
   freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: synced_github_afbb359_xi_io_net_pass7_pending
+  repo_sync_state: synced_github_a7c7305_xi_io_net_pass7_pending
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
@@ -62,7 +62,7 @@ status:
     prh_02_restore_failed_ledger: done
     prh_03_commit_push:
       status: done
-      branch_head_sha: "afbb359"
+      branch_head_sha: "a7c7305"
       launch_code_sha: "45d55ee"
       xi_io_net_mirror_sha: "pass7_pending"
       xi_io_net_security_mirror_sha: "f2c9230"
