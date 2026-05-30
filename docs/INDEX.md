@@ -1,6 +1,6 @@
 # xi-io Emulator Documentation Index
 
-Date: 2026-05-28
+Date: 2026-05-30
 
 ## Purpose
 
@@ -12,10 +12,12 @@ The goal is to keep product intent, technical contracts, future tracks, framewor
 
 ```txt
 docs/project-tracking/master-plan-2026-05.md   ← source of truth for all phases
+docs/project-tracking/pre-release-hardening-milestones.md   ← PRH-01–04 before bulk hydration
 docs/project-tracking/repo-health-audit-2026-05.md
 docs/project-tracking/historical-plans-consolidation.md
 docs/project-tracking/admin-feature-audit-index.md
 docs/project-tracking/feature-matrix.md
+docs/security/supply-chain-security-baseline.md   ← deps, CVE workflow, xi-io.net propagation
 ```
 
 Cursor IDE may mirror the master plan under `.cursor/plans/` — **if they diverge, the repo file wins.**
@@ -25,6 +27,7 @@ Cursor IDE may mirror the master plan under `.cursor/plans/` — **if they diver
 ```txt
 README.md
 docs/INDEX.md
+.memory/security.md
 docs/project-tracking/master-plan-2026-05.md
 docs/project-tracking/historical-plans-consolidation.md
 docs/project-tracking/open-work-ledger.md
@@ -44,6 +47,8 @@ docs/decisions/generic-usb-controller-proof-policy.md
 docs/agent-handoff-image-hydration.md
 docs/architecture/conversation-decision-backlog.md
 docs/architecture/naming-and-pathing-standard.md
+docs/project-tracking/pre-release-hardening-milestones.md
+docs/security/supply-chain-security-baseline.md
 ```
 
 ## Architecture
@@ -51,6 +56,25 @@ docs/architecture/naming-and-pathing-standard.md
 ```txt
 docs/architecture/naming-and-pathing-standard.md
 docs/architecture/conversation-decision-backlog.md
+```
+
+## Security and supply chain
+
+```txt
+.memory/security.md
+docs/security/supply-chain-security-baseline.md
+npm run verify:deps
+```
+
+## Verification scripts (run before merge)
+
+```txt
+npm run verify:deps
+npm run verify:engine-launch
+npm run verify:shell-restore
+npm run verify:session-idle
+npm run verify:ui-toolbar
+bash scripts/repo-health-audit.sh
 ```
 
 ## Core product docs
@@ -192,8 +216,9 @@ Controller proof: generic wired USB controller is valid; SNES-branded controller
 Do not bulk scan or hydrate the full local library until:
 
 ```txt
-Pass B: controller + dual launch proof passes
+Pass B: controller + dual launch proof passes (PRH-04)
 Pass C: launch proof milestone documentation closes
+XARCADE-PRE-RELEASE-HARDENING-001: PRH-01–04 complete (see pre-release-hardening-milestones.md)
 XARCADE-IMAGE-HYDRATION-001: image/artwork hydration plan is implemented
 ```
 

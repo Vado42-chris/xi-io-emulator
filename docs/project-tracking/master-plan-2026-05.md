@@ -42,6 +42,7 @@ Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001** (Pass B partial / blocked)
 | **0** | Documentation refresh | Missing planning docs committed (docs-only) |
 | **1** | Pass B core (launch/exit/controller) | Hardware checklist signed |
 | **1C** | Pass C milestone close | Pass B complete only |
+| **1D** | Pre-release hardening (PRH-01–04) | Before bulk hydration / beta |
 | **2–3** | Hydration + arcade surface contracts | Contract docs committed |
 | **4** | Admin feature audit (scored) | admin-feature-audit-index populated |
 | **5** | Image hydration Pass D–F | Pilot 50 → stress 100 |
@@ -214,6 +215,22 @@ Files: `ArcadeHome.tsx`, `ArcadeGameDetail.tsx`, `useArcadeGamepadListener.ts`, 
 
 Update: proof report, ledger, hydration YAML, framework sync per `docs/agent-master-prompt-current-next.md`
 
+### 1D — Pre-release hardening (blocks bulk hydration)
+
+**Canonical tracker:** [pre-release-hardening-milestones.md](./pre-release-hardening-milestones.md)  
+**Security baseline:** [../security/supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md)
+
+| ID | Plain requirement | Gate |
+|----|-----------------|------|
+| PRH-01 | SQLite for play/session data (migrate off localStorage) | User data durability |
+| PRH-02 | Emit `shell_focus_restore_failed` when wake fails | No silent XIO-LCH-008 |
+| PRH-03 | Commit + push WIP branch; mirror xi-io.net | Remote SHA + peer review |
+| PRH-04 | Pass B evidence report + peer review signed | Blocks Phase 5–6 |
+
+Run `npm run verify:deps` at start of any security or dependency slice.
+
+**Acceptance:** All four PRH rows `Done` or explicitly deferred with date in tracker; manifest + ledger updated.
+
 ---
 
 ## Phase 2 — Hydration completeness contract
@@ -257,6 +274,7 @@ Maintain in `docs/operations/launch-failure-codes.md`:
 | XIO-LCH-014 startup timeout | launch overlay | launch_failed | `session_startup.rs` | TBD | code yes |
 | XIO-LCH-015 Flatpak/supervisor parse | launch overlay | launch_failed | `engine_launch.rs` | TBD | code yes |
 | XIO-LCH-016 preflight validation | hero blockers | launch_blocked | `validate_launch_plan` | TBD | code yes |
+| XIO-LCH-008 shell focus restore failed | session overlay | shell_focus_restore_failed | `window_registry.rs` | yes | **no — PRH-02** |
 
 ---
 

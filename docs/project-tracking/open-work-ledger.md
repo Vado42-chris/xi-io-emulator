@@ -66,7 +66,23 @@ Hardware proof rows: still pending user (SNES launch, NES exit, A/B, Mark Verifi
 Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/troubleshooting-pass-b.md
 ```
 
-**Pass B status:** partial / blocked. **Pass C:** not safe. Operations docs do not close the milestone.
+**Pass B status:** partial — NES launch/return improved (user 2026-05-30); full checklist + SNES + A/B still open. **Pass C:** not safe until PRH-04. **Pre-release hardening:** see below.
+
+### Pre-release hardening (XARCADE-PRE-RELEASE-HARDENING-001)
+
+**Tracker (plain language, update every slice):** [pre-release-hardening-milestones.md](./pre-release-hardening-milestones.md)  
+**Security baseline:** [../security/supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md)
+
+| ID | What | Status (2026-05-30) |
+|----|------|---------------------|
+| PRH-01 | SQLite play/session data | Not started |
+| PRH-02 | `shell_focus_restore_failed` ledger | Not started |
+| PRH-03 | Commit + push WIP | In progress (local uncommitted launch fixes) |
+| PRH-04 | Pass B closeout + peer review | In progress |
+
+**Blocks bulk hydration until all four are Done or deferred with date in tracker.**
+
+Verify: `npm run verify:deps` (npm audit; cargo-audit optional until installed).
 
 ### Pass B edge-case matrix (lifecycle / display / controller)
 

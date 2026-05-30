@@ -20,6 +20,8 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Controller mapping plan | `docs/project-tracking/controller-mapping-001-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored** |
 | UI framework trio | `docs/framework/xibalba-*.md` | `003_xi-io_net/docs/framework/xibalba/` | **mirrored 2026-05-29** |
 | Launch failure codes 014–016 | `docs/operations/launch-failure-codes.md` | Ops runbook mirror | **local only** |
+| Pre-release hardening tracker | `docs/project-tracking/pre-release-hardening-milestones.md` | `projects/evidence/xi_io_emulator/` | **pending mirror (PRH-03)** |
+| Supply chain security baseline | `docs/security/supply-chain-security-baseline.md` | `003_xi-io_net/security/` (proposed hub) | **pending mirror (PRH-03)** |
 | Workbench preview event | `evt-xi-io-emulator-phase-0-docs-001` | `public/data/workbench-events.preview.json` | **mirrored 2026-05-29** |
 
 ## xi-io.net → Emulator repo (inbound)

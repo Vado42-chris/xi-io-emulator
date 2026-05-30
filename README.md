@@ -37,10 +37,11 @@ Phase 5: broader universal emulator shell
 React + TypeScript + Vite UI
 Tauri desktop shell
 Rust sidecar/system services
-SQLite local catalog
+SQLite local catalog (planned — see PRH-01)
 JSON adapter manifests
 SDL controller mapping source
 RetroArch/libretro backend for first SNES slice
+FCEUX for NES proof path
 ```
 
 ## Xibalba framework alignment
@@ -54,6 +55,93 @@ Egress: launch commands, library views, controller profiles, save paths, visible
 Lexicon: controlled terms for systems, engines, cores, profiles, ROM roots, adapters, saves, firmware
 Ledger: project and runtime events that prevent silent failures
 ```
+
+## Repository status (2026-05-30)
+
+| Item | Value |
+|------|--------|
+| **Milestone** | XARCADE-CONTROLLER-LAUNCH-PROOF-001 (Pass B partial) |
+| **Active branch** | `wip/pass-b-lifecycle-display-shell` |
+| **Repo health** | **YELLOW** — build/typecheck pass; HW proof + pre-release hardening open |
+| **GitHub default** | `origin/main` |
+| **Bulk hydration** | **Blocked** until [pre-release hardening](./docs/project-tracking/pre-release-hardening-milestones.md) PRH-01–04 complete |
+
+Pass B progress (user hardware): NES launch and return-to-shell improved (2026-05-30). Full checklist (SNES, A/B in-game, peer review) still open — see [PRH-04](./docs/project-tracking/pre-release-hardening-milestones.md#prh-04--pass-b-closeout-and-peer-review).
+
+## Documentation map (start here)
+
+Agents and contributors must read in this order:
+
+```txt
+1. README.md (this file)
+2. docs/INDEX.md
+3. docs/project-tracking/master-plan-2026-05.md
+4. docs/project-tracking/open-work-ledger.md
+5. docs/project-tracking/pre-release-hardening-milestones.md
+6. docs/security/supply-chain-security-baseline.md
+7. .memory/security.md
+```
+
+**Canonical master plan:** [docs/project-tracking/master-plan-2026-05.md](docs/project-tracking/master-plan-2026-05.md) — if Cursor plans diverge, **the repo file wins**.
+
+**Branch policy:** GitHub default is `origin/main`. Pass B lifecycle work lives on `wip/pass-b-lifecycle-display-shell` until reviewed and merged. Do not mix docs-only and source commits in one commit.
+
+**Framework sync:** [docs/framework/xi-io-net-sync-status.md](docs/framework/xi-io-net-sync-status.md)
+
+**Repo health audit:** [docs/project-tracking/repo-health-audit-2026-05.md](docs/project-tracking/repo-health-audit-2026-05.md)
+
+## Pre-release hardening (blocks bulk hydration)
+
+Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.md](docs/project-tracking/pre-release-hardening-milestones.md)
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| PRH-01 | SQLite for play/session data | Not started |
+| PRH-02 | `shell_focus_restore_failed` ledger | Not started |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | In progress |
+| PRH-04 | Pass B evidence + peer review | In progress |
+
+## Security and dependencies
+
+- Baseline policy: [docs/security/supply-chain-security-baseline.md](docs/security/supply-chain-security-baseline.md)
+- Agent rules: [.memory/security.md](.memory/security.md)
+- Verify before merge: `npm run verify:deps` (npm audit; optional `cargo-audit` for Rust)
+- Last npm audit (2026-05-30): **0 vulnerabilities**
+
+xi-io.net is the intended **security policy hub** for sibling repos — see baseline doc for propagation pattern.
+
+## Development
+
+### Prerequisites
+
+Linux Tauri dependencies (WebKitGTK, libsoup). See [controller launch proof report](docs/reports/controller-launch-proof-report.md) if `cargo check` fails.
+
+### Commands
+
+```bash
+# Web UI only (no real launch)
+npm run dev
+
+# Desktop shell (required for Pass B)
+export CARGO_TARGET_DIR=".tmp/cargo-target"
+npm run tauri:dev
+
+# Quality gates
+npm run typecheck:app
+npm run build
+npm run verify:deps
+npm run verify:engine-launch
+npm run verify:shell-restore
+npm run verify:session-idle
+npm run verify:ui-toolbar
+```
+
+### Launch troubleshooting
+
+- [docs/operations/troubleshooting-pass-b.md](docs/operations/troubleshooting-pass-b.md)
+- [docs/operations/launch-failure-codes.md](docs/operations/launch-failure-codes.md)
+
+Real game launch requires the Tauri desktop app. Launch only from **Pass B Launch Proof** shelf tiles — not stale demo `/media/arcade-usb/` records.
 
 ## First shippable slice
 
@@ -81,14 +169,5 @@ Do not start with PS2.
 Do not require users to edit RetroArch config files manually.
 Do not make emulator internals the primary UI.
 Do not silently fail when drives, cores, BIOS files, or controllers are missing.
+Do not bulk-hydrate the full SNES library until Pass B/C and PRH gates pass.
 ```
-
-## Repository status
-
-Milestone **XARCADE-CONTROLLER-LAUNCH-PROOF-001** is implemented in code (Pass B partial / blocked). **Repo health: RED** until WIP source is on named branches — see [docs/project-tracking/repo-health-audit-2026-05.md](docs/project-tracking/repo-health-audit-2026-05.md) and [wip-branch-map-2026-05.md](docs/project-tracking/wip-branch-map-2026-05.md).
-
-**Master plan (canonical):** [docs/project-tracking/master-plan-2026-05.md](docs/project-tracking/master-plan-2026-05.md)
-
-**Branch policy:** GitHub default is `origin/main`. Local `master` is the integration branch; push docs-only work to `main` after review. UI framework docs merged from `origin/docs/xibalba-ui-framework-001` (docs only, no source).
-
-Start agents at [docs/INDEX.md](docs/INDEX.md). Real launch requires the Tauri desktop shell (`npm run tauri:dev`). Verify launch command shape: `npm run verify:engine-launch`. Bulk library hydration remains deferred until launch proof passes on your machine.

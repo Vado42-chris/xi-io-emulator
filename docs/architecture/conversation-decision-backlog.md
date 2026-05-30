@@ -215,6 +215,69 @@ Tags:
 #xio:emulator/media-extension/future
 ```
 
+## Decision 008, pre-release hardening gates bulk hydration
+
+Before bulk library hydration or public beta, four milestones must complete or be explicitly deferred with date:
+
+```txt
+PRH-01 SQLite play/session data
+PRH-02 shell_focus_restore_failed ledger
+PRH-03 commit + push + xi-io.net mirror
+PRH-04 Pass B closeout + peer review
+```
+
+Canonical tracker:
+
+```txt
+docs/project-tracking/pre-release-hardening-milestones.md
+docs/project-tracking/master-plan-2026-05.md (Phase 1D)
+```
+
+Tags:
+
+```txt
+#xio:emulator/pre-release/hardening
+#xio:emulator/milestone/XARCADE-PRE-RELEASE-HARDENING-001
+```
+
+## Decision 009, xi-io.net as security policy hub (not monolith)
+
+Framework security rules live on xi-io.net and propagate to product repos by manifest SHA and evidence mirror — not by copying secrets or auto-patching without review.
+
+Canonical doc:
+
+```txt
+docs/security/supply-chain-security-baseline.md
+```
+
+Product repos run `npm run verify:deps` before merge.
+
+Tags:
+
+```txt
+#xio:framework/security/baseline
+#xio:emulator/supply-chain
+```
+
+## Decision 010, shell resume vs in-game save state are separate milestones
+
+Returning to the same game **tile** after exit is not the same as resuming **in-game progress**.
+
+```txt
+XARCADE-NAV-SNAPSHOT-001 — browse UI snapshot on exit
+XARCADE-SAVE-STATE-001 — engine save files + Continue on card
+XARCADE-QUICK-RESUME-001 — suspend without exit (deferred)
+```
+
+Do not fold these into PRH-01 SQLite work without updating the pre-release tracker.
+
+Tags:
+
+```txt
+#xio:emulator/resume/navigation
+#xio:emulator/resume/save-state
+```
+
 ## Open risks
 
 ```txt
