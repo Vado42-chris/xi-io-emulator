@@ -37,6 +37,9 @@ docs/framework/serialized-hashtags-standard.md
 | [XIO-LCH-011](#xio-lch-011-emulator-alive-rom-closed) | Emulator alive, ROM closed | Lifecycle |
 | [XIO-LCH-012](#xio-lch-012-duplicate-xi-io-instance) | Duplicate xi-io instance | Shell |
 | [XIO-LCH-013](#xio-lch-013-demo-mode-simulated) | Demo mode simulated launch | Launch |
+| [XIO-LCH-014](#xio-lch-014-startup-timeout) | Startup timeout | Launch |
+| [XIO-LCH-015](#xio-lch-015-flatpak-supervisor-parse) | Flatpak / supervisor parse | Launch |
+| [XIO-LCH-016](#xio-lch-016-preflight-validation) | Preflight validation failed | Readiness |
 
 ---
 
@@ -221,6 +224,63 @@ docs/framework/serialized-hashtags-standard.md
 
 ---
 
+## XIO-LCH-014: Startup timeout
+
+| Field | Value |
+|-------|-------|
+| **Symptom** | Launch overlay stays on **Launching…** ~12s then error; no emulator window; user sees "loading then nothing" |
+| **Subsystem** | Launch / `session_startup.rs` |
+| **Blocker code** | — (post-invoke failure) |
+| **UI surface** | Launch overlay error text from supervisor poll |
+| **Current ledger** | `launch_failed` (message may omit `failureCode`) |
+| **Future ledger** | `launch_failed` with `failureCode: XIO-LCH-014` |
+| **Verify** | `pgrep -af 'fceux|retroarch|org.libretro'` during launch; check `[xi-io]` stderr for supervisor exit; re-test after engine paths confirmed |
+
+**Source:** `poll_emulator_startup_once` / `startup_timeout()` — 12s cap before reporting failure if no emulator PID appears.
+
+---
+
+## XIO-LCH-015: Flatpak / supervisor parse
+
+| Field | Value |
+|-------|-------|
+| **Symptom** | SNES launch fails immediately; overlay shows supervisor parse error or "Engine binary not found: flatpak" |
+| **Subsystem** | Launch / `engine_launch.rs` + supervisor wrapper |
+| **Blocker code** | — |
+| **UI surface** | Launch overlay error; command preview may show malformed `flatpak` args |
+| **Current ledger** | `launch_failed` |
+| **Future ledger** | `launch_failed` with `failureCode: XIO-LCH-015` |
+| **Verify** | `which flatpak`; Admin → Engines RetroArch path; expect `flatpak run org.libretro.RetroArch …` after normalize; `npm run verify:engine-launch` |
+
+**Common causes:** Internal Flatpak export path without `flatpak run` wrapper; `flatpak` not on PATH; malformed args repaired by `repair_flatpak_args`.
+
+---
+
+## XIO-LCH-016: Preflight validation failed
+
+| Field | Value |
+|-------|-------|
+| **Symptom** | Hero blocker or launch blocked **before** invoke; message names missing binary, Flatpak unavailable, or invalid command |
+| **Subsystem** | Readiness / `validate_launch_plan` → `prepare_launch` |
+| **Blocker code** | Maps to 001–005 when surfaced via `checkLaunchReadiness`; validation-specific errors use overlay/blocker text |
+| **UI surface** | Arcade Home hero blockers; GameDetail readiness panel; launch overlay preflight |
+| **Current ledger** | `launch_blocked` when readiness fails; validation-only path may not emit ledger |
+| **Future ledger** | `launch_blocked` with `failureCode: XIO-LCH-016` when distinct from generic blockers |
+| **Verify** | Tauri invoke `validate_launch_plan` from devtools; `npm run verify:engine-launch`; Admin → Test Engine Paths |
+
+---
+
+## Failure-code parity matrix
+
+| Code | UI surface | Ledger | Source | Runbook | Implemented |
+|------|------------|--------|--------|---------|-------------|
+| XIO-LCH-001–013 | hero / overlay | partial | mixed | yes | partial |
+| XIO-LCH-014 startup timeout | launch overlay | `launch_failed` | `session_startup.rs` | yes | code yes |
+| XIO-LCH-015 Flatpak/supervisor parse | launch overlay | `launch_failed` | `engine_launch.rs` | yes | code yes |
+| XIO-LCH-016 preflight validation | hero blockers | `launch_blocked` | `validate_launch_plan` | yes | code yes |
+
+---
+
 ## Blocker code → XIO code mapping
 
 | `LaunchBlocker.code` | XIO code |
@@ -240,9 +300,9 @@ docs/framework/serialized-hashtags-standard.md
 | Ledger event | XIO codes | Status |
 |--------------|-----------|--------|
 | `launch_requested` | all launches | Implemented |
-| `launch_blocked` | 001–005, 010 | Implemented |
+| `launch_blocked` | 001–005, 010, 016 | Implemented (016 partial — no distinct failureCode yet) |
 | `launch_started` | — | Implemented |
-| `launch_failed` | 006, 007 | Implemented |
+| `launch_failed` | 006, 007, 014, 015 | Implemented (014/015 partial — no distinct failureCode yet) |
 | `emulator_exited` | clean exit | Implemented |
 | `shell_focus_restored` | 008 (misleading on failure) | Implemented |
 | `shell_focus_restore_failed` | 008 | **Not implemented** |

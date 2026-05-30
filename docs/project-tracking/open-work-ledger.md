@@ -2,6 +2,24 @@
 
 Date: 2026-05-28
 
+## Canonical planning (2026-05-28)
+
+All phase execution is governed by:
+
+```txt
+docs/project-tracking/master-plan-2026-05.md          ← source of truth
+docs/project-tracking/repo-health-audit-2026-05.md  ← repo health (RED)
+docs/project-tracking/historical-plans-consolidation.md
+docs/project-tracking/admin-feature-audit-index.md
+docs/project-tracking/feature-matrix.md
+```
+
+Repo health must reach **YELLOW** before source implementation resumes. See master plan Phase -1.
+
+**Phase -1 progress (2026-05-29):** UI framework docs merged; WIP branch map published; branch policy in README. Source isolation to named branches **pending peer review**.
+
+**Phase 0 progress (2026-05-29):** XIO-LCH-014–016 + parity matrix in `launch-failure-codes.md`; runbook sections for startup timeout, Flatpak parse, preflight validation; `xi-io-net-sync-status.md` reconciled.
+
 ## Purpose
 
 This ledger tracks work that must not be lost across chat sessions, Antigravity, Cursor, local agents, and the wider xi-io framework/workbench.

@@ -12,6 +12,33 @@ Operator and user runbook for **XARCADE-CONTROLLER-LAUNCH-PROOF-001** hardware p
 
 ---
 
+## System freeze after closing a game (full desktop lockup)
+
+**Symptoms:** Emulator closes, then the entire Linux session freezes (mouse/keyboard dead); hard reset required.
+
+**Likely cause (fixed in current builds):** duplicate shell-restore storms — Rust and the UI both called window focus restore, spawning many concurrent `xdotool windowactivate --sync` calls that can block the compositor indefinitely under load.
+
+**Guardrails now in place:**
+
+- Single restore owner in Rust; UI only resets state on `emulator-session-finished`
+- 2.5s debounce + mutex on shell restore
+- No `xdotool --sync`; all WM tools wrapped in `timeout 2`
+- Focus retries capped at 2 (250ms, 1s) instead of 7
+- Removed global `pkill -KILL -x fceux` — only session PIDs are killed
+- Terminate path deduped to prevent concurrent kill + restore
+
+**If it happens again:**
+
+```bash
+# From another TTY (Ctrl+Alt+F3) or SSH — never rely on the frozen desktop
+pkill -f 'fceux.*your-rom-name' || true
+pkill -f xi-io-emulator || true
+```
+
+Report `[xi-io]` lines from `~/.local/share/xi-io-emulator/` logs or journal if available.
+
+---
+
 ## Before any test
 
 ```bash
@@ -152,6 +179,48 @@ Emergency cleanup only (operator terminal): `pkill -f fceux`
 | **Verified when** | Game fullscreen on intended monitor |
 
 **Single monitor:** picker skipped automatically — game uses primary display.
+
+---
+
+## Launch overlay stuck then error (~12 seconds) — loading then nothing
+
+| | |
+|---|---|
+| **Code** | XIO-LCH-014 |
+| **Symptom** | Overlay shows **Launching…** for up to ~12s; then error; no game window |
+| **Likely cause** | Supervisor started but emulator PID never appeared (wrong binary, core path, or ROM); supervisor exited early |
+| **In-app check** | Admin → Engines → **Test Engine Paths**; confirm proof ROM exists |
+| **Terminal check** | During launch: `pgrep -af 'fceux|retroarch|org.libretro'`; watch stderr for `[xi-io]` supervisor lines |
+| **Safe fix** | Fix engine/core/ROM paths; re-test from Pass B Launch Proof shelf |
+| **Verified when** | Emulator window visible within ~12s; overlay clears to in-game or success state |
+
+---
+
+## SNES Flatpak / RetroArch command parse failure
+
+| | |
+|---|---|
+| **Code** | XIO-LCH-015 |
+| **Symptom** | Immediate launch failure; message mentions supervisor code 2, parse error, or "flatpak" |
+| **Likely cause** | RetroArch configured as internal Flatpak path without `flatpak run`; `flatpak` missing from PATH; malformed launch args |
+| **In-app check** | Admin → Engines → RetroArch path; launch preview should normalize to `flatpak run org.libretro.RetroArch …` |
+| **Terminal check** | `which flatpak`; `flatpak run org.libretro.RetroArch --version` |
+| **Safe fix** | Install Flatpak RetroArch or set system `retroarch` binary; run `npm run verify:engine-launch` |
+| **Verified when** | SNES proof ROM launches from xi-io GUI without parse error |
+
+---
+
+## Preflight validation failed (before launch invoke)
+
+| | |
+|---|---|
+| **Code** | XIO-LCH-016 (may overlap XIO-LCH-001–005) |
+| **Symptom** | Blocker on game card or readiness panel; launch never reaches overlay **Launching…** |
+| **Likely cause** | `validate_launch_plan` / `prepare_launch` rejected command (missing binary, Flatpak unavailable, invalid args) |
+| **In-app check** | Hero blockers; GameDetail readiness strip |
+| **Terminal check** | `npm run verify:engine-launch`; `test -f` on engine binary and proof ROM |
+| **Safe fix** | Resolve blocker shown (engine, core, content, permission); save Admin → Engines |
+| **Verified when** | Readiness shows ready; launch proceeds to overlay |
 
 ---
 

@@ -8,11 +8,25 @@ This is the canonical documentation map for xi-io Emulator. Future agents should
 
 The goal is to keep product intent, technical contracts, future tracks, framework alignment, and agent handoffs outside chat history.
 
+## Canonical master plan (start here for execution)
+
+```txt
+docs/project-tracking/master-plan-2026-05.md   ← source of truth for all phases
+docs/project-tracking/repo-health-audit-2026-05.md
+docs/project-tracking/historical-plans-consolidation.md
+docs/project-tracking/admin-feature-audit-index.md
+docs/project-tracking/feature-matrix.md
+```
+
+Cursor IDE may mirror the master plan under `.cursor/plans/` — **if they diverge, the repo file wins.**
+
 ## Required first-read sequence for agents
 
 ```txt
 README.md
 docs/INDEX.md
+docs/project-tracking/master-plan-2026-05.md
+docs/project-tracking/historical-plans-consolidation.md
 docs/project-tracking/open-work-ledger.md
 docs/roadmap/remaining-work-pass-plan.md
 docs/agent-master-prompt-current-next.md
@@ -62,6 +76,8 @@ docs/contracts/adapter-contract-v1.md
 docs/contracts/controller-contract-v1.md
 docs/contracts/game-management-contract-v1.md
 docs/contracts/storage-contract-v1.md
+docs/contracts/hydration-completeness-checklist.md
+docs/contracts/arcade-surface-field-spec.md
 ```
 
 ## Packaging
@@ -135,6 +151,15 @@ docs/framework/repo-sync-contract.md
 docs/framework/xi-io-net-sync-status.md
 docs/framework/serialized-hashtags-standard.md
 docs/framework/ui-component-catalog.md
+docs/framework/xibalba-ui-framework-standard-v1.md
+docs/framework/xibalba-ui-adoption-matrix-v1.md
+docs/framework/xibalba-ui-component-registry-plan-v1.md
+docs/project-tracking/master-plan-2026-05.md
+docs/project-tracking/repo-health-audit-2026-05.md
+docs/project-tracking/historical-plans-consolidation.md
+docs/project-tracking/wip-branch-map-2026-05.md
+docs/project-tracking/admin-feature-audit-index.md
+docs/project-tracking/feature-matrix.md
 docs/project-tracking/open-work-ledger.md
 ```
 

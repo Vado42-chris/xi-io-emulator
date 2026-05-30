@@ -2,6 +2,9 @@
 
 Date: 2026-05-28
 
+> **Execution source of truth:** [docs/project-tracking/master-plan-2026-05.md](../project-tracking/master-plan-2026-05.md)  
+> This document retains Pass B–L **estimates and acceptance detail**. Open items from all prior plans are merged in [historical-plans-consolidation.md](../project-tracking/historical-plans-consolidation.md).
+
 ## Purpose
 
 This document estimates the remaining work for xi-io Emulator from the current checkpoint through a shippable MVP and later full product maturity.

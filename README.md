@@ -85,4 +85,10 @@ Do not silently fail when drives, cores, BIOS files, or controllers are missing.
 
 ## Repository status
 
-Milestone **XARCADE-CONTROLLER-LAUNCH-PROOF-001** is implemented in code. Start agents at [docs/INDEX.md](docs/INDEX.md). Real launch requires the Tauri desktop shell (`npm run tauri:dev`). Bulk library hydration remains deferred until launch proof passes on your machine.
+Milestone **XARCADE-CONTROLLER-LAUNCH-PROOF-001** is implemented in code (Pass B partial / blocked). **Repo health: RED** until WIP source is on named branches — see [docs/project-tracking/repo-health-audit-2026-05.md](docs/project-tracking/repo-health-audit-2026-05.md) and [wip-branch-map-2026-05.md](docs/project-tracking/wip-branch-map-2026-05.md).
+
+**Master plan (canonical):** [docs/project-tracking/master-plan-2026-05.md](docs/project-tracking/master-plan-2026-05.md)
+
+**Branch policy:** GitHub default is `origin/main`. Local `master` is the integration branch; push docs-only work to `main` after review. UI framework docs merged from `origin/docs/xibalba-ui-framework-001` (docs only, no source).
+
+Start agents at [docs/INDEX.md](docs/INDEX.md). Real launch requires the Tauri desktop shell (`npm run tauri:dev`). Verify launch command shape: `npm run verify:engine-launch`. Bulk library hydration remains deferred until launch proof passes on your machine.

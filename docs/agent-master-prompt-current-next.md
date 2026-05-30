@@ -6,14 +6,21 @@ Date: 2026-05-28
 
 This is the current canonical next-work prompt for Cursor agents after the non-mutating SNES library import decision and remaining-work pass plan.
 
-Agents must not rely on chat history. Start here.
+Agents must not rely on chat history. **Start at the repo master plan:**
+
+```txt
+docs/project-tracking/master-plan-2026-05.md
+docs/project-tracking/repo-health-audit-2026-05.md
+docs/project-tracking/historical-plans-consolidation.md
+```
 
 ## Current lock
 
 ```txt
-Current active work: Pass B hardware proof, agent-led (user-assisted)
-Agents: orchestrate Pass B per docs/agent-master-prompt-pass-b-pass-c.md; Pass C blocked until evidence-backed checklist exists
-Current repo state: post standardization audit + non-mutating local library import decision
+Repo health: RED — Phase -1 WIP isolation required before source implementation
+Current active work: Pass B hardware proof, agent-led (user-assisted) — blocked until tree isolated
+Agents: follow master plan phases; Pass C blocked until Pass B evidence exists
+Do not implement from remaining-work-pass-plan.md or backlog.md directly — use master plan phase gates
 ```
 
 ## Prompt for Cursor
@@ -43,6 +50,8 @@ Pass C — close XARCADE-CONTROLLER-LAUNCH-PROOF-001.
 FIRST READ:
 README.md
 docs/INDEX.md
+docs/project-tracking/master-plan-2026-05.md
+docs/project-tracking/historical-plans-consolidation.md
 docs/project-tracking/open-work-ledger.md
 docs/reports/controller-launch-proof-report.md
 docs/reports/standardization-audit-report.md

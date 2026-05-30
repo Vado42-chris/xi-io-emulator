@@ -1,5 +1,8 @@
 # Initial Backlog
 
+> **Execution source of truth:** [docs/project-tracking/master-plan-2026-05.md](project-tracking/master-plan-2026-05.md)  
+> Slice IDs below are reference; open items merged in [historical-plans-consolidation.md](project-tracking/historical-plans-consolidation.md).
+
 This backlog is intentionally small and slice-based. Do not expand systems until the SNES shell slice is shippable.
 
 ## Current milestone
