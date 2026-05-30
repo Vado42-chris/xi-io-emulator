@@ -196,6 +196,21 @@ Launch overlay shows plain-language recovery copy. This is **expected telemetry*
 
 ---
 
+## Shell hidden but no game window (XIO-LCH-014 variant)
+
+| | |
+|---|---|
+| **Code** | XIO-LCH-014 |
+| **Symptom** | xi-io window disappears; no FCEUX/RetroArch game visible; desktop may look empty |
+| **Likely cause** | Startup falsely confirmed a stale engine PID, or emulator exited before a window appeared; shell hibernated too early (fixed in builds after 2026-05-30) |
+| **Immediate recovery** | **Alt+Tab** to xi-io or the emulator; or from another TTY: `pkill -f 'fceux\|retroarch'` then restart `npm run tauri:dev` |
+| **In-app check** | Admin → Logs: look for `launch_failed`, `emulator-session-finished` with `sessionReachedGame: false` |
+| **Terminal check** | During launch: `pgrep -af 'fceux\|retroarch\|xi-io-session-run'`; confirm proof ROM path with `test -f` |
+| **Safe fix** | Admin → Engines → **Test Engine Paths**; confirm proof ROM on Pass B Launch Proof shelf; pull latest WIP with stricter startup gate |
+| **Verified when** | Game window visible before shell hides; or launch error shown in overlay without hiding shell |
+
+---
+
 ## Launch overlay stuck then error (~12 seconds) — loading then nothing
 
 | | |
