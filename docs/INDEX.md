@@ -134,6 +134,7 @@ docs/operations/troubleshooting-pass-b.md
 docs/framework/repo-sync-contract.md
 docs/framework/xi-io-net-sync-status.md
 docs/framework/serialized-hashtags-standard.md
+docs/framework/ui-component-catalog.md
 docs/project-tracking/open-work-ledger.md
 ```
 

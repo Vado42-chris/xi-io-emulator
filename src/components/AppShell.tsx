@@ -25,7 +25,6 @@ import { ingressSingleGame, ingressBatchFolder } from '../services/ingressServic
 import { 
   Gamepad, 
   FolderOpen, 
-  Cpu, 
   Database, 
   Settings as SettingsIcon,
   Terminal,
@@ -38,8 +37,6 @@ import {
   AlertTriangle,
   X,
   Download,
-  CheckCircle,
-  XCircle,
   Info
 } from 'lucide-react';
 
@@ -47,6 +44,7 @@ import { LibraryGrid } from './LibraryGrid';
 import { GameDetailPanel } from './GameDetailPanel';
 import { ArcadeHome } from './ArcadeHome';
 import { ControllersPanel } from './ControllersPanel';
+import { EnginesPage } from '../pages/EnginesPage';
 import {
   buildGameSearchIndex,
   detectDuplicateCandidates,
@@ -976,253 +974,27 @@ export const AppShell: React.FC = () => {
 
       case 'engines':
         return (
-          <div className="content-card">
-            <div className="view-header">
-              <div className="view-title-container">
-                <Cpu className="color-accent" size={24} />
-                <h1 className="view-title">Emulator Engines</h1>
-              </div>
-              <p className="view-subtitle">Manage backend emulator paths and adapter manifests</p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
-              {/* Engine Setup Checklist */}
-              <div className="onboarding-checklist" style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'rgba(251, 191, 36, 0.05)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.15)' }}>
-                <h4 style={{ fontWeight: 600, fontSize: '0.9rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <Cpu size={16} /> Engine Setup Checklist
-                </h4>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
-                    {engineSettings.retroarchBinaryPath && engineSettings.retroarchBinaryPath !== 'Not set' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#ef4444' }} />}
-                    <span>RetroArch Path</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
-                    {engineSettings.snesCorePath && engineSettings.snesCorePath !== 'Not set' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#ef4444' }} />}
-                    <span>SNES libretro Core</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
-                    {engineSettings.testStatus === 'success' ? <CheckCircle size={14} style={{ color: '#10b981' }} /> : <XCircle size={14} style={{ color: '#fbbf24' }} />}
-                    <span>Diagnostic Test</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Status Warning Banner */}
-              {(!engineSettings.retroarchBinaryPath || engineSettings.retroarchBinaryPath === 'Not set' || engineSettings.testStatus !== 'success') && (
-                <div className="status-card" style={{ padding: '20px', borderLeft: '3px solid var(--color-warning)' }}>
-                  <h4 style={{ fontWeight: 600, color: 'var(--color-warning)', marginBottom: '4px' }}>
-                    Missing or Untested Backend Program
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                    A local RetroArch installation was not found or has not been tested. In order to launch games later, configure the binary path below.
-                  </p>
-                </div>
-              )}
-
-              {/* Inputs Form */}
-              <form onSubmit={handleTestEngine} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div className="settings-list" style={{ gap: '16px' }}>
-                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="settings-meta" style={{ flex: 1 }}>
-                      <span className="settings-label">RetroArch Binary Path</span>
-                      <span className="settings-desc">Location of the RetroArch executable on your system</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        style={{ width: '320px' }} 
-                        value={raPath} 
-                        onChange={e => setRaPath(e.target.value)}
-                      />
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        onClick={() => setRaBrowseOpen(!raBrowseOpen)}
-                      >
-                        Browse...
-                      </button>
-                      {raBrowseOpen && (
-                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
-                          <p style={{ margin: '0 0 6px 0', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Linux RetroArch Presets</p>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('/usr/bin/retroarch'); setRaBrowseOpen(false); }}>
-                            /usr/bin/retroarch (Ubuntu/Arch Native)
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('/var/lib/flatpak/exports/bin/org.libretro.RetroArch'); setRaBrowseOpen(false); }}>
-                            org.libretro.RetroArch (Flatpak)
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setRaPath('Not set'); setRaBrowseOpen(false); }}>
-                            Reset to Empty
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="settings-meta" style={{ flex: 1 }}>
-                      <span className="settings-label">SNES Core Path (Snes9x)</span>
-                      <span className="settings-desc">Path to the Snes9x libretro library file (.so)</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        style={{ width: '320px' }} 
-                        value={corePath} 
-                        onChange={e => setCorePath(e.target.value)}
-                      />
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        onClick={() => setCoreBrowseOpen(!coreBrowseOpen)}
-                      >
-                        Browse...
-                      </button>
-                      {coreBrowseOpen && (
-                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
-                          <p style={{ margin: '0 0 6px 0', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)' }}>Linux Snes9x Core Presets</p>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/usr/lib/x86_64-linux-gnu/libretro/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
-                            /usr/lib/.../snes9x_libretro.so (Ubuntu Native)
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/home/user/.var/app/org.libretro.RetroArch/config/retroarch/cores/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
-                            Flatpak config cores directory
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('/usr/lib/libretro/snes9x_libretro.so'); setCoreBrowseOpen(false); }}>
-                            /usr/lib/libretro/snes9x_libretro.so (Arch Linux Native)
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setCorePath('Not set'); setCoreBrowseOpen(false); }}>
-                            Reset to Empty
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="settings-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="settings-meta" style={{ flex: 1 }}>
-                      <span className="settings-label">FCEUX Binary Path (NES proof)</span>
-                      <span className="settings-desc">Location of the FCEUX executable for NES launch proof</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
-                      <input
-                        type="text"
-                        className="form-input"
-                        style={{ width: '320px' }}
-                        value={fceuxPath}
-                        onChange={(e) => setFceuxPath(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={() => setFceuxBrowseOpen(!fceuxBrowseOpen)}
-                      >
-                        Browse...
-                      </button>
-                      {fceuxBrowseOpen && (
-                        <div style={{ position: 'absolute', right: 0, top: '40px', backgroundColor: '#0c0d14', border: '1px solid var(--border-subtle)', borderRadius: '6px', zIndex: 100, width: '320px', padding: '8px', boxShadow: '0 10px 15px rgba(0,0,0,0.5)' }}>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setFceuxPath('/usr/bin/fceux'); setFceuxBrowseOpen(false); }}>
-                            /usr/bin/fceux
-                          </button>
-                          <button type="button" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#60a5fa', padding: '6px 4px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => { setFceuxPath('/usr/games/fceux'); setFceuxBrowseOpen(false); }}>
-                            /usr/games/fceux
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
-                  <button type="submit" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
-                    Save & Test Setup
-                  </button>
-                </div>
-              </form>
-
-              {/* Diagnostic Test result */}
-              {engineSettings.testStatus === 'success' && (
-                <div style={{ display: 'flex', gap: '10px', backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', marginTop: '8px' }}>
-                  <CheckCircle size={18} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
-                  <div>
-                    <span style={{ color: 'var(--color-text)', fontWeight: 600, fontSize: '0.85rem' }}>Diagnostic Pass: Ready</span>
-                    <span style={{ color: 'var(--color-text-muted)', display: 'block', marginTop: '4px', fontSize: '0.8rem' }}>
-                      Detected {engineSettings.detectedVersion} ({engineSettings.launchStrategy} execution mode). Last tested at {engineSettings.lastTestedAt}.
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Launch proof games — no bulk scan */}
-              <div className="status-card" style={{ padding: '16px', marginTop: '16px', flexDirection: 'column', alignItems: 'stretch', gap: '12px' }}>
-                <h4 style={{ fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>#xar:controller-launch-proof/current — Proof Games Only</h4>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                  Register one NES and one SNES ROM path for launch proof. Do not bulk-scan libraries in this milestone.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Path to one .nes ROM for FCEUX proof"
-                    value={proofNesPath}
-                    onChange={(e) => setProofNesPath(e.target.value)}
-                  />
-                  <button type="button" className="btn-secondary" onClick={() => void handleRegisterProofGame('nes', proofNesPath)}>
-                    Register NES Proof
-                  </button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Path to one .sfc/.smc ROM for RetroArch proof"
-                    value={proofSnesPath}
-                    onChange={(e) => setProofSnesPath(e.target.value)}
-                  />
-                  <button type="button" className="btn-secondary" onClick={() => void handleRegisterProofGame('snes', proofSnesPath)}>
-                    Register SNES Proof
-                  </button>
-                </div>
-                {!isTauriRuntime() && (
-                  <p style={{ fontSize: '0.75rem', color: '#fbbf24', margin: 0 }}>
-                    Real launch requires Tauri: npm run tauri:dev
-                  </p>
-                )}
-              </div>
-
-              {/* Collapsible Manifest details */}
-              <details className="manifest-details" style={{ marginTop: '12px', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px', backgroundColor: '#07080d' }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  View Adapter Manifest Details (retroarch.snes.snes9x)
-                </summary>
-                <pre style={{
-                  backgroundColor: '#05060b',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  fontSize: '0.75rem',
-                  fontFamily: 'monospace',
-                  overflowX: 'auto',
-                  marginTop: '12px',
-                  border: '1px solid var(--border-subtle)',
-                  color: 'var(--color-text-muted)'
-                }}>
-{`{
-  "adapter_id": "retroarch.snes.snes9x",
-  "engine_id": "retroarch",
-  "system_id": "snes",
-  "content_extensions": [".sfc", ".smc"],
-  "launch_template": [
-    "{engine_path}",
-    "-f",
-    "-L",
-    "{core_path}",
-    "{content_path}"
-  ]
-}`}
-                </pre>
-              </details>
-            </div>
-          </div>
+          <EnginesPage
+            engineSettings={engineSettings}
+            raPath={raPath}
+            corePath={corePath}
+            fceuxPath={fceuxPath}
+            proofNesPath={proofNesPath}
+            proofSnesPath={proofSnesPath}
+            raBrowseOpen={raBrowseOpen}
+            coreBrowseOpen={coreBrowseOpen}
+            fceuxBrowseOpen={fceuxBrowseOpen}
+            onRaPathChange={setRaPath}
+            onCorePathChange={setCorePath}
+            onFceuxPathChange={setFceuxPath}
+            onProofNesPathChange={setProofNesPath}
+            onProofSnesPathChange={setProofSnesPath}
+            onToggleRaBrowse={() => setRaBrowseOpen(!raBrowseOpen)}
+            onToggleCoreBrowse={() => setCoreBrowseOpen(!coreBrowseOpen)}
+            onToggleFceuxBrowse={() => setFceuxBrowseOpen(!fceuxBrowseOpen)}
+            onTestEngine={handleTestEngine}
+            onRegisterProofGame={handleRegisterProofGame}
+          />
         );
 
       case 'settings':
