@@ -13,7 +13,7 @@ Peer review: external audit 2026-05-30 (WIP preservation, not merge-ready)
 | Item | Value |
 |------|--------|
 | Branch | `wip/pass-b-lifecycle-display-shell` |
-| Head SHA | `897a97d` |
+| Head SHA | `dadef90` |
 | Base | `origin/main` @ `7740b36` |
 | Ahead of main | **~22 commits** (WIP branch) |
 | Working tree | Clean |
