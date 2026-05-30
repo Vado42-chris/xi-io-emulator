@@ -59,7 +59,7 @@ Complete in GitHub UI — agents document status only:
 - [x] CI workflow committed and pushed
 - [x] Dependabot config committed
 - [x] This checklist documents manual steps
-- [ ] First green CI run on WIP branch (verify after push @ `8702185`)
+- [x] First green CI run on WIP branch @ `2bab4a6` (run `26688165897`, 2026-05-30)
 - [ ] Branch protection enabled on `main` (operator)
 - [ ] Secret scanning enabled (operator, if available)
 
