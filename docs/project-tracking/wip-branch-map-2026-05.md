@@ -130,5 +130,16 @@ cargo test --manifest-path src-tauri/Cargo.toml
 |------|--------|
 | UI framework docs merged from `origin/docs/xibalba-ui-framework-001` | **Done** 2026-05-29 |
 | WIP map written | **Done** |
-| Source isolated to named branches | **Pending peer review** |
-| `master` / `origin/main` aligned | **Pending push after docs commit** |
+| Bucket A (Pass B lifecycle) on `wip/pass-b-lifecycle-display-shell` | **Done** |
+| Bucket B CSS merged into WIP (`styles.css`, `ui.css`, `tokens.css`) | **Done** 2026-05-30 |
+| Bucket C services/components merged into WIP | **Done** 2026-05-30 |
+| `GameTile` + `arcadeGamepadService` shoulders from showcase | **Done** 2026-05-30 |
+| `master` / `origin/main` aligned | **Pending push after peer review** |
+
+## Integration pass 2026-05-30
+
+Resolved split-brain where `ArcadeHome` referenced CSS and APIs from buckets B/C without merging them.
+
+**Gates added:** `npm run typecheck:app`, `npm run verify:shell-restore`
+
+**Still open:** user hardware Pass B checklist; SNES controller mapping slice 3; push to GitHub.

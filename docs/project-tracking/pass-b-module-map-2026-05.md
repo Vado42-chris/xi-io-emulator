@@ -19,7 +19,7 @@ Maps Pass B launch/lifecycle **source modules → failure codes → runbook → 
 | `engine_launch.rs` | Flatpak normalize, `prepare_launch`, path validation | 015, 016 | `npm run verify:engine-launch`; `cargo test engine_launch` |
 | `session_startup.rs` | 12s startup poll before success | 014 | Launch proof shelf; `pgrep` during overlay |
 | `shell_restore.rs` | Debounced restore, subprocess timeout | 008, freeze runbook | NES exit retest; no desktop lockup |
-| `window_registry.rs` | Focus retries, xdotool caps | 008, 011 | Controller return chord only |
+| `window_registry.rs` | Single-pass shell wake (no retry storm) | 008, freeze runbook | `npm run verify:shell-restore` |
 | `emulator_process.rs` | Spawn, session PIDs, terminate | 006, 007, 011 | `pgrep -af fceux\|retroarch` |
 | `lib.rs` | `validate_launch_plan`, `launch_emulator_process` invoke | 016, 006 | Admin → Test Engine Paths |
 
@@ -45,7 +45,9 @@ Maps Pass B launch/lifecycle **source modules → failure codes → runbook → 
 git checkout wip/pass-b-lifecycle-display-shell
 export CARGO_TARGET_DIR=".tmp/cargo-target"
 npm run typecheck
+npm run typecheck:app
 npm run verify:engine-launch
+npm run verify:shell-restore
 cd src-tauri && cargo test
 npm run tauri:dev   # user hardware — not agent-only
 ```
@@ -60,7 +62,8 @@ npm run tauri:dev   # user hardware — not agent-only
 | NES exit/return after hardening | **Open** |
 | Controller A/B in-game | **Implemented (FCEUX)** — user HW verify pending |
 | Mark In-Game Verified | **Open** |
-| Desktop freeze on exit retest | **Open** |
+| Desktop freeze on exit retest | **Fix applied 2026-05-30** — user retest required |
+| Arcade filter toolbar + L1/R1 browse | **Merged 2026-05-30** — user retest required |
 
 When all rows pass: update ledger, hydration YAML, `xi-io-net-sync-status.md`, then Pass C (Phase 1C).
 

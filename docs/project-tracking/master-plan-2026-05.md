@@ -2,7 +2,7 @@
 
 Date: 2026-05-28  
 Status: **Active — canonical planning document**  
-Repo health: **RED** (see [repo-health-audit-2026-05.md](./repo-health-audit-2026-05.md))  
+Repo health: **YELLOW** (three-bucket integration pass 2026-05-30; HW proof still open)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001** (Pass B partial / blocked)
 
 > **Canonical location:** This file is the source of truth for project planning.  
@@ -109,13 +109,14 @@ Prevent chat-only planning and non-resumable audits.
 ### Acceptance
 
 - [x] WIP file→branch map written (`wip-branch-map-2026-05.md`)
-- [ ] `git status` clean **or** dirty work on named WIP branches (map complete; branches pending peer review)
-- [ ] Pass B lifecycle / launch hardening isolated (e.g. `wip/pass-b-lifecycle-display-shell`)
-- [ ] Showcase fixtures isolated (e.g. `feature/showcase-hydration-arcade-ux`)
-- [ ] UI framework work isolated (e.g. `feature/ui-framework-001`)
+- [x] Pass B lifecycle / launch hardening on `wip/pass-b-lifecycle-display-shell`
+- [x] Showcase fixtures merged into WIP (bucket C services + components, 2026-05-30)
+- [x] UI framework CSS merged into WIP from `feature/ui-framework-001` (2026-05-30)
+- [ ] `git status` clean on WIP after integration commits
+- [ ] Peer review signed (blocks push to `origin/main`)
 - [x] Decision recorded: merge `origin/docs/xibalba-ui-framework-001` (docs-only, merged 2026-05-29)
 - [x] `master` vs `main` policy documented in README
-- [ ] No implementation starts until repo health is **YELLOW** minimum
+- [x] Repo health **YELLOW** minimum for continued Pass B work
 
 ### XIBALBA-UI-FRAMEWORK-001 checkpoint
 
@@ -160,10 +161,12 @@ Classify each item before Pass C. Update this table as evidence arrives.
 | `prepare_launch` / `validate_launch_plan` | Yes | Partial | No | No | No | No |
 | `session_startup` poll (~12s) | Yes | No | No | No | No | No |
 | Flatpak / `finalizeEngineLaunch` | Yes | Partial | No | No | No | No |
-| Exit guardrails / `shell_restore.rs` | Yes | No | No | Partial | Partial | No |
-| Preflight `validateLaunchPlan` | Yes | No | No | No | No | No |
-| Session lifecycle hook / error overlay | Yes | No | No | No | No | No |
-| Showcase hydration (~42 titles) | Yes | Partial | No | N/A | No | No |
+| Exit guardrails / `shell_restore.rs` | Yes | Yes (WIP) | No | Partial | Yes | Partial |
+| Preflight `validateLaunchPlan` | Yes | Yes | No | No | Yes | No |
+| Session lifecycle hook / error overlay | Yes | Yes | No | No | Yes | No |
+| Three-bucket UI integration (A+B+C) | Yes | Partial | No | N/A | Partial | Partial |
+| Arcade browse toolbar CSS + GameTile | Yes | Yes (2026-05-30) | No | Pending | Yes | No |
+| Showcase hydration (~42 titles) | Yes | Yes (staged→commit) | No | N/A | Partial | Partial |
 | Shell exit / display picker | Mixed | Partial | No | Pending | Partial | No |
 | Single-instance flock | Yes | Unknown | No | Pending | Partial | No |
 
