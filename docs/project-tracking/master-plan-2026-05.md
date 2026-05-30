@@ -162,7 +162,8 @@ Classify each item before Pass C. Update this table as evidence arrives.
 | `prepare_launch` / `validate_launch_plan` | Yes | Partial | No | No | No | No |
 | `session_startup` poll (~12s) | Yes | No | No | No | No | No |
 | Flatpak / `finalizeEngineLaunch` | Yes | Partial | No | No | No | No |
-| Exit guardrails / `shell_restore.rs` | Yes | Yes (WIP) | No | Partial | Yes | Partial |
+| Exit guardrails / `shell_restore.rs` | Yes | Yes (WIP) | Yes | Partial | Yes | Partial |
+| PRH-02 `shell_focus_restore_failed` events | Yes | Yes | Yes | Partial | Yes | Partial |
 | Preflight `validateLaunchPlan` | Yes | Yes | No | No | Yes | No |
 | Session lifecycle hook / error overlay | Yes | Yes | No | No | Yes | No |
 | Three-bucket UI integration (A+B+C) | Yes | Partial | No | N/A | Partial | Partial |
@@ -223,9 +224,9 @@ Update: proof report, ledger, hydration YAML, framework sync per `docs/agent-mas
 | ID | Plain requirement | Gate |
 |----|-----------------|------|
 | PRH-01 | SQLite for play/session data (migrate off localStorage) | User data durability |
-| PRH-02 | Emit `shell_focus_restore_failed` when wake fails | No silent XIO-LCH-008 |
-| PRH-03 | Commit + push WIP branch; mirror xi-io.net | Remote SHA + peer review |
-| PRH-04 | Pass B evidence report + peer review signed | Blocks Phase 5–6 |
+| PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** @ `897a97d` — HW retest in PRH-04 |
+| PRH-03 | Commit + push WIP branch; mirror xi-io.net | **Mostly done** — hub @ `f2c9230`; WIP freshness pending |
+| PRH-04 | Pass B evidence report + peer review signed | **In progress** — report @ `5705344`; user sign-off pending |
 
 Run `npm run verify:deps` at start of any security or dependency slice.
 

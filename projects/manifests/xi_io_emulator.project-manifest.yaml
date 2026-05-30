@@ -64,7 +64,7 @@ status:
       launch_code_sha: "45d55ee"
       xi_io_net_mirror_sha: "f2c9230"
       xi_io_net_mirror_status: complete
-    prh_04_pass_b_closeout: in_progress
+    prh_04_pass_b_closeout: in_progress_user_signoff_pending
   known_blockers:
     - SNES xi-io GUI launch not fully evidenced in ledger
     - Pass B full checklist not signed

@@ -23,7 +23,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** (code + guardrails; user HW retest in PRH-04) | Yes |
 | PRH-03 | Commit + push WIP branch to GitHub | **Mostly done** — GitHub @ `afa9349`; xi-io.net security mirror @ `f2c9230`; hydration-state SHA update pending | Yes |
-| PRH-04 | Pass B closeout + peer review | **In progress** (NES launch/return improved; full checklist open) | Yes |
+| PRH-04 | Pass B closeout + peer review | **In progress** — evidence report refreshed @ `5705344`; **user sign-off pending** | Yes |
 
 **Last verified:** 2026-05-30 — framework security audit pass; public manifest path-sanitized; `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.
 
@@ -168,10 +168,10 @@ Pass B is “prove one NES and one SNES game launch, play, and return with a con
 ### Done when
 
 - [ ] User checklist in [troubleshooting-pass-b.md](../operations/troubleshooting-pass-b.md) signed (NES + SNES proof shelf only)
-- [ ] [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) updated with 2026-05-30 results (launch, return, controller, sound as applicable)
+- [x] [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) updated with 2026-05-30 WIP state — **user sign-off table open**
 - [ ] Ledger milestone state: Pass B **complete**, Pass C **in progress**
 - [ ] Peer review recorded (GitHub PR comment, review doc, or Workbench event)
-- [ ] Path-privacy sign-off: public manifest + showcase catalogs + evidence docs redacted (see [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md))
+- [x] Path-privacy sign-off: public manifest + showcase catalogs + evidence docs redacted
 - [ ] `master-plan-2026-05.md` Pass B table updated — no row stuck at “Partial” without explanation
 - [ ] Only after the above: begin XARCADE-IMAGE-HYDRATION-001 planning execution
 

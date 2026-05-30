@@ -145,10 +145,24 @@ Emergency cleanup only (operator terminal): `pkill -f fceux`
 | **Code** | XIO-LCH-008, XIO-LCH-011 |
 | **Symptom** | Game ended but Arcade Home not visible; overlay stuck or desktop showing |
 | **Likely cause** | Focus restore failed; FCEUX still alive; or launch overlay waiting on invoke |
-| **In-app check** | Admin → Logs: `launch_failed`, `emulator_exited`, `shell_focus_restored` |
-| **Terminal check** | `pgrep -af 'fceux|xi-io-emulator'`; `cat ~/.local/share/com.xi-io.emulator/emulator_last_session.json` |
-| **Safe fix** | `pkill -f fceux`; confirm xi-io window visible; re-test return chord |
-| **Verified when** | Clean return to Zelda card; overlay clears; ledger `emulator_exited` |
+| **In-app check** | Admin → Logs: `emulator_exited`, `shell_focus_restored`, or `shell_focus_restore_failed` (PRH-02) |
+| **Terminal check** | `pgrep -af 'fceux|xi-io-emulator'`; session JSON if present |
+| **Safe fix** | Alt+Tab or click xi-io window; check log reasonCode; retry launch |
+| **Verified when** | Clean return to game card; overlay clears; ledger shows restore success OR explicit failure with reasonCode |
+
+### PRH-02 restore failure (XIO-LCH-008)
+
+If restore fails, Admin → Logs should show **`shell_focus_restore_failed`** with fields:
+
+```txt
+reasonCode: tauri_window_missing | show_failed | set_focus_failed | xid_missing | ...
+stage: tauri_show | tauri_focus | wm_discover | ...
+gameId, sessionId — no full ROM paths
+```
+
+Launch overlay shows plain-language recovery copy. This is **expected telemetry** — not a silent failure.
+
+**Verified when:** Success path logs `shell_focus_restored`; failure path logs `shell_focus_restore_failed` with reasonCode (user can still Alt+Tab to recover).
 
 ---
 
@@ -317,6 +331,31 @@ After user reports failure, capture:
 5. Single vs multi monitor
 6. Demo mode on/off
 7. Pass B shelf vs demo tile
+8. shell_focus_restored vs shell_focus_restore_failed in Logs (PRH-02)
+
+---
+
+## PRH-04 user hardware retest checklist
+
+WIP branch: `wip/pass-b-lifecycle-display-shell` @ `5705344`
+
+Full sign-off table: [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) § User hardware sign-off.
+
+Minimum retest order:
+
+```txt
+1. Configure .env.local + Admin → Engines proof paths (local only — never commit)
+2. Launch NES from Pass B Launch Proof shelf
+3. Play briefly; exit via Select+Start or Guide (not FCEUX menu)
+4. Confirm return to shell + Logs (shell_focus_restored or shell_focus_restore_failed)
+5. Repeat SNES proof game
+6. Confirm A/B in-game on NES (minimum bar before Mark Verified)
+7. Fill sign-off table in evidence report
+```
+
+**Do not mark Pass B complete until sign-off table is filled.**
+
+---
 ```
 
 Do not close Pass B until NES lifecycle, SNES launch, and A/B mapping are verified on user hardware.

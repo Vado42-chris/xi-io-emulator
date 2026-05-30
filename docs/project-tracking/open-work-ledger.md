@@ -206,6 +206,22 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 011, PRH-04 Pass B evidence refresh
+
+Status: **in progress 2026-05-30 — user hardware sign-off pending.**
+
+```txt
+docs/reports/pass-b-final-evidence-report.md  — WIP refresh @ 5705344 + sign-off table
+docs/operations/troubleshooting-pass-b.md     — PRH-02 restore failure + retest checklist
+```
+
+Tags:
+
+```txt
+#xar:controller-launch-proof/pass-b
+#todo:prh-04/user-signoff
+```
+
 ### 010, Portable USB and kiosk product model
 
 Status: **documented 2026-05-30 — implementation deferred until after Pass B/C and PRH gates.**

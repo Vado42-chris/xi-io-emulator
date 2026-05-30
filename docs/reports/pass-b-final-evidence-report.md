@@ -1,13 +1,103 @@
 # Pass B Final Evidence Report (Phase 9)
 
-Date: 2026-05-29  
+Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Git: `main` @ `b34a60d` ([Vado42-chris/xi-io-emulator](https://github.com/Vado42-chris/xi-io-emulator))  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`5705344`**  
+Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 
 ---
 
-## Summary
+## 2026-05-30 executive summary (WIP branch)
+
+Pass B remains **partial / blocked**. Pass C is **not safe**. Bulk hydration remains **blocked**.
+
+Since the 2026-05-29 report (`b34a60d`), the WIP branch adds material launch/session/security work. **Agent and doc gates improved; user hardware sign-off is still required** to close PRH-04.
+
+| Area | WIP status (agent-verified) | User HW sign-off |
+|------|----------------------------|------------------|
+| Session supervisor / FCEUX cleanup | **Done** @ `45d55ee` | Retest launch/exit |
+| Gamepad GUID + controller mapping seed | **Done** | Retest in-game |
+| Shell restore (hide/show, eager wake) | **Done** | Retest return speed |
+| PRH-02 `shell_focus_restore_failed` | **Done** @ `897a97d` | Check Logs for restore events |
+| Path privacy (public repo) | **Done** @ `afa9349` | Configure `.env.local` locally |
+| Security framework + xi-io.net mirror | **Done** @ `f2c9230` | N/A |
+| NES launch + return | **Partial** (user improved 2026-05-30) | **Sign below** |
+| SNES xi-io GUI launch | **Not evidenced** | **Sign below** |
+| Controller A/B in-game | **Open** | **Sign below** |
+| Mark In-Game Verified | **Open** | **Sign below** |
+
+**Final classification (unchanged until user sign-off):** Pass B **partial/blocked**. Pass C **not safe**.
+
+---
+
+## User hardware sign-off (required — PRH-04)
+
+Complete on real hardware from **Pass B Launch Proof** shelf only. Copy results into this table or reply to agent with the same fields.
+
+| Test | Pass / Fail | Date | Notes (no full ROM paths — use game ID) |
+|------|-------------|------|----------------------------------------|
+| NES launch from proof shelf | | | game_passb_nes |
+| NES exit via controller chord (Select+Start or Guide) | | | |
+| NES return to xi-io shell (< 3s acceptable) | | | |
+| Ledger: `shell_focus_restored` OR `shell_focus_restore_failed` with reasonCode | | | Admin → Logs |
+| SNES launch from proof shelf | | | game_passb_snes |
+| SNES exit via controller chord | | | |
+| SNES return to xi-io shell | | | |
+| Controller D-pad / Start / Select in-game (NES) | | | |
+| Controller A / B in-game (NES minimum bar) | | | |
+| Sound audible in NES session | | | |
+| Mark In-Game Verified clicked (only if A/B pass) | | | |
+
+**Signed:** ___________________ **Date:** ___________
+
+Until the sign-off row is completed, PRH-04 and Pass B remain **open**.
+
+---
+
+## WIP code improvements since b34a60d
+
+| Commit | Change | Verify command |
+|--------|--------|----------------|
+| `45d55ee` | Session supervisor, stale FCEUX cleanup, gamepad GUID, faster shell restore | `npm run verify:session-idle`, `verify:shell-restore` |
+| `897a97d` | PRH-02 restore failure events + reason codes | `npm run verify:shell-restore` |
+| `afa9349` | Showcase roots → `.env.local`; public path redaction | path grep clean in `src/` |
+| `ab4365c` / `f2c9230` | Security framework + hub mirror | sync status doc |
+
+**Pre-test setup (operator):**
+
+```bash
+git checkout wip/pass-b-lifecycle-display-shell && git pull
+cp .env.local.example .env.local   # set your showcase/proof roots locally — never commit
+export CARGO_TARGET_DIR=".tmp/cargo-target" TMPDIR=".tmp"
+npm run tauri:dev
+```
+
+---
+
+## Updated Pass B checklist (2026-05-30)
+
+| # | Requirement | Status | Evidence |
+|---|-------------|--------|----------|
+| 1 | Preflight (typecheck, verify scripts) | **Pass** | WIP @ `5705344` |
+| 2 | Tauri shell running | **Pass** | `npm run tauri:dev` |
+| 3 | Proof ROM config (local overlay) | **Pass** | `.env.local` + Admin → Engines |
+| 4 | NES xi-io → FCEUX launch | **Partial** | User 2026-05-30; re-sign above |
+| 5 | SNES xi-io → RetroArch launch | **Pending** | Not in ledger — user sign-off |
+| 6 | Exit/return + shell restore | **Partial** | PRH-02 events; user re-sign |
+| 7 | Controller D-pad/Start/Select | **Partial** | User prior; re-sign |
+| 8 | Controller A/B in-game | **Pending** | Mapping slice ongoing |
+| 9 | Mark In-Game Verified | **Pending** | After A/B |
+| 10 | Path privacy (public repo) | **Pass** | P0 + manifest @ `afa9349` |
+| 11 | PRH-02 failure visibility | **Pass** | `897a97d`, XIO-LCH-008 implemented |
+
+---
+
+## Historical report (2026-05-29 @ b34a60d)
+
+The sections below remain valid supporting evidence. Where they conflict with WIP behavior, **WIP branch wins** until Pass B is formally closed.
+
+---
 
 ChatGPT peer review **confirmed** the prior assessment: **Pass B is partial / blocked. Pass C is not safe.** Approved scope: **resume Pass B only** — no hydration, bulk scan, platform engine registry, or Pass C.
 
@@ -289,18 +379,21 @@ Until then, do not close the milestone or start Pass C.
 | 1 | 2026-05-29 | xi-io.net mirror commit | **pass** (`d338880`) | git log verified |
 | 3 | 2026-05-29 | GitHub push both repos | **pass** | emulator `f1b257e`, xi-io.net `d338880` |
 | 3 | 2026-05-29 | Workbench preview event | **pass** | `evt-xi-io-emulator-pass-b-partial-001` |
-| 3 | 2026-05-29 | Proof-only shelf dedup UX | **pass** | hides duplicate Recently Added when 2 proof games only |
-| 3 | 2026-05-29 | Storage status in proof mode | **pass** | `configured` when proof paths set, no bulk roots |
+| 4 | 2026-05-30 | Session supervisor + shell restore WIP | **pushed** | `45d55ee` |
+| 5 | 2026-05-30 | PRH-02 restore failure ledger | **pushed** | `897a97d` |
+| 6 | 2026-05-30 | Security + path hygiene + USB product docs | **pushed** | `5705344` |
+| 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **commit pending** | verify:shell-restore + verify:session-idle exit 0 |
+| 7 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 
-### Remaining passes estimate (honest)
+### Remaining passes estimate (2026-05-30)
 
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
-| User hardware proof (Phases 4–6) | **1 user session** | SNES Play, NES exit re-test, A/B, Mark Verified — agent cannot substitute |
-| Pass B report close + peer sign-off | **1 agent pass** | After user reply with 4 proof rows |
-| Code comment / compliance on touched files | **1 agent pass** | proofGameService, launchService, ArcadeHome — minimal #xar tags |
-| xi-io.net two-way mirror + freshness | **1 agent pass** | manifest/hydration + sync-status after product commit |
-| Pass C milestone close docs | **1 agent pass** | **blocked** until Pass B complete |
-| **Total to Pass B close** | **~3 agent + 1 user** | Pass C adds ~2 more agent passes |
-
-These estimates assume no new blockers. If exit re-test fails post b34a60d, add 1 agent pass for narrow fix.
+| User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
+| Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; master plan |
+| xi-io.net mirror freshness @ `5705344` | **1 agent pass** | Two-way sync |
+| PRH-01 SQLite migration | **1–2 passes** | After PRH-04 |
+| GitHub compliance + CI hardening | **2 passes** | Pre-beta |
+| WIP review slicing | **2–3 passes** | Before main |
+| Code comments + runtime path config | **1–2 passes** | Pre-beta |
+| **Total to Pass B close + compliance baseline** | **~8–11 agent + 1 user** | Pass C adds ~2 after B close |
