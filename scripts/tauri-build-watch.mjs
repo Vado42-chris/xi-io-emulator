@@ -35,6 +35,7 @@ function assertDist() {
     );
   }
   console.log('[xi-io] frontend bundle ready at dist/index.html');
+  execSync('node scripts/verify-ui-toolbar.mjs', { cwd: ROOT, stdio: 'inherit' });
 }
 
 async function main() {

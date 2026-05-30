@@ -41,6 +41,34 @@ fn install_supervisor_signal_handlers() {
 
 pub const SESSION_RUN_ARG: &str = "--xi-io-session-run";
 
+/// Environment variables safe to forward into FCEUX / RetroArch child processes.
+pub fn collect_session_child_env(extra: &[(String, String)]) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = extra.to_vec();
+    let mut seen: HashSet<String> = out.iter().map(|(k, _)| k.clone()).collect();
+
+    let allow = |key: &str| -> bool {
+        key == "HOME"
+            || key == "DISPLAY"
+            || key == "XDG_RUNTIME_DIR"
+            || key == "XAUTHORITY"
+            || key == "DBUS_SESSION_BUS_ADDRESS"
+            || key.starts_with("PULSE_")
+            || key.starts_with("PIPEWIRE_")
+            || key == "SDL_AUDIODRIVER"
+            || key == "SDL_VIDEO_FULLSCREEN_DISPLAY"
+    };
+
+    for (key, value) in std::env::vars() {
+        if !allow(&key) || seen.contains(&key) {
+            continue;
+        }
+        seen.insert(key.clone());
+        out.push((key, value));
+    }
+
+    out
+}
+
 /// Re-exec the xi-io binary in supervisor mode — always colocated with the shell process.
 pub fn resolve_session_runner_path() -> PathBuf {
     if let Ok(exe) = std::env::current_exe() {
@@ -130,7 +158,7 @@ fn parse_session_run_cli() -> Result<SessionLaunchSpec, String> {
     Ok(SessionLaunchSpec {
         program: prepared.program,
         args: prepared.args,
-        env: Vec::new(),
+        env: collect_session_child_env(&[]),
         content_path,
     })
 }
@@ -148,6 +176,15 @@ pub fn run_isolated_session(spec: &SessionLaunchSpec) -> i32 {
 
     let mut cmd = Command::new(&spec.program);
     cmd.args(&spec.args);
+    for (key, value) in collect_session_child_env(&spec.env) {
+        cmd.env(key, value);
+    }
+    eprintln!(
+        "[xi-io-session-run] spawn {} args={:?} home={}",
+        spec.program,
+        spec.args,
+        std::env::var("HOME").unwrap_or_else(|_| "?".into())
+    );
     let mut child = match cmd.spawn() {
         Ok(child) => child,
         Err(err) => {

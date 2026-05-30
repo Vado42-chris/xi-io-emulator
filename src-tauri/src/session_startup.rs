@@ -5,7 +5,7 @@
 //! Supervisor exit code 2 → parse failure (`XIO-LCH-015` overlap via `format_supervisor_failure`).
 
 use crate::emulator_process::{
-    collect_descendant_pids, find_emulator_pids, is_process_alive, resolve_session_pids,
+    collect_descendant_pids, find_emulator_pids, is_process_alive, poll_session_pids_once,
 };
 use std::time::Duration;
 
@@ -80,7 +80,7 @@ pub fn poll_emulator_startup_once(
             return Err("Supervisor exited before the game started.".into());
         }
     }
-    let pids = resolve_session_pids(program, content_path, supervisor_pid);
+    let pids = poll_session_pids_once(program, content_path, supervisor_pid);
     if emulator_processes_ready(program, content_path, &pids, supervisor_pid) {
         Ok(Some(pids))
     } else {

@@ -126,6 +126,14 @@ export const prepareFceuxControllerLaunch = async (options: {
   });
 };
 
+export const resolvePrimaryGamepadSdlGuid = async (): Promise<string | null> => {
+  if (!isTauriRuntime()) {
+    return null;
+  }
+  const invoke = await getInvoke();
+  return invoke<string | null>('resolve_primary_gamepad_sdl_guid_cmd');
+};
+
 export interface EmulatorSessionStartedPayload {
   gameId: string;
   sessionId: string;

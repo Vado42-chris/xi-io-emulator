@@ -18,9 +18,11 @@ const BTN_START: u16 = 315;
 const BTN_GUIDE: u16 = 316;
 const JS_BTN_SELECT: u8 = 8;
 const JS_BTN_START: u8 = 9;
+const JS_BTN_SELECT_ALT: u8 = 10;
+const JS_BTN_START_ALT: u8 = 11;
 const JS_BTN_GUIDE: u8 = 16;
 const DEFAULT_CHORD_HOLD_MS: u64 = 800;
-const RETURN_MONITOR_ARM_MS: u64 = 3000;
+const RETURN_MONITOR_ARM_MS: u64 = 1500;
 const EV_ABS: u16 = 3;
 const ABS_X: u16 = 0;
 const ABS_Y: u16 = 1;
@@ -555,6 +557,15 @@ fn update_evdev_pressed(file: &mut File, pressed: &mut HashSet<u16>) {
     }
 }
 
+fn js_select_held(pressed: &HashSet<u8>) -> bool {
+    pressed.contains(&JS_BTN_SELECT)
+        || pressed.contains(&JS_BTN_SELECT_ALT)
+}
+
+fn js_start_held(pressed: &HashSet<u8>) -> bool {
+    pressed.contains(&JS_BTN_START) || pressed.contains(&JS_BTN_START_ALT)
+}
+
 fn default_exit_chord_active(
     evdev_pressed: &HashSet<u16>,
     js_pressed: &HashSet<u8>,
@@ -565,7 +576,7 @@ fn default_exit_chord_active(
     }
 
     let chord_held = (evdev_pressed.contains(&BTN_SELECT) && evdev_pressed.contains(&BTN_START))
-        || (js_pressed.contains(&JS_BTN_SELECT) && js_pressed.contains(&JS_BTN_START));
+        || (js_select_held(js_pressed) && js_start_held(js_pressed));
 
     if chord_held {
         let since = chord_since.get_or_insert_with(Instant::now);
@@ -587,8 +598,15 @@ fn focus_main_window(app: &AppHandle) {
     });
 }
 
-/// Native return-to-arcade monitor. Works while FCEUX/RetroArch has focus — no emulator menus required.
-/// Always listens for Guide/Home and hold Select + Start; also honors a saved single-button mapping.
+fn open_js_gamepad_handles() -> Vec<File> {
+    list_js_devices()
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|(path, _)| open_nonblocking(&path).ok())
+        .collect()
+}
+
+/// Native return-to-arcade monitor. Prefers /dev/input/js* (SDL grabs evdev exclusively).
 pub fn spawn_launch_return_monitor(
     app: AppHandle,
     stop: Arc<AtomicBool>,
@@ -606,20 +624,10 @@ pub fn spawn_launch_return_monitor(
                 .map(|file| (file, mapping.clone()))
         });
 
-        let mut evdev_handles: Vec<File> = list_evdev_gamepad_devices()
-            .unwrap_or_default()
-            .into_iter()
-            .filter_map(|(path, _)| open_nonblocking(&path).ok())
-            .collect();
-        let mut js_handles: Vec<File> = list_js_devices()
-            .unwrap_or_default()
-            .into_iter()
-            .filter_map(|(path, _)| open_nonblocking(&path).ok())
-            .collect();
-
-        let mut evdev_pressed: HashSet<u16> = HashSet::new();
+        let mut js_handles = open_js_gamepad_handles();
         let mut js_pressed: HashSet<u8> = HashSet::new();
         let mut chord_since: Option<Instant> = None;
+        let mut idle_loops: u32 = 0;
 
         while !stop.load(Ordering::Relaxed) {
             let mut matched = false;
@@ -644,23 +652,26 @@ pub fn spawn_launch_return_monitor(
                 }
             }
 
-            for file in &mut evdev_handles {
-                update_evdev_pressed(file, &mut evdev_pressed);
-            }
             for file in &mut js_handles {
                 update_js_pressed(file, &mut js_pressed);
             }
 
             if !matched {
-                matched = default_exit_chord_active(&evdev_pressed, &js_pressed, &mut chord_since);
+                matched = default_exit_chord_active(&HashSet::new(), &js_pressed, &mut chord_since);
             }
 
             if matched && armed_at.elapsed() >= Duration::from_millis(RETURN_MONITOR_ARM_MS)
                 && last_trigger.elapsed() >= Duration::from_millis(400)
             {
+                eprintln!("[xi-io] launch return monitor triggered");
                 last_trigger = Instant::now();
                 chord_since = None;
                 on_trigger();
+            }
+
+            idle_loops = idle_loops.wrapping_add(1);
+            if js_handles.is_empty() || idle_loops % 80 == 0 {
+                js_handles = open_js_gamepad_handles();
             }
 
             thread::sleep(Duration::from_millis(25));

@@ -6,7 +6,7 @@ import type { AdapterManifest } from './adapterService';
 import nesStandardProfile from '../data/controllerProfiles/nes.standard.v1.json';
 import { addLedgerEvent } from './db';
 import { getControllerSnapshot, syncLiveControllerSnapshot } from './controllerService';
-import { isTauriRuntime, prepareFceuxControllerLaunch } from './tauriService';
+import { isTauriRuntime, prepareFceuxControllerLaunch, resolvePrimaryGamepadSdlGuid } from './tauriService';
 
 const GENERIC_GAMEPAD_GUID = '03000000000000000000000000000000';
 
@@ -107,17 +107,17 @@ export const applyControllerMappingForLaunch = async (
   await syncLiveControllerSnapshot();
   const snapshot = getControllerSnapshot();
   const hasSource = snapshot.devices.length > 0 || snapshot.browserGamepadCount > 0;
-  if (!hasSource) {
-    addLedgerEvent('controller_mapping_failed', 'No controller detected before NES launch', {});
-    return {
-      env: {},
-      extraArgs: [],
-      applied: false,
-      warning: 'No controller detected. Connect a USB gamepad and retry.',
-    };
-  }
 
-  const deviceGuid = extractGamepadGuidFromBrowser() ?? GENERIC_GAMEPAD_GUID;
+  const deviceGuid =
+    (await resolvePrimaryGamepadSdlGuid()) ??
+    extractGamepadGuidFromBrowser() ??
+    GENERIC_GAMEPAD_GUID;
+
+  if (!hasSource) {
+    addLedgerEvent('controller_mapping_skipped', 'No browser gamepad snapshot; using Linux GUID resolution', {
+      deviceGuid,
+    });
+  }
   const inputContent = buildFceuxInputFileContent(deviceGuid, profile);
 
   try {
@@ -131,7 +131,7 @@ export const applyControllerMappingForLaunch = async (
       homeDir: prep.homeDir,
     });
     return {
-      env: { HOME: prep.homeDir },
+      env: { HOME: prep.homeDir, SDL_AUDIODRIVER: 'pulse' },
       extraArgs: ['--input1', 'gamepad'],
       applied: true,
       profileId: profile.id,

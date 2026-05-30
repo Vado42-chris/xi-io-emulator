@@ -109,11 +109,11 @@ impl WindowRegistry {
             .unwrap_or_default()
     }
 
-    /// Send shell behind the emulator. Process stays alive; Tauri minimize + optional X11 lower.
+    /// Send shell behind the emulator. Process stays alive; hide (faster than minimize/unminimize) + optional X11 lower.
     pub fn hibernate_shell(&self, app: &AppHandle) {
         if let Some(main) = app.get_webview_window("main") {
             let _ = main.set_title(SHELL_WINDOW_TITLE);
-            let _ = main.minimize();
+            let _ = main.hide();
         }
         self.refresh_shell_xid(app);
         if x11_wm_tools_available() {
@@ -149,7 +149,6 @@ impl WindowRegistry {
         if let Some(main) = app.get_webview_window("main") {
             let _ = main.set_title(SHELL_WINDOW_TITLE);
             let _ = main.show();
-            let _ = main.unminimize();
             let _ = main.set_focus();
         }
     }

@@ -13,6 +13,7 @@ pub mod game_session;
 pub mod platform;
 mod shell_exit_input;
 mod engine_launch;
+mod gamepad_guid;
 mod fceux_input_config;
 mod session_startup;
 mod shell_restore;
@@ -21,8 +22,10 @@ mod window_registry;
 
 use display_service::{identify_displays, list_connected_displays, DisplayInfo};
 use emulator_process::{
-    cleanup_orphan_emulators, collect_pgid, force_terminate_session, load_session_record,
-    save_session_record, EmulatorSessionRecord,
+    cleanup_blocking_emulator_instances, cleanup_orphan_emulators,
+    cleanup_stale_session_supervisors, collect_pgid, find_emulator_pids_by_program,
+    force_terminate_session, is_process_alive, load_session_record, save_session_record,
+    EmulatorSessionRecord,
 };
 use game_session::{
     resolve_session_runner_path, signal_supervisor_stop,
@@ -96,6 +99,14 @@ impl EmulatorLaunchState {
         let Some(session) = session else {
             return false;
         };
+
+        // Wake the shell immediately on intentional exit — game teardown runs in parallel.
+        schedule_restore_arcade_shell(
+            app,
+            &session.game_id,
+            &session.session_id,
+            reason,
+        );
 
         let pids = session.pids.clone();
         let pgid = session.pgid.or_else(|| pids.first().and_then(|pid| collect_pgid(*pid)));
@@ -456,6 +467,20 @@ async fn launch_emulator(
 
     let runner = resolve_session_runner_path();
 
+    if state
+        .active_session
+        .lock()
+        .ok()
+        .and_then(|guard| guard.as_ref().map(|_| ()))
+        .is_some()
+    {
+        eprintln!("[xi-io] terminating prior session before new launch");
+        state.terminate_session(&app, "prior_session_replace");
+        tokio::time::sleep(Duration::from_millis(400)).await;
+    }
+
+    cleanup_stale_session_supervisors();
+    cleanup_blocking_emulator_instances(&prepared.program);
     cleanup_orphan_emulators(&prepared.program, &content_path);
     state.terminate_requested.store(false, std::sync::atomic::Ordering::Relaxed);
 
@@ -470,6 +495,11 @@ async fn launch_emulator(
         .args(&prepared.args);
     for (key, value) in &env {
         async_cmd.env(key, value);
+    }
+    if !env.contains_key("DISPLAY") {
+        if let Ok(display) = std::env::var("DISPLAY") {
+            async_cmd.env("DISPLAY", display);
+        }
     }
     async_cmd.stdin(std::process::Stdio::null());
     async_cmd.stdout(std::process::Stdio::null());
@@ -587,6 +617,40 @@ async fn launch_emulator(
 
     let state_bg = state.inner().clone();
 
+    // Wake the shell as soon as the emulator process exits — do not wait for supervisor cleanup.
+    {
+        let app_early = app.clone();
+        let game_id_early = game_id.clone();
+        let session_id_early = session_id.clone();
+        let program_early = prepared.program.clone();
+        let tracked_pids_early = tracked_pids.clone();
+        tokio::spawn(async move {
+            let deadline = tokio::time::Instant::now() + Duration::from_secs(3600);
+            while tokio::time::Instant::now() < deadline {
+                let still_running = tokio::task::spawn_blocking({
+                    let program = program_early.clone();
+                    let pids = tracked_pids_early.clone();
+                    move || {
+                        pids.iter().any(|p| is_process_alive(*p))
+                            || !find_emulator_pids_by_program(&program).is_empty()
+                    }
+                })
+                .await
+                .unwrap_or(true);
+                if !still_running {
+                    schedule_restore_arcade_shell(
+                        &app_early,
+                        &game_id_early,
+                        &session_id_early,
+                        "emulator_exited",
+                    );
+                    break;
+                }
+                tokio::time::sleep(Duration::from_millis(60)).await;
+            }
+        });
+    }
+
     tokio::spawn(async move {
         let app_bg = app;
         let window_registry_bg = window_registry;
@@ -622,7 +686,7 @@ async fn launch_emulator(
             })
             .unwrap_or(0);
         let session_reached_game =
-            !game_window_xids.is_empty() || session_duration_secs >= 15;
+            !game_window_xids.is_empty() || session_duration_secs >= 3;
 
         if !terminated_by_shell {
             let record = EmulatorSessionRecord {
@@ -688,6 +752,11 @@ fn prepare_fceux_controller_launch_cmd(
     input_file_content: String,
 ) -> Result<FceuxLaunchInputPrep, String> {
     prepare_fceux_input_config(&app, &device_guid, &input_file_content)
+}
+
+#[tauri::command]
+fn resolve_primary_gamepad_sdl_guid_cmd() -> Result<Option<String>, String> {
+    Ok(gamepad_guid::resolve_primary_gamepad_sdl_guid())
 }
 
 #[tauri::command]
@@ -818,6 +887,7 @@ pub fn run() {
             command_on_path,
             validate_launch_plan,
             prepare_fceux_controller_launch_cmd,
+            resolve_primary_gamepad_sdl_guid_cmd,
             launch_emulator,
             terminate_active_emulator,
             list_input_devices,

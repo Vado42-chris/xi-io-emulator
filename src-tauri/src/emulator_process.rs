@@ -205,6 +205,12 @@ pub fn refresh_session_pids(
     if let Some(pid) = spawn_pid {
         if is_pid_alive(pid) && program_matches_pid(program, pid) {
             found.insert(pid);
+        } else if is_pid_alive(pid) {
+            for child in collect_descendant_pids(&[pid]) {
+                if is_pid_alive(child) && program_matches_pid(program, child) {
+                    found.insert(child);
+                }
+            }
         }
     }
 
@@ -247,11 +253,20 @@ pub fn refresh_session_pids(
     out
 }
 
-pub fn resolve_session_pids(program: &str, content_path: &str, spawn_pid: Option<u32>) -> Vec<u32> {
-    std::thread::sleep(Duration::from_millis(450));
+/// Fast /proc scan for startup polling — no initial delay.
+pub fn poll_session_pids_once(
+    program: &str,
+    content_path: &str,
+    spawn_pid: Option<u32>,
+) -> Vec<u32> {
     let pgid = spawn_pid.and_then(collect_pgid);
     let mut accumulated = HashSet::new();
     refresh_session_pids(program, content_path, pgid, spawn_pid, &mut accumulated)
+}
+
+pub fn resolve_session_pids(program: &str, content_path: &str, spawn_pid: Option<u32>) -> Vec<u32> {
+    std::thread::sleep(Duration::from_millis(450));
+    poll_session_pids_once(program, content_path, spawn_pid)
 }
 
 fn normalize_content_path(content_path: &str) -> PathBuf {
@@ -327,6 +342,11 @@ fn session_content_active(program: &str, content_path: &str, accumulated: &HashS
         .to_lowercase();
 
     if program_base.contains("fceux") {
+        for pid in &alive {
+            if pid_has_open_content(*pid, content_path) {
+                return true;
+            }
+        }
         let mut saw_window = false;
         for pid in &alive {
             let titles = window_titles_for_pid(*pid);
@@ -344,6 +364,7 @@ fn session_content_active(program: &str, content_path: &str, accumulated: &HashS
                 }
             }
         }
+        // Generic "FCEUX" title with no open ROM fd — emulator UI only (e.g. after Close Game).
         if saw_window {
             return false;
         }
@@ -697,6 +718,67 @@ pub fn cleanup_orphan_emulators(program: &str, content_path: &str) -> Vec<u32> {
     targeted
 }
 
+fn is_session_supervisor_cmdline(cmdline: &str) -> bool {
+    cmdline.contains("--xi-io-session-run")
+}
+
+/// Kill stale xi-io session supervisors left from a prior launch or hot reload.
+pub fn cleanup_stale_session_supervisors() -> Vec<u32> {
+    let Ok(entries) = fs::read_dir("/proc") else {
+        return Vec::new();
+    };
+
+    let shell = shell_pid();
+    let mut pids = Vec::new();
+    for entry in entries.flatten() {
+        let file_name = entry.file_name();
+        let Some(pid_str) = file_name.to_str() else {
+            continue;
+        };
+        let Ok(pid) = pid_str.parse::<u32>() else {
+            continue;
+        };
+        if pid == shell {
+            continue;
+        }
+        let Some(cmdline) = read_cmdline(pid) else {
+            continue;
+        };
+        if is_session_supervisor_cmdline(&cmdline) {
+            pids.push(pid);
+        }
+    }
+
+    if pids.is_empty() {
+        return pids;
+    }
+
+    eprintln!("[xi-io] cleaning stale session supervisors pids={pids:?}");
+    for pid in &pids {
+        signal_pid_safe(*pid, "-TERM");
+    }
+    std::thread::sleep(Duration::from_millis(250));
+    for pid in &pids {
+        if is_pid_alive(*pid) {
+            signal_pid_safe(*pid, "-KILL");
+        }
+    }
+    pids
+}
+
+/// Pre-launch teardown for any running emulator of this engine (FCEUX mutex is global).
+pub fn cleanup_blocking_emulator_instances(program: &str) -> Vec<u32> {
+    let pids = find_emulator_pids_by_program(program);
+    if pids.is_empty() {
+        return pids;
+    }
+    eprintln!("[xi-io] pre-launch cleanup for {program} pids={pids:?}");
+    let pgid = sanitize_session_pgid(pids.first().copied(), pids.first().and_then(|pid| collect_pgid(*pid)));
+    force_terminate_pids(program, &pids, pgid, Duration::from_secs(2));
+    std::thread::sleep(Duration::from_millis(150));
+    pids
+}
+
 fn session_path(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app
         .path()
@@ -726,6 +808,11 @@ pub fn load_session_record(app: &AppHandle) -> Result<Option<EmulatorSessionReco
     Ok(Some(record))
 }
 
+/// Idle teardown only after we have seen loaded content — never on launch-detection miss.
+pub fn session_idle_kill_allowed(content_ever_active: bool, rom_fd_ever_open: bool) -> bool {
+    content_ever_active || rom_fd_ever_open
+}
+
 pub fn wait_for_pids_exit(pids: &[u32], poll: Duration) {
     loop {
         let alive: Vec<u32> = pids.iter().copied().filter(|p| is_pid_alive(*p)).collect();
@@ -745,10 +832,8 @@ pub fn wait_for_session_end<F: FnOnce()>(
     terminate_requested: &std::sync::atomic::AtomicBool,
     on_session_end: Option<F>,
 ) {
-    const LAUNCH_GRACE_MS: u64 = 6000;
-    const IDLE_KILL_MS: u64 = 500;
+    const IDLE_KILL_MS: u64 = 200;
 
-    let session_started = Instant::now();
     let mut content_ever_active = false;
     let mut rom_fd_ever_open = false;
     let mut idle_since: Option<Instant> = None;
@@ -810,39 +895,55 @@ pub fn wait_for_session_end<F: FnOnce()>(
             }
             content_ever_active = true;
             idle_since = None;
-        } else {
-            let past_grace =
-                session_started.elapsed() >= Duration::from_millis(LAUNCH_GRACE_MS);
-            let fceux = is_fceux_program(program);
-            // FCEUX black-window idle exit uses grace; RetroArch must show content/window first.
-            let may_kill_idle = content_ever_active
-                || rom_fd_ever_open
-                || (past_grace && fceux);
-            if may_kill_idle {
-                idle_since.get_or_insert_with(Instant::now);
-                if idle_since
-                    .expect("set above")
-                    .elapsed()
-                    >= Duration::from_millis(IDLE_KILL_MS)
-                {
-                    // Gamepad "close game" leaves FCEUX on a black window — end the whole session.
-                    kill_session(accumulated);
-                    restore_ui(&mut on_session_end);
-                    break;
-                }
+        } else if session_idle_kill_allowed(content_ever_active, rom_fd_ever_open) {
+            // Game was loaded earlier; ROM fd closed / title cleared (FCEUX black window after Close Game).
+            idle_since.get_or_insert_with(Instant::now);
+            if idle_since
+                .expect("set above")
+                .elapsed()
+                >= Duration::from_millis(IDLE_KILL_MS)
+            {
+                eprintln!(
+                    "[xi-io-session-run] idle session end program={program} content={content_path} (post-close black window)"
+                );
+                kill_session(accumulated);
+                restore_ui(&mut on_session_end);
+                break;
             }
         }
 
-        std::thread::sleep(Duration::from_millis(120));
+        std::thread::sleep(Duration::from_millis(50));
     }
 
-    for _ in 0..5 {
+    for _ in 0..3 {
         let remaining =
             refresh_session_pids(program, content_path, pgid, spawn_pid, accumulated);
         if remaining.is_empty() {
             break;
         }
         force_terminate_session(program, content_path, &remaining, pgid);
-        std::thread::sleep(Duration::from_millis(200));
+        std::thread::sleep(Duration::from_millis(100));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn idle_kill_requires_prior_content_signal() {
+        assert!(!session_idle_kill_allowed(false, false));
+        assert!(session_idle_kill_allowed(true, false));
+        assert!(session_idle_kill_allowed(false, true));
+    }
+
+    #[test]
+    fn fceux_title_matches_rom_stem() {
+        let path = "/roms/USA/Super Mario Bros 3 (U) (PRG 1).nes";
+        assert!(fceux_titles_show_game(
+            &["Super Mario Bros 3 (U) (PRG 1)".into()],
+            path
+        ));
+        assert!(!fceux_titles_show_game(&["FCEUX".into()], path));
     }
 }
