@@ -99,6 +99,14 @@ fn content_marker(content_path: &str) -> String {
         .to_lowercase()
 }
 
+pub fn content_marker_for_path(content_path: &str) -> String {
+    content_marker(content_path)
+}
+
+pub fn read_cmdline_for_pid(pid: u32) -> Option<String> {
+    read_cmdline(pid)
+}
+
 /// Finds emulator processes. When `require_content` is true, cmdline must include the ROM name.
 pub fn find_emulator_pids(program: &str, content_path: &str, require_content: bool) -> Vec<u32> {
     let marker = content_marker(content_path);
@@ -274,7 +282,7 @@ fn normalize_content_path(content_path: &str) -> PathBuf {
 }
 
 /// Linux cmdline is fixed at exec — use open FDs to detect in-emulator "Close Game".
-fn pid_has_open_content(pid: u32, content_path: &str) -> bool {
+pub fn pid_has_open_content(pid: u32, content_path: &str) -> bool {
     let target = normalize_content_path(content_path);
     let marker = content_marker(content_path);
     let fd_dir = format!("/proc/{pid}/fd");
@@ -539,6 +547,27 @@ fn session_rom_fd_open(content_path: &str, accumulated: &HashSet<u32>) -> bool {
         .copied()
         .filter(|pid| is_pid_alive(*pid))
         .any(|pid| pid_has_open_content(pid, content_path))
+}
+
+/// True when a session PID has the ROM open, a mapped window, or cmdline bound to this ROM.
+pub fn emulator_playable_signal(pids: &[u32], content_path: &str) -> bool {
+    let pid_set: HashSet<u32> = pids.iter().copied().collect();
+    if session_rom_fd_open(content_path, &pid_set) {
+        return true;
+    }
+    let marker = content_marker(content_path);
+    for pid in pids.iter().copied().filter(|pid| is_pid_alive(*pid)) {
+        if !window_titles_for_pid(pid).is_empty() {
+            return true;
+        }
+        if read_cmdline(pid)
+            .map(|cmd| cmd.to_lowercase().contains(&marker))
+            .unwrap_or(false)
+        {
+            return true;
+        }
+    }
+    false
 }
 
 /// FCEUX often ignores SIGTERM and stays on a black "no game loaded" window — kill the session hard.

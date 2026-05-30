@@ -5,7 +5,8 @@
 //! Supervisor exit code 2 → parse failure (`XIO-LCH-015` overlap via `format_supervisor_failure`).
 
 use crate::emulator_process::{
-    collect_descendant_pids, find_emulator_pids, is_process_alive, poll_session_pids_once,
+    collect_descendant_pids, find_emulator_pids, is_process_alive, pid_has_open_content,
+    poll_session_pids_once, read_cmdline_for_pid, content_marker_for_path,
 };
 use std::time::Duration;
 
@@ -34,7 +35,15 @@ pub fn format_supervisor_failure(exit_code: i32, stderr: &str) -> String {
     }
 }
 
-/// True when /proc shows an emulator process (not just the supervisor wrapper).
+fn pid_cmdline_has_content(pid: u32, content_path: &str) -> bool {
+    let marker = content_marker_for_path(content_path);
+    read_cmdline_for_pid(pid)
+        .map(|cmd| cmd.to_lowercase().contains(&marker))
+        .unwrap_or(false)
+        || pid_has_open_content(pid, content_path)
+}
+
+/// True when /proc shows an emulator bound to this ROM — not any stale engine on the host.
 pub fn emulator_processes_ready(
     program: &str,
     content_path: &str,
@@ -47,27 +56,28 @@ pub fn emulator_processes_ready(
         }
     }
 
-    let matched = find_emulator_pids(program, content_path, false);
-    if !matched.is_empty() {
+    if !find_emulator_pids(program, content_path, true).is_empty() {
         return true;
     }
 
-    if let Some(sp) = supervisor_pid {
-        let descendants: Vec<u32> = collect_descendant_pids(&[sp])
-            .into_iter()
-            .filter(|p| *p != sp && is_process_alive(*p))
-            .collect();
-        if !descendants.is_empty() {
+    for pid in pids {
+        if *pid != supervisor_pid.unwrap_or(0) && pid_cmdline_has_content(*pid, content_path) {
             return true;
         }
     }
 
-    if pids.is_empty() {
-        return false;
+    if let Some(sp) = supervisor_pid {
+        for pid in collect_descendant_pids(&[sp]) {
+            if pid == sp || !is_process_alive(pid) {
+                continue;
+            }
+            if pid_cmdline_has_content(pid, content_path) {
+                return true;
+            }
+        }
     }
 
-    // Direct native emulator child (e.g. FCEUX) — not only the supervisor pid.
-    pids.iter().any(|p| supervisor_pid.is_none_or(|sp| *p != sp))
+    false
 }
 
 pub fn poll_emulator_startup_once(

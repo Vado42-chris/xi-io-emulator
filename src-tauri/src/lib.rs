@@ -24,9 +24,9 @@ mod play_session_db;
 use display_service::{identify_displays, list_connected_displays, DisplayInfo};
 use emulator_process::{
     cleanup_blocking_emulator_instances, cleanup_orphan_emulators,
-    cleanup_stale_session_supervisors, collect_pgid, find_emulator_pids_by_program,
-    force_terminate_session, is_process_alive, load_session_record, save_session_record,
-    EmulatorSessionRecord,
+    cleanup_stale_session_supervisors, collect_pgid, emulator_playable_signal,
+    force_terminate_session, is_process_alive,
+    load_session_record, save_session_record, EmulatorSessionRecord,
 };
 use game_session::{
     resolve_session_runner_path, signal_supervisor_stop,
@@ -627,6 +627,38 @@ async fn launch_emulator(
         }));
     }
 
+    // Do not hide the shell until the ROM is open or a game window exists (XIO-LCH-014).
+    let playable_deadline = tokio::time::Instant::now() + Duration::from_secs(6);
+    let content_for_playable = content_path.clone();
+    let mut playable = false;
+    while tokio::time::Instant::now() < playable_deadline {
+        if let Ok(Some(_status)) = child.try_wait() {
+            break;
+        }
+        let pids_snapshot = tracked_pids.clone();
+        let content = content_for_playable.clone();
+        playable = tokio::task::spawn_blocking(move || {
+            emulator_playable_signal(&pids_snapshot, &content)
+        })
+        .await
+        .unwrap_or(false);
+        if playable {
+            eprintln!("[xi-io] emulator playable signal confirmed");
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(250)).await;
+    }
+
+    if !playable {
+        eprintln!("[xi-io] startup abort: no game window or ROM fd before shell hibernate");
+        let _ = child.kill().await;
+        let _ = child.wait().await;
+        return Err(
+            "The emulator did not show a game window. Check Admin → Engines paths, proof ROM, and display settings."
+                .into(),
+        );
+    }
+
     let session_id = new_session_id(&game_id);
     let window_registry = (*app.state::<WindowRegistry>()).clone();
     window_registry.start_session(session_id.clone(), game_id.clone(), tracked_pids.clone());
@@ -681,18 +713,13 @@ async fn launch_emulator(
         let app_early = app.clone();
         let game_id_early = game_id.clone();
         let session_id_early = session_id.clone();
-        let program_early = prepared.program.clone();
         let tracked_pids_early = tracked_pids.clone();
         tokio::spawn(async move {
             let deadline = tokio::time::Instant::now() + Duration::from_secs(3600);
             while tokio::time::Instant::now() < deadline {
                 let still_running = tokio::task::spawn_blocking({
-                    let program = program_early.clone();
                     let pids = tracked_pids_early.clone();
-                    move || {
-                        pids.iter().any(|p| is_process_alive(*p))
-                            || !find_emulator_pids_by_program(&program).is_empty()
-                    }
+                    move || pids.iter().any(|p| is_process_alive(*p))
                 })
                 .await
                 .unwrap_or(true);
