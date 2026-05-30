@@ -1,21 +1,40 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 12 — safe session cleanup; mirror pending push)  
+Date: 2026-05-30 (Pass 13 — launch exit unified session finish; mirror pending push)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
-## Latest mirror (Pass 12 — session cleanup)
+## Latest mirror (Pass 13 — launch exit restore)
 
 | Field | Value |
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `d8899e7` |
-| xi-io.net mirror commit | `d1b9947` |
+| Product source commit | `41bd811` |
+| xi-io.net mirror commit | _pending this pass_ |
 | Mirror date | 2026-05-30 |
+| Mirror status | **In progress** |
+
+### Mirrored in Pass 13
+
+```txt
+docs/reports/pass-b-final-evidence-report.md (Pass 13 verify receipt)
+docs/framework/xi-io-net-sync-status.md (this file)
+projects/manifests/xi_io_emulator.project-manifest.yaml (wip_head_sha)
+projects/hydration/xi_io_emulator.hydration-state.yaml
+projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
+projects/evidence/xi_io_emulator/pass-b-final-evidence-report.md
+```
+
+## Prior mirror (Pass 12 — session cleanup)
+
+| Field | Value |
+|-------|--------|
+| Product source commit | `d8899e7` / CI fix `1f301a9` |
+| xi-io.net mirror commit | `d1b9947` |
 | Mirror status | **Complete** (Pass 12) |
 
 ### Mirrored in Pass 12

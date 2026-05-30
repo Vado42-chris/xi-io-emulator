@@ -390,19 +390,36 @@ Until then, do not close the milestone or start Pass C.
 | 11 | 2026-05-30 | PRH-01 SQLite scaffold + launch/db comments + verify | **pushed** | `754f258`; hub `9c79e81`; CI `26689725937` success |
 | 12 | 2026-05-30 | Safe session cleanup script + troubleshooting fix (Cursor pkill false positive) | **pushed** | `d8899e7`; hub `d1b9947`; local verify exit 0; **CI failed** `26690704328` (script not executable in git) |
 | 12b | 2026-05-30 | CI fix: git chmod +x on cleanup script | **pushed** | `1f301a9`; CI `26690791201` **success** |
-| 12b | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
-| 13 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
+| 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 (see below); cargo-audit warn local only |
+| 13 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
+| 14 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
-### Remaining passes estimate (2026-05-30)
+### Pass 13 verify receipt (2026-05-30, commit `41bd811`)
+
+| Command | Exit |
+|---------|------|
+| npm run typecheck | 0 |
+| npm run build | 0 |
+| npm run verify:shell-restore | 0 |
+| npm run verify:session-idle | 0 (guardrail updated for playable-signal gate) |
+| npm run verify:ui-toolbar | 0 |
+| npm run verify:metadata-backup | 0 |
+| npm run verify:play-session-migration | 0 |
+| npm run verify:engine-launch | 0 |
+| cargo check | 0 (7 dead-code warnings, non-blocking) |
+| npm run verify:deps | 0 (npm 0 vulns; cargo-audit skipped locally) |
+
+### Remaining passes estimate (2026-05-30, post Pass 13)
 
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
-| Metadata backup schema + pilot export | **Pass 9 schema + Pass 10 Admin UI done**; **1 operator pilot** | Settings → Export pilot (50) |
+| Launch exit + return to shell | **Pass 13 code done** | **User HW retest required** (PRH-04) |
+| Metadata backup 50-title pilot | **1 operator session** | Settings → Export pilot (50) |
 | Session cleanup (Cursor-safe) | **Pass 12 done** | `npm run cleanup:sessions` |
-| User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
-| Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done |
-| PRH-01 SQLite implementation | **scaffold done Pass 11**; **1 pass** migration invoke | Parallel to PRH-04 |
-| GitHub branch protection verify | **API checked Pass 11** — not enabled; operator action | gh API 404 documented |
-| Code comments + runtime path config | **partial Pass 11**; **~1 pass** remaining | launchService + db.ts done |
+| User hardware proof + sign-off | **1 user session** | PRH-04 blocker — SNES + A/B still open |
+| Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; Pass C prep |
+| PRH-01 SQLite migration invoke | **1 agent pass** | Scaffold @ Pass 11; wire playSessionService |
+| xi-io.net mirror freshness | **ongoing each pass** | Pass 13 mirror pending this pass |
+| GitHub branch protection | **operator** | API 404 @ Pass 11 |
 | WIP review slicing | **2–3 passes** | Before main |
-| **Total to Pass B close + compliance baseline** | **~2–4 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~2–3 agent + 1 user + 1 operator** | Pass C + ~2 after B close |

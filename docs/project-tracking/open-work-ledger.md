@@ -93,9 +93,9 @@ Verify: `npm run verify:deps` (npm audit; cargo-audit optional until installed).
 | FCEUX ROM closed but emulator alive (black screen) | XIO-LCH-011 | none | Fix in progress; user retest pending |
 | Stale demo/mock `/media/arcade-usb/` records | XIO-LCH-010 | `launch_blocked` | Mitigated — proof shelf + blocker copy |
 | Duplicate xi-io instance | XIO-LCH-012 | none | `single_instance` flock; user verify pending |
-| Shell focus restore failure | XIO-LCH-008 | `shell_focus_restore_failed` + `shell_focus_restored` | **Implemented** — user HW retest in PRH-04 |
+| Shell focus restore failure | XIO-LCH-008 | `shell_focus_restore_failed` + `shell_focus_restored` | **Fixed** — unified finish + restore retry; user HW retest (PRH-04) |
 | Display identify silent failure | XIO-LCH-009 | none | UI silent; runbook documents |
-| A/B not mapped at launch | — | none | **Pass B blocker** |
+| A/B not mapped at launch | — | `controller_profile_applied_to_launch` | **Code done** — FCEUX mapping at launch; user HW verify pending |
 | xdotool missing (window-title fallback) | XIO-LCH-011 | none | FD-only fallback; document in runbook |
 | bsnes temporary smoke only (not Snes9x) | XIO-LCH-002 | — | SNES proof must use Snes9x + real `.smc` |
 | Premature lifecycle kill at spawn | XIO-LCH-011 | none | Fixed (`content_ever_active`); retest pending |
@@ -208,9 +208,28 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 019, Launch exit unified session finish (Pass 13)
+
+Status: **done 2026-05-30** @ `41bd811` — unified `try_finish_emulator_session`; shell restore retry after failed wake; ArcadeHome overlay cleanup.
+
+```txt
+src-tauri/src/lib.rs — try_finish_emulator_session, early PID finish path
+src-tauri/src/shell_restore.rs — debounce only successful restores
+src/components/ArcadeHome.tsx — launch overlay state cleanup on session end
+scripts/verify-shell-restore-guardrails.sh — updated guardrails
+scripts/verify-session-idle-guardrails.sh — playable-signal gate checks
+```
+
+Tags:
+
+```txt
+#xio:emulator/launch/exit-restore
+#xio:emulator/pass-b/lifecycle
+```
+
 ### 018, Safe Pass B session cleanup (Pass 12)
 
-Status: **done 2026-05-30** — uncommitted until Pass 12 commit; fixes Cursor `pkill -f fceux` permission-denied storm.
+Status: **done 2026-05-30** @ `d8899e7` / CI fix `1f301a9` — fixes Cursor `pkill -f fceux` permission-denied storm.
 
 ```txt
 scripts/pass-b-cleanup-sessions.sh
