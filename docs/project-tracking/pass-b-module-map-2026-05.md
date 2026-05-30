@@ -57,7 +57,7 @@ npm run tauri:dev   # user hardware — not agent-only
 |-----|--------|
 | SNES launch via xi-io GUI (proof shelf) | **Open** |
 | NES exit/return after hardening | **Open** |
-| Controller A/B in-game | **Open** (XARCADE-CONTROLLER-MAPPING-001) |
+| Controller A/B in-game | **Open** — plan: [controller-mapping-001-plan-2026-05.md](./controller-mapping-001-plan-2026-05.md) |
 | Mark In-Game Verified | **Open** |
 | Desktop freeze on exit retest | **Open** |
 
