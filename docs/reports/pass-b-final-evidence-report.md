@@ -391,7 +391,7 @@ Until then, do not close the milestone or start Pass C.
 | 12 | 2026-05-30 | Safe session cleanup script + troubleshooting fix (Cursor pkill false positive) | **pushed** | `d8899e7`; hub `d1b9947`; local verify exit 0; **CI failed** `26690704328` (script not executable in git) |
 | 12b | 2026-05-30 | CI fix: git chmod +x on cleanup script | **pushed** | `1f301a9`; CI `26690791201` **success** |
 | 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 locally |
-| 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pending push** | CI `26692049689` failed E0560 |
+| 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pushed** | `2e03637`; CI `26692163994` **success** |
 | 13 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
 | 14 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
