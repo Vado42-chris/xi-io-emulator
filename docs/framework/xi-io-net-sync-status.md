@@ -1,6 +1,6 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 3 — security hub mirror @ `edc6bc2`)  
+Date: 2026-05-30 (Pass 3 — security hub mirror @ `f2c9230`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
@@ -14,7 +14,7 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
 | Product source commit | `afa9349` |
-| xi-io.net mirror commit | `edc6bc2` |
+| xi-io.net mirror commit | `f2c9230` |
 | Mirror date | 2026-05-30 |
 | Mirror status | **Complete** (security/framework pass) |
 | Remaining gaps | Hydration-state SHA update; full planning doc refresh; push xi-io.net to origin |
@@ -48,17 +48,17 @@ Also: `projects/evidence/xi_io_emulator/README.md`, `projects/manifests/xi_io_em
 
 | Artifact | Local path | xi-io.net target | Status |
 |----------|------------|------------------|--------|
-| Security framework standard | `docs/security/framework-security-standard-v1.md` | `security/` | **mirrored @ edc6bc2** |
-| Security baseline schema | `docs/security/security-baseline.schema.yaml` | `security/` | **mirrored @ edc6bc2** |
-| Security exception register | `docs/security/security-exception-register.md` | `security/` | **mirrored @ edc6bc2** |
-| Product security manifest spec | `docs/security/product-security-manifest-v1.md` | `security/` | **mirrored @ edc6bc2** |
-| Incident playbook | `docs/security/incident-playbook.md` | `security/` | **mirrored @ edc6bc2** |
-| Supply chain baseline | `docs/security/supply-chain-security-baseline.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
-| Security application plan | `docs/project-tracking/security-application-plan-xi-io-emulator.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
-| Pre-release hardening | `docs/project-tracking/pre-release-hardening-milestones.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
-| Agent security rules | `.memory/security.md` | `projects/evidence/xi_io_emulator/security/memory-security.md` | **mirrored @ edc6bc2** |
-| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `projects/manifests/` + evidence | **mirrored @ edc6bc2** |
-| Local paths example | `projects/evidence/.../pass-b-local-paths.example.yaml` | evidence/security/ | **mirrored @ edc6bc2** |
+| Security framework standard | `docs/security/framework-security-standard-v1.md` | `security/` | **mirrored @ f2c9230** |
+| Security baseline schema | `docs/security/security-baseline.schema.yaml` | `security/` | **mirrored @ f2c9230** |
+| Security exception register | `docs/security/security-exception-register.md` | `security/` | **mirrored @ f2c9230** |
+| Product security manifest spec | `docs/security/product-security-manifest-v1.md` | `security/` | **mirrored @ f2c9230** |
+| Incident playbook | `docs/security/incident-playbook.md` | `security/` | **mirrored @ f2c9230** |
+| Supply chain baseline | `docs/security/supply-chain-security-baseline.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ f2c9230** |
+| Security application plan | `docs/project-tracking/security-application-plan-xi-io-emulator.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ f2c9230** |
+| Pre-release hardening | `docs/project-tracking/pre-release-hardening-milestones.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ f2c9230** |
+| Agent security rules | `.memory/security.md` | `projects/evidence/xi_io_emulator/security/memory-security.md` | **mirrored @ f2c9230** |
+| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `projects/manifests/` + evidence | **mirrored @ f2c9230** |
+| Local paths example | `projects/evidence/.../pass-b-local-paths.example.yaml` | evidence/security/ | **mirrored @ f2c9230** |
 | Master plan | `docs/project-tracking/master-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
 | Repo health audit | `docs/project-tracking/repo-health-audit-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
 | WIP branch map | `docs/project-tracking/wip-branch-map-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
@@ -69,7 +69,7 @@ Also: `projects/evidence/xi_io_emulator/README.md`, `projects/manifests/xi_io_em
 | Source | Expected use | Status |
 |--------|--------------|--------|
 | UI framework branch docs | `origin/docs/xibalba-ui-framework-001` | **merged 2026-05-29** |
-| Security hub @ `edc6bc2` | Product repos pin `framework_baseline_commit` | **available — pin in manifest** |
+| Security hub @ `f2c9230` | Product repos pin `framework_baseline_commit` | **available — pin in manifest** |
 
 ## Sync commits (latest)
 
@@ -77,7 +77,7 @@ Also: `projects/evidence/xi_io_emulator/README.md`, `projects/manifests/xi_io_em
 |------|--------|-------|
 | xi-io-emulator | `afa9349` | P0 path hygiene (WIP head) |
 | xi-io-emulator | `ab4365c` | Framework security standard |
-| xi-io.net | `edc6bc2` | Security hub mirror @ source `afa9349` |
+| xi-io.net | `f2c9230` | Security hub mirror @ source `afa9349` |
 
 ## Blockers
 

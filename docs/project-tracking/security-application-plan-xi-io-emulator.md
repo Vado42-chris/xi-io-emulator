@@ -2,7 +2,7 @@
 
 Date: 2026-05-30  
 Branch audited: `wip/pass-b-lifecycle-display-shell` @ `afa9349`  
-xi-io.net mirror: `edc6bc2` @ 2026-05-30  
+xi-io.net mirror: `f2c9230` @ 2026-05-30  
 Framework standard: [framework-security-standard-v1.md](../security/framework-security-standard-v1.md)  
 Peer review: external audit 2026-05-30 (WIP preservation, not merge-ready)
 
@@ -13,9 +13,9 @@ Peer review: external audit 2026-05-30 (WIP preservation, not merge-ready)
 | Item | Value |
 |------|--------|
 | Branch | `wip/pass-b-lifecycle-display-shell` |
-| Head SHA | `95e2426bc7790be1f53777c738785ff3b6b2ef27` |
+| Head SHA | `09a1375` (WIP head; sync docs record mirror @ `f2c9230`) |
 | Base | `origin/main` @ `7740b36` |
-| Ahead of main | **18 commits** |
+| Ahead of main | **~22 commits** (WIP branch) |
 | Working tree | Clean |
 | Classification | **WIP preserved — not merge-ready** |
 | Files changed vs main | 112 files (+17k / -733 lines) — docs, security, Rust lifecycle, UI framework, showcase |

@@ -165,7 +165,7 @@ When a CVE affects npm, Rust, or system packages:
 | Supply chain automation | **Started** | `npm run verify:deps`; hub not on xi-io.net |
 | Remote reproducibility | **Partial** | GitHub @ `95e2426`; xi-io.net mirror pending |
 | Path privacy (public manifest) | **Improved** | Sanitized; showcase via `.env.local` (WIP); runtime config before beta |
-| Framework security standard | **Mirrored** | xi-io.net @ `edc6bc2` |
+| Framework security standard | **Mirrored** | xi-io.net @ `f2c9230` |
 
 ---
 

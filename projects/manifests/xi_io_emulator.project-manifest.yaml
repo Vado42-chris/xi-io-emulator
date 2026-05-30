@@ -16,7 +16,7 @@ repository:
   repo_safe: true
 
 security:
-  framework_baseline_commit: "edc6bc2"
+  framework_baseline_commit: "f2c9230"
   framework_baseline_repo: xi-io.net
   framework_baseline_path: security/
   product_baseline_doc: docs/security/supply-chain-security-baseline.md
@@ -51,7 +51,7 @@ status:
   lifecycle_state: in_build
   freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: synced_github_afa9349_xi_io_net_edc6bc2
+  repo_sync_state: synced_github_afa9349_xi_io_net_f2c9230
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
@@ -62,7 +62,7 @@ status:
       status: mostly_done
       branch_head_sha: "afa9349"
       launch_code_sha: "45d55ee"
-      xi_io_net_mirror_sha: "edc6bc2"
+      xi_io_net_mirror_sha: "f2c9230"
       xi_io_net_mirror_status: complete
     prh_04_pass_b_closeout: in_progress
   known_blockers:
