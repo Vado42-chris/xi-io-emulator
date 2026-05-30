@@ -98,7 +98,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 |----|-------------|--------|
 | PRH-01 | SQLite for play/session data | Scaffold @ Pass 11 — migration invoke pending |
 | PRH-02 | `shell_focus_restore_failed` ledger | Done |
-| PRH-03 | Commit + push WIP; mirror xi-io.net | **In progress** — Pass 15 `ad35c2d`; CI `26692720906` |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | **Done** — WIP `58494b1`; hub `f0269e5` (Pass 15; CI `26692720906`) |
 | PRH-04 | Pass B evidence + peer review | **In progress** — user sign-off pending |
 
 ## Security and dependencies

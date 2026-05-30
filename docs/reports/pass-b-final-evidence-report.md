@@ -393,7 +393,7 @@ Until then, do not close the milestone or start Pass C.
 | 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 locally |
 | 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pushed** | `2e03637`; CI `26692163994` **success** |
 | 14 | 2026-05-30 | Launch exit: unminimize wake + session finish race + global restore banner | **pushed** | `e1910fc` + docs `4ca3e28`; CI `26692451590` **success**; hub `7f03390` |
-| 15 | 2026-05-30 | Session ledger centralization + PID monitor stop + admin launch UX | **pushed** | `ad35c2d`; CI `26692720906` **success** |
+| 15 | 2026-05-30 | Session ledger centralization + PID monitor stop + admin launch UX | **pushed** | `ad35c2d` + docs `58494b1`; CI `26692720906` **success**; hub `f0269e5` |
 | — | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
 | — | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
