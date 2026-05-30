@@ -208,6 +208,23 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 016, Admin metadata export UI (Pass 10)
+
+Status: **done 2026-05-30** @ `68d74ef` — operator 50-title pilot pending.
+
+```txt
+src/services/metadataBackupService.ts — downloadMetadataBackupBundle()
+Settings → Export pilot (50) / Export full catalog
+Ledger: metadata_backup_export_succeeded
+```
+
+Tags:
+
+```txt
+#xio:emulator/library/metadata-backup
+#todo:metadata-backup/pilot-50
+```
+
 ### 015, Metadata backup schema v1 + export service (Pass 9)
 
 Status: **done 2026-05-30 — operator 50-title pilot pending.**

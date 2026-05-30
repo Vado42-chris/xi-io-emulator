@@ -1,7 +1,7 @@
 # Personal Library Metadata Backup (Peace of Mind)
 
 Date: 2026-05-30  
-Status: **Active blocker — schema v1 + export service @ Pass 9; pilot export on operator machine pending**  
+Status: **Active — schema v1 + export service @ Pass 9; Admin download UI @ Pass 10; operator 50-title pilot pending**  
 Milestone: **XARCADE-LIBRARY-METADATA-BACKUP-001**  
 Related: **XARCADE-IBAL-METADATA-001** (assistant — deferred design slot)
 
@@ -60,7 +60,20 @@ Product repo **must not** depend on this repo at runtime — it is an optional b
 
 ---
 
-## Admin UI (future)
+## Admin UI
+
+### Implemented (Pass 10)
+
+Settings → **Personal library metadata backup**:
+
+| Action | Purpose |
+|--------|---------|
+| Export pilot (50) | First 50 catalog titles as schema v1 JSON download |
+| Export full catalog | All titles with resolvable `libraryRootId` + relative path |
+
+Ledger event: `metadata_backup_export_succeeded`. Validate downloaded JSON with `npm run verify:metadata-backup path/to/export.json`.
+
+### Future (not v1)
 
 | Setting | Purpose |
 |---------|---------|

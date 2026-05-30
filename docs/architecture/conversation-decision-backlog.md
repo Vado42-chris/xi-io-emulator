@@ -278,6 +278,26 @@ Tags:
 #xio:emulator/resume/save-state
 ```
 
+## Decision 011, personal library metadata backup is metadata-only
+
+User curation (titles, tags, artwork pointers, relative paths) may export to a private Git remote or JSON bundle. ROM binaries never enter backup artifacts or public mirrors.
+
+```txt
+XARCADE-LIBRARY-METADATA-BACKUP-001
+docs/contracts/metadata-backup-v1.schema.yaml
+docs/future/personal-library-metadata-backup.md
+Settings → Export pilot (50) / Export full catalog (Pass 10)
+```
+
+Pilot gate: 50-title export validated with `npm run verify:metadata-backup` before bulk hydration.
+
+Tags:
+
+```txt
+#xio:emulator/library/metadata-backup
+#xio:emulator/legal/no-rom-distribution
+```
+
 ## Open risks
 
 ```txt
