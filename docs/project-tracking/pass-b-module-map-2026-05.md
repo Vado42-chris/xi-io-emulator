@@ -29,7 +29,8 @@ Maps Pass B launch/lifecycle **source modules → failure codes → runbook → 
 
 | Module | Responsibility | XIO codes | Verify |
 |--------|----------------|-----------|--------|
-| `launchService.ts` | Readiness blockers, preflight, invoke, ledger | 001–005, 010, 016 | Hero blockers clear on proof shelf |
+| `launchService.ts` | Readiness, mapping, preflight, invoke, ledger | 001–005, 010, 016 | Hero blockers clear on proof shelf |
+| `controllerMappingService.ts` | FCEUX profile at launch (slice 1–2) | mapping ledger | NES A/B in-game HW test |
 | `engineLaunchService.ts` | TS Flatpak mirror of Rust normalize | 015 | Command preview shows `flatpak run org.libretro.RetroArch` |
 | `engineReadinessService.ts` | Per-system proof readiness flags | 001–003 | Admin → Engines |
 | `launchDisplayService.ts` | Display index on launch args | 009 | Identify screens picker |
@@ -57,7 +58,7 @@ npm run tauri:dev   # user hardware — not agent-only
 |-----|--------|
 | SNES launch via xi-io GUI (proof shelf) | **Open** |
 | NES exit/return after hardening | **Open** |
-| Controller A/B in-game | **Open** — plan: [controller-mapping-001-plan-2026-05.md](./controller-mapping-001-plan-2026-05.md) |
+| Controller A/B in-game | **Implemented (FCEUX)** — user HW verify pending |
 | Mark In-Game Verified | **Open** |
 | Desktop freeze on exit retest | **Open** |
 

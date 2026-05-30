@@ -22,6 +22,7 @@ import {
 import { finalizeEngineLaunch, formatLaunchCommand } from './engineLaunchService';
 import { listConnectedDisplays } from './tauriService';
 import { recordGameLaunch } from './playSessionService';
+import { applyControllerMappingForLaunch } from './controllerMappingService';
 
 export interface LaunchBlocker {
   code:
@@ -228,14 +229,28 @@ export const launchGame = async (
     ? applyDisplaySettingsToLaunchPlan(basePlan, adapter, displaySettings, displays)
     : { plan: basePlan, env: {} as Record<string, string> };
 
-  const finalized = finalizeEngineLaunch(withDisplay.plan.program, withDisplay.plan.args);
-  const plan = {
+  const mapping = await applyControllerMappingForLaunch(adapter);
+  if (mapping.warning && adapter.engine_id === 'fceux') {
+    addLedgerEvent('launch_blocked', `Launch blocked: ${mapping.warning}`, {
+      gameId: game.id,
+      profileId: adapter.controller_profile,
+    });
+    return { success: false, command: withDisplay.plan.commandDisplay, error: mapping.warning };
+  }
+
+  const planWithMapping = {
     ...withDisplay.plan,
+    args: [...mapping.extraArgs, ...withDisplay.plan.args],
+  };
+
+  const finalized = finalizeEngineLaunch(planWithMapping.program, planWithMapping.args);
+  const plan = {
+    ...planWithMapping,
     program: finalized.program,
     args: finalized.args,
     commandDisplay: formatLaunchCommand(finalized.program, finalized.args),
   };
-  const env = withDisplay.env;
+  const env = { ...withDisplay.env, ...mapping.env };
 
   addLedgerEvent('launch_started', `Starting ${game.title} via ${adapter.display_name}`, {
     gameId: game.id,
@@ -243,6 +258,7 @@ export const launchGame = async (
     adapterId: adapter.adapter_id,
     displayMode: displaySettings?.mode,
     displayId: displaySettings?.displayId,
+    controllerProfileApplied: mapping.applied ? mapping.profileId : undefined,
   });
 
   recordGameLaunch(game.id);

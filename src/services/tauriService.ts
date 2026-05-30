@@ -107,6 +107,25 @@ export const validateLaunchPlan = async (
   return invoke<LaunchPlanValidation>('validate_launch_plan', { program, args });
 };
 
+export interface FceuxLaunchInputPrep {
+  homeDir: string;
+  deviceGuid: string;
+}
+
+export const prepareFceuxControllerLaunch = async (options: {
+  deviceGuid: string;
+  inputFileContent: string;
+}): Promise<FceuxLaunchInputPrep> => {
+  if (!isTauriRuntime()) {
+    throw new Error('FCEUX controller mapping requires Tauri desktop shell.');
+  }
+  const invoke = await getInvoke();
+  return invoke<FceuxLaunchInputPrep>('prepare_fceux_controller_launch_cmd', {
+    deviceGuid: options.deviceGuid,
+    inputFileContent: options.inputFileContent,
+  });
+};
+
 export interface EmulatorSessionStartedPayload {
   gameId: string;
   sessionId: string;

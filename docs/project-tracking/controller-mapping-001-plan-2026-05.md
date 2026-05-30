@@ -2,7 +2,7 @@
 
 Date: 2026-05-29  
 Branch: `wip/pass-b-lifecycle-display-shell`  
-Status: **Planned — Pass B blocker**  
+Status: **Slice 1–2 implemented (FCEUX) — pending user HW verify**  
 Tags: `#todo:controller/profile-mapping` `#xar:controller-launch-proof/pass-b`
 
 ## Problem
@@ -35,16 +35,11 @@ snes.standard.v1 → RetroArch core remap / autoconfig
 
 ### Slice 1 — Discovery + profile resolution
 
-- Read active controller from `controllerService` (SDL/evdev detection already exists)
-- Load virtual profile by `adapter.controller_profile` id
-- Fail visibly if no controller or profile unresolved (ledger: `controller_mapping_failed`)
+**Done (2026-05-29):** `controllerMappingService.ts` + `nes.standard.v1.json` + controller poll before launch.
 
 ### Slice 2 — FCEUX remap at launch
 
-- Generate per-session FCEUX cfg snippet or use documented `-inputconfig` path
-- Write to app data dir: `~/.local/share/com.xi-io.emulator/input/fceux-<session>.cfg`
-- Pass path to FCEUX launch args in `buildLaunchPlan` / adapter template
-- Verify: A/B in Zelda NES proof ROM; **Mark In-Game Verified** only after success
+**Done (2026-05-29):** Isolated `$APP_DATA/fceux-isolated-home/.fceux/` via `HOME` env; `--input1 gamepad`; ledger `controller_profile_applied_to_launch`.
 
 ### Slice 3 — RetroArch remap at launch
 

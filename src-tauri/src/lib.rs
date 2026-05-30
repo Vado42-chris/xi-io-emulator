@@ -13,6 +13,7 @@ pub mod game_session;
 pub mod platform;
 mod shell_exit_input;
 mod engine_launch;
+mod fceux_input_config;
 mod session_startup;
 mod shell_restore;
 mod single_instance;
@@ -34,6 +35,7 @@ use shell_exit_input::{
 };
 use window_registry::{tag_session_windows, new_session_id, WindowRegistry};
 use shell_restore::{finish_shell_restore, try_begin_shell_restore};
+use fceux_input_config::{prepare_fceux_input_config, FceuxLaunchInputPrep};
 
 #[derive(Clone, Debug)]
 struct ActiveEmulatorSession {
@@ -668,6 +670,15 @@ async fn launch_emulator(
 }
 
 #[tauri::command]
+fn prepare_fceux_controller_launch_cmd(
+    app: AppHandle,
+    device_guid: String,
+    input_file_content: String,
+) -> Result<FceuxLaunchInputPrep, String> {
+    prepare_fceux_input_config(&app, &device_guid, &input_file_content)
+}
+
+#[tauri::command]
 fn list_input_devices() -> Result<Vec<InputDeviceInfo>, String> {
     let raw = fs::read_to_string("/proc/bus/input/devices")
         .map_err(|e| format!("Unable to read /proc/bus/input/devices: {e}"))?;
@@ -794,6 +805,7 @@ pub fn run() {
             path_exists,
             command_on_path,
             validate_launch_plan,
+            prepare_fceux_controller_launch_cmd,
             launch_emulator,
             terminate_active_emulator,
             list_input_devices,

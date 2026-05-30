@@ -1,0 +1,20 @@
+{
+  "id": "nes.standard.v1",
+  "label": "NES standard — generic USB gamepad (Pass B)",
+  "system_id": "nes",
+  "fceux": {
+    "player_index": 0,
+    "buttons": {
+      "a": "b1",
+      "b": "b0",
+      "back": "b10",
+      "start": "b11",
+      "dpup": "h0.1",
+      "dpdown": "h0.4",
+      "dpleft": "h0.8",
+      "dpright": "h0.2",
+      "turboA": "b4",
+      "turboB": "b3"
+    }
+  }
+}
