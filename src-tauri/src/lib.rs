@@ -37,7 +37,7 @@ use shell_exit_input::{
     ShellExitMapping,
 };
 use window_registry::{tag_session_windows, new_session_id, WindowRegistry};
-use shell_restore::{finish_shell_restore, try_begin_shell_restore};
+use shell_restore::{finish_shell_restore, try_begin_shell_restore, ShellRestoreResult};
 use fceux_input_config::{prepare_fceux_input_config, FceuxLaunchInputPrep};
 
 #[derive(Clone, Debug)]
@@ -393,7 +393,7 @@ struct EmulatorSessionFinishedPayload {
 }
 
 /// Wake xi-io shell — Tauri APIs first (Wayland-safe); X11 WM tools optional and bounded.
-pub fn restore_arcade_shell(app: &AppHandle, _game_id: &str, _session_id: &str, reason: &str) {
+pub fn restore_arcade_shell(app: &AppHandle, game_id: &str, session_id: &str, reason: &str) {
     if !try_begin_shell_restore(reason) {
         return;
     }
@@ -402,15 +402,71 @@ pub fn restore_arcade_shell(app: &AppHandle, _game_id: &str, _session_id: &str, 
     let registry = (*app.state::<WindowRegistry>()).clone();
     let app_for_main = app.clone();
     let registry_for_main = registry.clone();
-    let _ = app_for_main.clone().run_on_main_thread(move || {
-        registry_for_main.wake_shell(&app_for_main);
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    let dispatch = app_for_main.clone().run_on_main_thread(move || {
+        let result = registry_for_main.wake_shell(&app_for_main);
+        let _ = tx.send(result);
     });
 
-    if crate::platform::x11_wm_tools_available() {
-        registry.wake_shell_wm_once(app);
-    }
+    let tauri_result = if dispatch.is_ok() {
+        rx.recv_timeout(Duration::from_secs(3)).unwrap_or_else(|_| {
+            ShellRestoreResult::failed("unknown_restore_failure", "tauri_show")
+        })
+    } else {
+        registry.wake_shell(app)
+    };
 
+    let final_result = if tauri_result.success {
+        if crate::platform::x11_wm_tools_available() {
+            let wm_result = registry.wake_shell_wm_once(app);
+            if !wm_result.success {
+                eprintln!(
+                    "[xi-io] wm wake best-effort failed reason={:?} stage={:?}",
+                    wm_result.reason_code, wm_result.stage
+                );
+            }
+        }
+        tauri_result
+    } else {
+        tauri_result
+    };
+
+    emit_shell_focus_restore_result(app, game_id, session_id, &final_result);
     finish_shell_restore();
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ShellFocusRestorePayload {
+    game_id: String,
+    session_id: String,
+    reason_code: Option<String>,
+    stage: Option<String>,
+    timestamp: String,
+}
+
+fn emit_shell_focus_restore_result(
+    app: &AppHandle,
+    game_id: &str,
+    session_id: &str,
+    result: &ShellRestoreResult,
+) {
+    let payload = ShellFocusRestorePayload {
+        game_id: game_id.to_string(),
+        session_id: session_id.to_string(),
+        reason_code: result.reason_code.clone(),
+        stage: result.stage.clone(),
+        timestamp: chrono_like_now(),
+    };
+    let event_name = if result.success {
+        "shell-focus-restored"
+    } else {
+        "shell-focus-restore-failed"
+    };
+    if let Err(err) = app.emit(event_name, payload) {
+        eprintln!("[xi-io] emit {event_name} failed: {err}");
+    }
 }
 
 /// Window show/focus must run on Tauri's main thread — not from spawn_blocking or evdev monitor threads.

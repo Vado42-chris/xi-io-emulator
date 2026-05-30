@@ -37,7 +37,8 @@ import {
 import { detectDuplicateCandidates } from '../services/searchService';
 import { checkLaunchReadiness, launchGame, getDemoMode, simulateLaunchGame } from '../services/launchService';
 import type { LaunchBlocker, LaunchResult } from '../services/launchService';
-import { isTauriRuntime, terminateActiveEmulator, listConnectedDisplays, type ConnectedDisplay } from '../services/tauriService';
+import { isTauriRuntime, terminateActiveEmulator, listConnectedDisplays, SHELL_FOCUS_RESTORE_FAILED_MESSAGE, type ConnectedDisplay } from '../services/tauriService';
+import { addLedgerEvent } from '../services/db';
 import { useEmulatorSessionLifecycle } from '../hooks/useEmulatorSessionLifecycle';
 import {
   resolveLaunchDisplaySettings,
@@ -110,6 +111,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [launchResult, setLaunchResult] = useState<LaunchResult | null>(null);
   const [launchBlockers, setLaunchBlockers] = useState<LaunchBlocker[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
+  const [shellRestoreFailure, setShellRestoreFailure] = useState<string | null>(null);
   const [localShellExitMapping, setLocalShellExitMapping] = useState<ShellExitMapping | null>(null);
   const [displayPickerGame, setDisplayPickerGame] = useState<GameRecord | null>(null);
   const [connectedDisplays, setConnectedDisplays] = useState<ConnectedDisplay[]>([]);
@@ -472,6 +474,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     onSessionStarted: (sessionId) => {
       activeSessionIdRef.current = sessionId;
       emulatorSessionActiveRef.current = true;
+      setShellRestoreFailure(null);
     },
     onSessionFinished: (payload) => {
       activeSessionIdRef.current = null;
@@ -506,6 +509,23 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         focusGameById(gameId);
       }
       onLaunchComplete?.();
+    },
+    onShellFocusRestored: (payload) => {
+      setShellRestoreFailure(null);
+      addLedgerEvent('shell_focus_restored', 'Shell focus restored after emulator exit', {
+        gameId: payload.gameId,
+        sessionId: payload.sessionId,
+        stage: payload.stage ?? undefined,
+      });
+    },
+    onShellFocusRestoreFailed: (payload) => {
+      setShellRestoreFailure(SHELL_FOCUS_RESTORE_FAILED_MESSAGE);
+      addLedgerEvent('shell_focus_restore_failed', 'Shell focus restore failed after emulator exit', {
+        gameId: payload.gameId,
+        sessionId: payload.sessionId,
+        reasonCode: payload.reasonCode ?? undefined,
+        stage: payload.stage ?? undefined,
+      });
     },
   });
 
@@ -1607,6 +1627,12 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                 <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
               )}
               
+              {!isLaunching && shellRestoreFailure && (
+                <p style={{ color: 'var(--color-warning)', maxWidth: '600px', textAlign: 'center' }}>
+                  {shellRestoreFailure}
+                </p>
+              )}
+
               {!isLaunching && launchResult?.error && !launchResult.returnedCleanly && (
                 <p style={{ color: 'var(--color-warning)', maxWidth: '600px', textAlign: 'center' }}>{launchResult.error}</p>
               )}

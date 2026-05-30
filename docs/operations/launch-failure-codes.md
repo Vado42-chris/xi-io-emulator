@@ -146,10 +146,12 @@ docs/framework/serialized-hashtags-standard.md
 | **Symptom** | Emulator closed but xi-io not visible/focused; user sees desktop or black fullscreen only |
 | **Subsystem** | Lifecycle / window manager |
 | **Blocker code** | — |
-| **UI surface** | Often none (silent); may appear as stuck state |
-| **Current ledger** | `shell_focus_restored` always emitted on exit attempt — **not** a failure signal |
-| **Future ledger** | `shell_focus_restore_failed` (documented in hashtag standard, not implemented) |
-| **Verify** | `xdotool search --name 'xi-io'`; `pgrep -af xi-io-emulator`; Alt-Tab / wmctrl |
+| **UI surface** | Launch overlay warning + Admin → Logs on failure |
+| **Current ledger** | `shell_focus_restored` on success; `shell_focus_restore_failed` on Tauri/WM restore failure |
+| **Signal** | `shell-focus-restored` / `shell-focus-restore-failed` (Tauri events → ledger) |
+| **Payload** | `reasonCode`, `stage`, `sessionId`, `gameId`, `timestamp` — no full paths |
+| **Recovery** | Alt+Tab or click xi-io window; check Admin → Logs; retry launch if needed |
+| **Status** | **Implemented** (PRH-02) |
 
 ---
 
@@ -304,8 +306,8 @@ docs/framework/serialized-hashtags-standard.md
 | `launch_started` | — | Implemented |
 | `launch_failed` | 006, 007, 014, 015 | Implemented (014/015 partial — no distinct failureCode yet) |
 | `emulator_exited` | clean exit | Implemented |
-| `shell_focus_restored` | 008 (misleading on failure) | Implemented |
-| `shell_focus_restore_failed` | 008 | **Not implemented** |
+| `shell_focus_restored` | 008 | Implemented (Tauri `shell-focus-restored` event) |
+| `shell_focus_restore_failed` | 008 | Implemented (Tauri `shell-focus-restore-failed` event) |
 | `display_identify_failed` | 009 | **Not implemented** |
 | `display_identify_shown` | 009 | **Not implemented** |
 | `emulator_session_terminated` | 011 | **Not implemented** |

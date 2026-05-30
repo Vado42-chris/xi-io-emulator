@@ -21,7 +21,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 | ID | Plain name | Status | Blocks bulk hydration? |
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
-| PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Not started** | Yes |
+| PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** (code + guardrails; user HW retest in PRH-04) | Yes |
 | PRH-03 | Commit + push WIP branch to GitHub | **Mostly done** — GitHub @ `afa9349`; xi-io.net security mirror @ `f2c9230`; hydration-state SHA update pending | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** (NES launch/return improved; full checklist open) | Yes |
 
@@ -86,11 +86,11 @@ When a game closes, we try to show the xi-io window again. Today we always log s
 
 ### Done when
 
-- [ ] `wake_shell` / `wake_shell_wm_once` return a boolean success (Tauri show + optional X11 activate)
-- [ ] On failure: emit Tauri event + ledger `shell_focus_restore_failed` with reason (no PII)
-- [ ] On success: keep existing `shell_focus_restored` / session-finished clean path
-- [ ] Failure-code matrix row for XIO-LCH-008 marked **Implemented**
-- [ ] `scripts/verify-shell-restore-guardrails.sh` checks that failure path exists in source
+- [x] `wake_shell` / `wake_shell_wm_once` return structured `ShellRestoreResult` (success + reason_code + stage)
+- [x] On failure: emit Tauri event + ledger `shell_focus_restore_failed` with reason (no PII)
+- [x] On success: emit `shell-focus-restored` → ledger `shell_focus_restored`
+- [x] Failure-code matrix row for XIO-LCH-008 marked **Implemented**
+- [x] `scripts/verify-shell-restore-guardrails.sh` checks failure path exists in source
 
 ### Safe implementation notes
 

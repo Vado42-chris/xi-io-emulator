@@ -57,7 +57,7 @@ status:
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
     security_baseline: docs/security/supply-chain-security-baseline.md
     prh_01_sqlite: not_started
-    prh_02_restore_failed_ledger: not_started
+    prh_02_restore_failed_ledger: done
     prh_03_commit_push:
       status: mostly_done
       branch_head_sha: "afa9349"
@@ -70,7 +70,7 @@ status:
     - Pass B full checklist not signed
     - VITE_* showcase roots are WIP-only — XARCADE-RUNTIME-CONFIG-001 before public beta
     - Stale demo /media/arcade-usb/ records mitigated via proof-only bootstrap
-  next_action: PRH-02 shell_focus_restore_failed; PRH-04 evidence; WIP review slice before main
+  next_action: PRH-04 Pass B evidence + user sign-off; WIP review slice before main
 
 runtime:
   local_preview:

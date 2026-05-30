@@ -162,6 +162,41 @@ export interface EmulatorSessionFinishedPayload {
   sessionReachedGame?: boolean;
 }
 
+export interface ShellFocusRestorePayload {
+  gameId: string;
+  sessionId: string;
+  reasonCode?: string | null;
+  stage?: string | null;
+  timestamp: string;
+}
+
+export const SHELL_FOCUS_RESTORE_FAILED_MESSAGE =
+  'The game closed, but xi-io could not confirm that the shell regained focus. Press Alt+Tab or click the xi-io window, then check the session log.';
+
+export const onShellFocusRestored = async (
+  handler: (payload: ShellFocusRestorePayload) => void
+): Promise<() => void> => {
+  if (!isTauriRuntime()) {
+    return () => {};
+  }
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<ShellFocusRestorePayload>('shell-focus-restored', (event) => {
+    handler(event.payload);
+  });
+};
+
+export const onShellFocusRestoreFailed = async (
+  handler: (payload: ShellFocusRestorePayload) => void
+): Promise<() => void> => {
+  if (!isTauriRuntime()) {
+    return () => {};
+  }
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<ShellFocusRestorePayload>('shell-focus-restore-failed', (event) => {
+    handler(event.payload);
+  });
+};
+
 export const onEmulatorSessionFinished = async (
   handler: (payload: EmulatorSessionFinishedPayload) => void
 ): Promise<() => void> => {

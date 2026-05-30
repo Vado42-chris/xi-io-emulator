@@ -4,7 +4,7 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use crate::platform::x11_wm_tools_available;
-use crate::shell_restore::run_subprocess_with_timeout;
+use crate::shell_restore::{run_subprocess_with_timeout, ShellRestoreResult};
 use tauri::{AppHandle, Manager};
 
 /// Stable WM title for the xi-io arcade shell — never unmap/kill; target by stored XID.
@@ -145,18 +145,24 @@ impl WindowRegistry {
     }
 
     /// Tauri-only wake — safe on Wayland and X11; avoids WM tool storms.
-    pub fn wake_shell(&self, app: &AppHandle) {
-        if let Some(main) = app.get_webview_window("main") {
-            let _ = main.set_title(SHELL_WINDOW_TITLE);
-            let _ = main.show();
-            let _ = main.set_focus();
+    pub fn wake_shell(&self, app: &AppHandle) -> ShellRestoreResult {
+        let Some(main) = app.get_webview_window("main") else {
+            return ShellRestoreResult::failed("tauri_window_missing", "tauri_show");
+        };
+        let _ = main.set_title(SHELL_WINDOW_TITLE);
+        if main.show().is_err() {
+            return ShellRestoreResult::failed("show_failed", "tauri_show");
         }
+        if main.set_focus().is_err() {
+            return ShellRestoreResult::failed("set_focus_failed", "tauri_focus");
+        }
+        ShellRestoreResult::ok("tauri_show")
     }
 
     /// Optional bounded X11 focus pass — never blocks on compositor sync.
-    pub fn wake_shell_wm_once(&self, app: &AppHandle) -> bool {
+    pub fn wake_shell_wm_once(&self, app: &AppHandle) -> ShellRestoreResult {
         if !x11_wm_tools_available() {
-            return false;
+            return ShellRestoreResult::ok("wm_unavailable");
         }
         self.refresh_shell_xid(app);
         if let Some(xid) = self
@@ -165,26 +171,31 @@ impl WindowRegistry {
         {
             if window_title_matches_shell(xid) {
                 eprintln!("[xi-io] wake_shell_wm_once xid={xid}");
-                wm_activate_xid(xid);
-                return true;
+                if !wm_activate_xid(xid) {
+                    return ShellRestoreResult::failed("xdotool_timeout", "wm_activate");
+                }
+                return ShellRestoreResult::ok("wm_activate");
             }
+            return ShellRestoreResult::failed("window_title_mismatch", "wm_activate");
         }
         for xid in discover_shell_xids() {
             if window_title_matches_shell(xid) {
                 eprintln!("[xi-io] wake_shell_wm_once discovered xid={xid}");
-                wm_activate_xid(xid);
+                if !wm_activate_xid(xid) {
+                    return ShellRestoreResult::failed("xdotool_timeout", "wm_discover");
+                }
                 persist_shell_xid(app, xid);
                 if let Ok(mut guard) = self.inner.shell_xid.lock() {
                     *guard = Some(xid);
                 }
-                return true;
+                return ShellRestoreResult::ok("wm_discover");
             }
         }
-        false
+        ShellRestoreResult::failed("xid_missing", "wm_discover")
     }
 
     /// WM wake via xdotool — X11 only; no-op on Wayland.
-    pub fn wake_shell_wm(&self, app: &AppHandle) -> bool {
+    pub fn wake_shell_wm(&self, app: &AppHandle) -> ShellRestoreResult {
         self.wake_shell_wm_once(app)
     }
 
@@ -292,20 +303,25 @@ fn run_xdotool(args: &[&str]) -> bool {
     run_subprocess_with_timeout("xdotool", args, 2)
 }
 
-fn wm_activate_xid(xid: u64) {
+fn wm_activate_xid(xid: u64) -> bool {
     let id = xid.to_string();
-    let _ = run_xdotool(&["windowmap", &id]);
+    if !run_xdotool(&["windowmap", &id]) {
+        return false;
+    }
     let _ = run_xdotool(&["windowraise", &id]);
     // Never use --sync: it can block indefinitely and wedge the compositor under load.
-    let _ = run_xdotool(&["windowactivate", &id]);
+    if !run_xdotool(&["windowactivate", &id]) {
+        return false;
+    }
     if Command::new("wmctrl")
         .arg("-V")
         .output()
         .map(|o| o.status.success())
         .unwrap_or(false)
     {
-        let _ = run_subprocess_with_timeout("wmctrl", &["-ia", &format!("0x{xid:x}")], 2);
+        return run_subprocess_with_timeout("wmctrl", &["-ia", &format!("0x{xid:x}")], 2);
     }
+    true
 }
 
 fn window_name_for_xid(xid: u64) -> Option<String> {

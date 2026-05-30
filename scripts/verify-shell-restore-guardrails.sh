@@ -46,6 +46,22 @@ grep -q 'session_reached_game' src-tauri/src/lib.rs || fail 'session_reached_gam
 grep -q 'session_window_xids' src-tauri/src/lib.rs || fail 'session_window_xids check missing'
 pass 'short-session failure detection wired'
 
+# Restore failure signal (PRH-02 / XIO-LCH-008)
+grep -q 'shell_focus_restore_failed' src/components/ArcadeHome.tsx src/components/AppShell.tsx 2>/dev/null \
+  || fail 'shell_focus_restore_failed ledger wiring missing'
+grep -q 'shell-focus-restore-failed' src-tauri/src/lib.rs || fail 'shell-focus-restore-failed event missing in lib.rs'
+grep -q 'ShellRestoreResult' src-tauri/src/shell_restore.rs || fail 'ShellRestoreResult missing'
+grep -q 'reason_code' src-tauri/src/shell_restore.rs || fail 'restore reason_code field missing'
+grep -q 'tauri_window_missing' src-tauri/src/window_registry.rs || fail 'restore reason codes missing'
+grep -q 'emit_shell_focus_restore_result' src-tauri/src/lib.rs || fail 'emit_shell_focus_restore_result missing'
+pass 'shell_focus_restore_failed wired'
+
+# No global emulator pkill reintroduced
+if grep -rE 'pkill\s+-x\s+fceux|pkill\s+-f\s+fceux' src-tauri/src --include '*.rs' 2>/dev/null; then
+  fail 'global fceux pkill reintroduced'
+fi
+pass 'no global fceux pkill'
+
 # WM tools use timeout wrapper
 grep -q 'run_subprocess_with_timeout' src-tauri/src/window_registry.rs || fail 'timeout wrapper missing in window_registry'
 grep -q 'run_subprocess_with_timeout' src-tauri/src/single_instance.rs || fail 'timeout wrapper missing in single_instance'

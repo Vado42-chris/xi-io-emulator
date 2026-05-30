@@ -290,9 +290,6 @@ export const launchGame = async (
         gameId: game.id,
         exitCode: result.exit_code,
       });
-      addLedgerEvent('shell_focus_restored', 'Shell focus restore attempted after emulator exit', {
-        gameId: game.id,
-      });
       return {
         success: true,
         returnedCleanly: true,

@@ -76,7 +76,7 @@ Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/tr
 | ID | What | Status (2026-05-30) |
 |----|------|---------------------|
 | PRH-01 | SQLite play/session data | Not started |
-| PRH-02 | `shell_focus_restore_failed` ledger | Not started |
+| PRH-02 | `shell_focus_restore_failed` ledger | **Done** |
 | PRH-03 | Commit + push WIP | Pushed `45d55ee` to GitHub; xi-io.net mirror pending |
 | PRH-04 | Pass B closeout + peer review | In progress |
 
@@ -91,7 +91,7 @@ Verify: `npm run verify:deps` (npm audit; cargo-audit optional until installed).
 | FCEUX ROM closed but emulator alive (black screen) | XIO-LCH-011 | none | Fix in progress; user retest pending |
 | Stale demo/mock `/media/arcade-usb/` records | XIO-LCH-010 | `launch_blocked` | Mitigated — proof shelf + blocker copy |
 | Duplicate xi-io instance | XIO-LCH-012 | none | `single_instance` flock; user verify pending |
-| Shell focus restore failure | XIO-LCH-008 | `shell_focus_restored` only | Failure event not emitted |
+| Shell focus restore failure | XIO-LCH-008 | `shell_focus_restore_failed` + `shell_focus_restored` | **Implemented** — user HW retest in PRH-04 |
 | Display identify silent failure | XIO-LCH-009 | none | UI silent; runbook documents |
 | A/B not mapped at launch | — | none | **Pass B blocker** |
 | xdotool missing (window-title fallback) | XIO-LCH-011 | none | FD-only fallback; document in runbook |

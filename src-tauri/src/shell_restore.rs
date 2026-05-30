@@ -2,8 +2,35 @@
 //!
 //! Failure codes: `XIO-LCH-008` (focus restore failed), desktop freeze mitigated (runbook freeze section).
 //! Guardrails: 2.5s debounce, mutex, `timeout` wrapper on WM tools, single wake pass (no retry storm).
+use serde::Serialize;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::OnceLock;
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ShellRestoreResult {
+    pub success: bool,
+    pub reason_code: Option<String>,
+    pub stage: Option<String>,
+}
+
+impl ShellRestoreResult {
+    pub fn ok(stage: &str) -> Self {
+        Self {
+            success: true,
+            reason_code: None,
+            stage: Some(stage.to_string()),
+        }
+    }
+
+    pub fn failed(reason_code: &str, stage: &str) -> Self {
+        Self {
+            success: false,
+            reason_code: Some(reason_code.to_string()),
+            stage: Some(stage.to_string()),
+        }
+    }
+}
 
 static RESTORE_IN_PROGRESS: AtomicBool = AtomicBool::new(false);
 static RESTORE_ATTEMPTS: AtomicU64 = AtomicU64::new(0);

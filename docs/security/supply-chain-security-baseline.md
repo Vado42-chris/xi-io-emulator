@@ -160,7 +160,7 @@ When a CVE affects npm, Rust, or system packages:
 | Process isolation (supervisor, no shell pgid kill) | **Strong** | Code + `verify:shell-restore` |
 | WM tool safety (timeout, no `--sync`) | **Strong** | Guardrail script |
 | Read-only ROM policy | **Strong** | Decision doc locked |
-| Failure visibility | **Weak** | PRH-02 |
+| Failure visibility | **Improved** | PRH-02 `shell_focus_restore_failed` |
 | Data durability | **Weak** | PRH-01 |
 | Supply chain automation | **Started** | `npm run verify:deps`; hub not on xi-io.net |
 | Remote reproducibility | **Partial** | GitHub @ `95e2426`; xi-io.net mirror pending |
@@ -178,7 +178,7 @@ When a CVE affects npm, Rust, or system packages:
 | Dependabot / Renovate config | **Not present** | Optional after push to GitHub |
 | Signed releases / code signing | **Not present** | Phase 7 MVP hardening |
 | Threat model doc (STRIDE-lite) | **Not present** | Phase 7 |
-| `shell_focus_restore_failed` | **Not implemented** | PRH-02 |
+| `shell_focus_restore_failed` | **Implemented** | PRH-02 |
 
 Building security **from scratch** does not mean writing crypto ourselves. It means:
 
