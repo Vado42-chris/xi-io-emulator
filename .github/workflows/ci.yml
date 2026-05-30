@@ -38,6 +38,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Build frontend (toolbar guardrail input)
+        run: npm run build
+
       - name: Shell restore guardrails
         run: npm run verify:shell-restore
 
