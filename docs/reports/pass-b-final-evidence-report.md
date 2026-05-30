@@ -2,7 +2,7 @@
 
 Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Branch: `wip/pass-b-lifecycle-display-shell` @ **`2bab4a6`** (xi-io.net @ `fcaddc2`; CI green)  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`7924d57`** (xi-io.net @ `b3a9b96`)  
 Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 
@@ -385,7 +385,7 @@ Until then, do not close the milestone or start Pass C.
 | 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **pushed** | `e7530b8`; verify:shell-restore + verify:session-idle exit 0 |
 | 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **pushed** | product `a7c7305`; hub `888f4fa`; verify exit 0 |
 | 8 | 2026-05-30 | GitHub CI + compliance checklist + PRH-01 plan | **pushed** | `8702185`→`2bab4a6`; hub `fcaddc2`; CI green run `26688165897` |
-| 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **commit pending** | `verify:metadata-backup` |
+| 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **pushed** | `7924d57`; hub `b3a9b96`; verify exit 0 |
 | 10 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 | 11 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | XARCADE-LIBRARY-METADATA-BACKUP-001 |
 

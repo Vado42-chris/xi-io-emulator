@@ -1,21 +1,37 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 8 — CI compliance + PRH-01 plan mirror @ `fcaddc2`)  
+Date: 2026-05-30 (Pass 9 — metadata backup schema @ `b3a9b96`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
-## Latest mirror (Pass 8 — CI compliance)
+## Latest mirror (Pass 9 — metadata backup)
 
 | Field | Value |
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
+| Product source commit | `7924d57` |
+| xi-io.net mirror commit | `b3a9b96` |
+| Mirror date | 2026-05-30 |
+| Mirror status | **Complete** (Pass 9) |
+
+### Mirrored in Pass 9
+
+```txt
+projects/evidence/xi_io_emulator/metadata-backup-v1.schema.yaml
+projects/evidence/xi_io_emulator/metadata-backup-v1.example.json
+projects/evidence/xi_io_emulator/personal-library-metadata-backup.md
+```
+
+## Prior mirror (Pass 8 — CI compliance)
+
+| Field | Value |
+|-------|--------|
 | Product source commit | `8702185` |
 | xi-io.net mirror commit | `fcaddc2` |
-| Mirror date | 2026-05-30 |
 | Mirror status | **Complete** (Pass 8) |
 
 ### Mirrored in Pass 8
