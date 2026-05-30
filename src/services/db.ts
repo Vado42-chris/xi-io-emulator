@@ -1,3 +1,9 @@
+/**
+ * Browser localStorage catalog — games, library roots, ledger, engine/proof settings.
+ *
+ * PRH-01 moves play/session aggregates to SQLite (`play_session_db.rs`); full catalog
+ * SQLite remains Phase 6 / bulk hydration gate. Never store secrets here.
+ */
 import type { GameRecord } from '../data/gameModels';
 import { clearPlaySessionData } from './playSessionService';
 

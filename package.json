@@ -15,6 +15,7 @@
     "verify:session-idle": "bash scripts/verify-session-idle-guardrails.sh",
     "verify:ui-toolbar": "node scripts/verify-ui-toolbar.mjs",
     "verify:metadata-backup": "node scripts/verify-metadata-backup-export.mjs",
+    "verify:play-session-migration": "bash scripts/verify-play-session-migration.sh",
     "verify:deps": "bash scripts/verify-deps.sh",
     "preview": "vite preview",
     "tauri": "tauri",

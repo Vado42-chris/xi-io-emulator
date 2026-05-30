@@ -195,11 +195,13 @@ export const launchGame = async (
   game: GameRecord,
   displaySettings?: LaunchDisplaySettings
 ): Promise<LaunchResult> => {
+  // Phase 1 — audit trail before any side effects
   addLedgerEvent('launch_requested', `Launch requested for ${game.title}`, {
     gameId: game.id,
     systemId: game.systemId,
   });
 
+  // Phase 2 — readiness (blockers, stale demo paths, Tauri required for real launch)
   const readiness = await checkLaunchReadiness(game);
   if (!readiness.ready) {
     const first = readiness.blockers[0];
@@ -214,6 +216,7 @@ export const launchGame = async (
     return simulateLaunchGame(game);
   }
 
+  // Phase 3 — build launch plan (adapter + engine + display + controller mapping)
   const adapter = getAdapterForSystem(game.systemId)!;
   const engine = getEngineSettings();
   const basePlan = buildLaunchPlan(adapter, engine, game.contentPath);
@@ -260,8 +263,10 @@ export const launchGame = async (
     controllerProfileApplied: mapping.applied ? mapping.profileId : undefined,
   });
 
+  // Phase 4 — play stats (localStorage today; PRH-01 SQLite migration pending)
   recordGameLaunch(game.id);
 
+  // Phase 5 — Tauri spawn; Rust owns session supervisor + shell restore (never UI)
   try {
     const result = await launchEmulatorProcess({
       program: plan.program,

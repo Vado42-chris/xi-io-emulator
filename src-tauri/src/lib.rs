@@ -19,6 +19,7 @@ mod session_startup;
 mod shell_restore;
 mod single_instance;
 mod window_registry;
+mod play_session_db;
 
 use display_service::{identify_displays, list_connected_displays, DisplayInfo};
 use emulator_process::{
@@ -933,6 +934,11 @@ pub fn run() {
         .setup(|app| {
             platform::log_platform_context();
             single_instance::acquire_or_exit(&app.handle());
+            if let Ok(app_data) = app.path().app_data_dir() {
+                play_session_db::init_on_startup(&app_data);
+            } else {
+                eprintln!("[xi-io] play_session.db skipped: app_data_dir unavailable");
+            }
             app.state::<WindowRegistry>()
                 .register_shell_window(&app.handle());
             let handle = app.handle().clone();

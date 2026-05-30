@@ -65,6 +65,9 @@ jobs:
       - name: Metadata backup export guardrails
         run: npm run verify:metadata-backup
 
+      - name: Play session migration scaffold (PRH-01)
+        run: npm run verify:play-session-migration
+
       - name: Rust compile check
         run: cargo check --manifest-path src-tauri/Cargo.toml
 
