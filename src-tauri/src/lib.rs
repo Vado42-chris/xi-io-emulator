@@ -38,7 +38,10 @@ use shell_exit_input::{
     ShellExitMapping,
 };
 use window_registry::{tag_session_windows, new_session_id, WindowRegistry};
-use shell_restore::{finish_shell_restore, try_begin_shell_restore, ShellRestoreResult};
+use shell_restore::{
+    finish_shell_restore_failed, finish_shell_restore_success, try_begin_shell_restore,
+    ShellRestoreResult,
+};
 use fceux_input_config::{prepare_fceux_input_config, FceuxLaunchInputPrep};
 
 #[derive(Clone, Debug)]
@@ -52,7 +55,6 @@ struct ActiveEmulatorSession {
     game_id: String,
     engine_id: String,
     started_at: String,
-    game_window_xids: Vec<u64>,
     session_reached_game: bool,
 }
 
@@ -61,6 +63,7 @@ struct EmulatorLaunchState {
     active_session: Arc<Mutex<Option<ActiveEmulatorSession>>>,
     terminate_requested: Arc<AtomicBool>,
     terminate_in_progress: Arc<AtomicBool>,
+    session_ui_finished: Arc<AtomicBool>,
 }
 
 impl EmulatorLaunchState {
@@ -140,8 +143,11 @@ impl EmulatorLaunchState {
             pids: pids.clone(),
         };
         let _ = save_session_record(app, &record);
-        let game_id = session.game_id.clone();
         let session_id = session.session_id.clone();
+
+        if reason == "shell_exit_button" || reason == "shell_ui_exit" {
+            self.try_finish_emulator_session(app, reason);
+        }
 
         if let Ok(mut guard) = self.active_session.lock() {
             *guard = None;
@@ -149,18 +155,6 @@ impl EmulatorLaunchState {
         let registry = app.state::<WindowRegistry>();
         registry.close_session_windows(&session_id);
         registry.end_session(&session_id);
-
-        if reason == "shell_exit_button" || reason == "shell_ui_exit" {
-            complete_emulator_session(
-                app,
-                &game_id,
-                &session_id,
-                reason,
-                true,
-                None,
-                true,
-            );
-        }
 
         true
     }
@@ -382,6 +376,62 @@ pub fn complete_emulator_session(
     schedule_restore_arcade_shell(app, game_id, session_id, reason);
 }
 
+impl EmulatorLaunchState {
+    fn reset_session_ui_finished(&self) {
+        self.session_ui_finished
+            .store(false, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    /// Emit session-finished + restore shell once per launch — safe from PID monitor and supervisor cleanup.
+    fn try_finish_emulator_session(&self, app: &AppHandle, reason: &str) {
+        if self
+            .session_ui_finished
+            .compare_exchange(
+                false,
+                true,
+                std::sync::atomic::Ordering::SeqCst,
+                std::sync::atomic::Ordering::SeqCst,
+            )
+            .is_err()
+        {
+            eprintln!("[xi-io] skip duplicate session finish reason={reason}");
+            return;
+        }
+
+        let session = self
+            .active_session
+            .lock()
+            .ok()
+            .and_then(|guard| guard.clone());
+
+        let Some(session) = session else {
+            eprintln!("[xi-io] skip session finish reason={reason} (no active session)");
+            return;
+        };
+
+        let reached = session.session_reached_game;
+        let returned_cleanly = reached;
+        let error_message = if reached {
+            None
+        } else {
+            Some(
+                "The emulator exited before the game window appeared. Check engine paths and display settings."
+                    .into(),
+            )
+        };
+
+        complete_emulator_session(
+            app,
+            &session.game_id,
+            &session.session_id,
+            reason,
+            returned_cleanly,
+            error_message,
+            reached,
+        );
+    }
+}
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct EmulatorSessionFinishedPayload {
@@ -434,7 +484,11 @@ pub fn restore_arcade_shell(app: &AppHandle, game_id: &str, session_id: &str, re
     };
 
     emit_shell_focus_restore_result(app, game_id, session_id, &final_result);
-    finish_shell_restore();
+    if final_result.success {
+        finish_shell_restore_success();
+    } else {
+        finish_shell_restore_failed();
+    }
 }
 
 #[derive(Clone, Serialize)]
@@ -542,6 +596,7 @@ async fn launch_emulator(
     cleanup_blocking_emulator_instances(&prepared.program);
     cleanup_orphan_emulators(&prepared.program, &content_path);
     state.terminate_requested.store(false, std::sync::atomic::Ordering::Relaxed);
+    state.reset_session_ui_finished();
 
     let mut async_cmd = AsyncCommand::new(&runner);
     async_cmd
@@ -708,11 +763,10 @@ async fn launch_emulator(
 
     let state_bg = state.inner().clone();
 
-    // Wake the shell as soon as the emulator process exits — do not wait for supervisor cleanup.
+    // Wake the shell and notify UI as soon as the emulator process exits — do not wait for supervisor cleanup.
     {
         let app_early = app.clone();
-        let game_id_early = game_id.clone();
-        let session_id_early = session_id.clone();
+        let state_early = state.inner().clone();
         let tracked_pids_early = tracked_pids.clone();
         tokio::spawn(async move {
             let deadline = tokio::time::Instant::now() + Duration::from_secs(3600);
@@ -724,12 +778,7 @@ async fn launch_emulator(
                 .await
                 .unwrap_or(true);
                 if !still_running {
-                    schedule_restore_arcade_shell(
-                        &app_early,
-                        &game_id_early,
-                        &session_id_early,
-                        "emulator_exited",
-                    );
+                    state_early.try_finish_emulator_session(&app_early, "emulator_exited");
                     break;
                 }
                 tokio::time::sleep(Duration::from_millis(60)).await;
@@ -759,20 +808,17 @@ async fn launch_emulator(
             "[xi-io] session supervisor exited terminated_by_shell={terminated_by_shell} status={wait_status:?}"
         );
 
-        let game_window_xids = window_registry_bg.session_window_xids(&session_id_bg);
         let ended_at = chrono_like_now();
-        let session_duration_secs = ended_at
-            .parse::<u64>()
-            .ok()
-            .and_then(|end| {
-                started_at_bg
-                    .parse::<u64>()
-                    .ok()
-                    .map(|start| end.saturating_sub(start))
-            })
-            .unwrap_or(0);
-        let session_reached_game =
-            !game_window_xids.is_empty() || session_duration_secs >= 3;
+
+        let exit_reason = if terminated_by_shell {
+            "shell_exit_button"
+        } else {
+            "emulator_session_ended"
+        };
+
+        if !terminated_by_shell {
+            state_bg.try_finish_emulator_session(&app_bg, exit_reason);
+        }
 
         if !terminated_by_shell {
             let record = EmulatorSessionRecord {
@@ -794,32 +840,6 @@ async fn launch_emulator(
 
         window_registry_bg.end_session(&session_id_bg);
         window_registry_bg.close_session_windows(&session_id_bg);
-
-        let exit_reason = if terminated_by_shell {
-            "shell_exit_button"
-        } else {
-            "emulator_session_ended"
-        };
-        if !terminated_by_shell {
-            let returned_cleanly = session_reached_game;
-            let error_message = if session_reached_game {
-                None
-            } else {
-                Some(
-                    "The emulator exited before the game window appeared. Check engine paths and display settings."
-                        .into(),
-                )
-            };
-            complete_emulator_session(
-                &app_bg,
-                &game_id_bg,
-                &session_id_bg,
-                exit_reason,
-                returned_cleanly,
-                error_message,
-                session_reached_game,
-            );
-        }
     });
 
     Ok(SpawnResult {

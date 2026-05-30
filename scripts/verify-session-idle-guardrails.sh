@@ -25,8 +25,14 @@ pass 'no premature FCEUX grace idle-kill'
 grep -q 'idle_kill_requires_prior_content_signal' src-tauri/src/emulator_process.rs \
   || fail 'idle-kill unit test missing'
 
-grep -q 'session_duration_secs >= 3' src-tauri/src/lib.rs \
-  || fail 'session_reached_game threshold should be 3s after confirmed startup'
+grep -q 'emulator_playable_signal' src-tauri/src/lib.rs \
+  || fail 'playable signal gate missing before shell hibernate'
+
+grep -q 'session_reached_game: true' src-tauri/src/lib.rs \
+  || fail 'session_reached_game must be set at confirmed startup'
+
+grep -q 'session.session_reached_game' src-tauri/src/lib.rs \
+  || fail 'session finish must use launch-time session_reached_game'
 
 pass 'session_reached_game threshold wired'
 

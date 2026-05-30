@@ -17,7 +17,7 @@ pass() {
 # Must exist and be wired
 grep -q 'mod shell_restore' src-tauri/src/lib.rs || fail 'shell_restore module not declared in lib.rs'
 grep -q 'try_begin_shell_restore' src-tauri/src/lib.rs || fail 'try_begin_shell_restore not used in lib.rs'
-grep -q 'finish_shell_restore' src-tauri/src/lib.rs || fail 'finish_shell_restore not used in lib.rs'
+grep -q 'finish_shell_restore_success' src-tauri/src/lib.rs || fail 'finish_shell_restore_success not used in lib.rs'
 
 # No focus-retry storm
 if grep -q 'spawn_shell_focus_retries' src-tauri/src/window_registry.rs; then
@@ -41,9 +41,10 @@ pass 'UI does not call restoreArcadeWindow'
 grep -q 'Rust owns restore' src/hooks/useEmulatorSessionLifecycle.ts || fail 'lifecycle hook missing Rust-owned restore note'
 pass 'useEmulatorSessionLifecycle present'
 
-# Short-session failure detection
+# Short-session failure detection + single session-finish path
 grep -q 'session_reached_game' src-tauri/src/lib.rs || fail 'session_reached_game logic missing'
-grep -q 'session_window_xids' src-tauri/src/lib.rs || fail 'session_window_xids check missing'
+grep -q 'try_finish_emulator_session' src-tauri/src/lib.rs || fail 'try_finish_emulator_session missing'
+grep -q 'finish_shell_restore_success' src-tauri/src/shell_restore.rs || fail 'finish_shell_restore_success missing'
 pass 'short-session failure detection wired'
 
 # Restore failure signal (PRH-02 / XIO-LCH-008)

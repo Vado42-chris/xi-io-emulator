@@ -160,16 +160,18 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         setLaunchingGame(null);
         setLaunchResult(null);
         setLaunchBlockers([]);
+        setShellRestoreFailure(null);
         return;
       }
+      setIsLaunching(false);
       if (result.returnedCleanly) {
         setLaunchingGame(null);
         setLaunchResult(null);
         setLaunchBlockers([]);
+        setShellRestoreFailure(null);
       } else {
         setLaunchingGame((current) => current ?? game);
         setLaunchResult(result);
-        setIsLaunching(false);
       }
       onLaunchComplete?.();
     } catch (err) {
@@ -179,6 +181,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         command: lastLaunchCommandRef.current,
         error: message,
       });
+      setLaunchingGame((current) => current ?? game);
       setIsLaunching(false);
     } finally {
       if (!sessionActive) {
@@ -504,6 +507,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       setLaunchingGame(null);
       setLaunchResult(null);
       setLaunchBlockers([]);
+      setShellRestoreFailure(null);
       const gameId = payload.gameId || lastLaunchedGameIdRef.current || '';
       if (gameId) {
         focusGameById(gameId);

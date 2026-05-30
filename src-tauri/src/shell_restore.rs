@@ -35,6 +35,7 @@ impl ShellRestoreResult {
 static RESTORE_IN_PROGRESS: AtomicBool = AtomicBool::new(false);
 static RESTORE_ATTEMPTS: AtomicU64 = AtomicU64::new(0);
 static LAST_RESTORE_MS: AtomicU64 = AtomicU64::new(0);
+static LAST_RESTORE_SUCCEEDED: AtomicBool = AtomicBool::new(false);
 static HAS_TIMEOUT: OnceLock<bool> = OnceLock::new();
 static TIMEOUT_SUPPORTS_KILL_AFTER: OnceLock<bool> = OnceLock::new();
 
@@ -49,11 +50,14 @@ fn now_ms() -> u64 {
 /// Minimum gap between full shell-restore cycles (Rust + UI must share this gate).
 const RESTORE_DEBOUNCE_MS: u64 = 2500;
 
-/// Returns false when a restore was already performed recently — caller should skip duplicate work.
+/// Returns false when a successful restore was already performed recently — caller should skip duplicate work.
+/// Failed restores do not debounce so session end can retry wake immediately.
 pub fn try_begin_shell_restore(reason: &str) -> bool {
     let now = now_ms();
     let last = LAST_RESTORE_MS.load(Ordering::Relaxed);
-    if now.saturating_sub(last) < RESTORE_DEBOUNCE_MS {
+    if LAST_RESTORE_SUCCEEDED.load(Ordering::Relaxed)
+        && now.saturating_sub(last) < RESTORE_DEBOUNCE_MS
+    {
         eprintln!(
             "[xi-io] skip duplicate shell restore reason={reason} (debounce {}ms)",
             now.saturating_sub(last)
@@ -67,7 +71,6 @@ pub fn try_begin_shell_restore(reason: &str) -> bool {
         eprintln!("[xi-io] skip shell restore reason={reason} (already in progress)");
         return false;
     }
-    LAST_RESTORE_MS.store(now, Ordering::Relaxed);
     let attempt = RESTORE_ATTEMPTS.fetch_add(1, Ordering::Relaxed) + 1;
     eprintln!("[xi-io] begin shell restore reason={reason} attempt={attempt}");
     true
@@ -75,6 +78,17 @@ pub fn try_begin_shell_restore(reason: &str) -> bool {
 
 pub fn finish_shell_restore() {
     RESTORE_IN_PROGRESS.store(false, Ordering::SeqCst);
+}
+
+pub fn finish_shell_restore_success() {
+    LAST_RESTORE_MS.store(now_ms(), Ordering::Relaxed);
+    LAST_RESTORE_SUCCEEDED.store(true, Ordering::Relaxed);
+    finish_shell_restore();
+}
+
+pub fn finish_shell_restore_failed() {
+    LAST_RESTORE_SUCCEEDED.store(false, Ordering::Relaxed);
+    finish_shell_restore();
 }
 
 /// Run subprocess with `timeout` when available — prevents blocking the WM/compositor forever.
@@ -131,6 +145,14 @@ mod tests {
     fn blocks_concurrent_restore() {
         assert!(try_begin_shell_restore("test"));
         assert!(!try_begin_shell_restore("test"));
-        finish_shell_restore();
+        finish_shell_restore_failed();
+    }
+
+    #[test]
+    fn failed_restore_allows_immediate_retry() {
+        assert!(try_begin_shell_restore("first"));
+        finish_shell_restore_failed();
+        assert!(try_begin_shell_restore("retry"));
+        finish_shell_restore_success();
     }
 }
