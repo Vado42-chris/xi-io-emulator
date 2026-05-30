@@ -962,10 +962,12 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     }
 
     if (edges.shoulderLeft) {
+      enterBrowseZone('platform');
       cyclePlatformTab(-1);
       return;
     }
     if (edges.shoulderRight) {
+      enterBrowseZone('platform');
       cyclePlatformTab(1);
       return;
     }
@@ -1335,7 +1337,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                 type="button"
                 role="tab"
                 aria-selected={platformFilter === tab.id}
-                className={`arcade-platform-tab ${platformFilter === tab.id ? 'arcade-platform-tab--active' : ''} ${focusZone === 'browse' && browseRow === 'platform' && browsePlatformIndex === tabIdx ? 'arcade-platform-tab--focus' : ''}`}
+                className={`ui-btn ui-btn--secondary ui-btn--sm arcade-platform-tab ${platformFilter === tab.id ? 'arcade-platform-tab--active' : ''} ${focusZone === 'browse' && browseRow === 'platform' && browsePlatformIndex === tabIdx ? 'arcade-platform-tab--focus' : ''}`}
                 onClick={() => handlePlatformChange(tab.id)}
               >
                 <span>{tab.label}</span>
@@ -1351,7 +1353,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
             <input
               ref={toolbarSearchRef}
               type="search"
-              className="arcade-toolbar-search-input"
+              className="ui-input arcade-toolbar-search-input"
               placeholder="Search title, system, tags…"
               value={searchQuery}
               onChange={(e) => handleSearchQueryChange(e.target.value)}
@@ -1379,7 +1381,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
             <button
               key={facet.id}
               type="button"
-              className={`arcade-filter-chip ${facetFilter === facet.id ? 'arcade-filter-chip--active' : ''} ${focusZone === 'browse' && browseRow === 'facet' && browseFacetIndex === facetIdx ? 'arcade-filter-chip--focus' : ''}`}
+              className={`ui-btn ui-btn--ghost ui-btn--sm arcade-filter-chip ${facetFilter === facet.id ? 'arcade-filter-chip--active' : ''} ${focusZone === 'browse' && browseRow === 'facet' && browseFacetIndex === facetIdx ? 'arcade-filter-chip--focus' : ''}`}
               onClick={() => handleFacetChange(facet.id)}
             >
               {facet.label}
