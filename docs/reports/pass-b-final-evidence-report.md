@@ -2,7 +2,7 @@
 
 Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Branch: `wip/pass-b-lifecycle-display-shell` @ **`4ca3e28`** (xi-io.net @ `7f03390`)  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`ad35c2d`** (Pass 15 source)  
 Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 
@@ -393,8 +393,26 @@ Until then, do not close the milestone or start Pass C.
 | 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 locally |
 | 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pushed** | `2e03637`; CI `26692163994` **success** |
 | 14 | 2026-05-30 | Launch exit: unminimize wake + session finish race + global restore banner | **pushed** | `e1910fc` + docs `4ca3e28`; CI `26692451590` **success**; hub `7f03390` |
-| 13 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
-| 14 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
+| 15 | 2026-05-30 | Session ledger centralization + PID monitor stop + admin launch UX | **pushed** | `ad35c2d`; CI `26692720906` **success** |
+| — | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
+| — | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
+
+### Pass 15 verify receipt (2026-05-30, commit `ad35c2d`)
+
+| Command | Exit |
+|---------|------|
+| npm run typecheck | 0 |
+| npm run build | 0 |
+| npm run verify:shell-restore | 0 |
+| npm run verify:session-idle | 0 |
+| npm run verify:ui-toolbar | 0 |
+| npm run verify:metadata-backup | 0 |
+| npm run verify:play-session-migration | 0 |
+| npm run verify:engine-launch | 0 |
+| cargo check | 0 (6 dead-code warnings, non-blocking) |
+| npm run verify:deps | 0 (npm 0 vulns; cargo-audit skipped locally) |
+
+**Pass 15 fixes:** AppShell owns `emulator_exited` + shell restore ledger (no ArcadeHome duplicate); admin launch switches to arcade on `sessionActive`; early PID monitor stops after `try_finish_emulator_session`.
 
 ### Pass 14 verify receipt (2026-05-30, commit `e1910fc`)
 
@@ -428,17 +446,14 @@ Until then, do not close the milestone or start Pass C.
 | cargo check | 0 (7 dead-code warnings, non-blocking) |
 | npm run verify:deps | 0 (npm 0 vulns; cargo-audit skipped locally) |
 
-### Remaining passes estimate (2026-05-30, post Pass 14)
+### Remaining passes estimate (2026-05-30, post Pass 15)
 
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
-| Launch exit + return to shell | **Pass 14 code done** | **User HW retest required** (PRH-04) |
+| Launch exit + return to shell | **Pass 15 code done** | **User HW retest required** (PRH-04) |
 | Metadata backup 50-title pilot | **1 operator session** | Settings → Export pilot (50) |
-| Session cleanup (Cursor-safe) | **Pass 12 done** | `npm run cleanup:sessions` |
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker — SNES + A/B still open |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; Pass C prep |
-| PRH-01 SQLite migration invoke | **1 agent pass** | Scaffold @ Pass 11; wire playSessionService |
-| xi-io.net mirror freshness | **Pass 14 done** | hub `7f03390`; CI `26692451590` |
-| GitHub branch protection | **operator** | API 404 @ Pass 11 |
-| WIP review slicing | **2–3 passes** | Before main |
+| PRH-01 SQLite migration invoke | **1 agent pass** | Scaffold @ Pass 11 |
+| WIP review slicing | **2–3 agent passes** | Before main |
 | **Total to Pass B close + compliance baseline** | **~2 agent + 1 user + 1 operator** | Pass C + ~2 after B close |

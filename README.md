@@ -98,7 +98,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 |----|-------------|--------|
 | PRH-01 | SQLite for play/session data | Scaffold @ Pass 11 — migration invoke pending |
 | PRH-02 | `shell_focus_restore_failed` ledger | Done |
-| PRH-03 | Commit + push WIP; mirror xi-io.net | **Done** — WIP `4ca3e28`; hub `7f03390` (Pass 14; CI green `26692451590`) |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | **In progress** — Pass 15 `ad35c2d`; CI `26692720906` |
 | PRH-04 | Pass B evidence + peer review | **In progress** — user sign-off pending |
 
 ## Security and dependencies
@@ -113,7 +113,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 
 xi-io.net is the intended **security policy hub** for sibling repos — see baseline doc for propagation pattern.
 
-**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `69c3a66`. xi-io.net mirror @ `3abd45a` (Pass 14).
+**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `ad35c2d` (Pass 15). xi-io.net mirror pending.
 
 ## Development
 

@@ -40,6 +40,7 @@ completed_in_repo:
   - Pass 12 safe session cleanup @ d8899e7 / CI fix 1f301a9
   - Pass 13 launch exit unified session finish @ 41bd811
   - Pass 14 shell unminimize + session finish race + restore banner @ e1910fc
+  - Pass 15 session ledger centralization + PID monitor stop @ ad35c2d
 
 pass_b_evidence:
   nes_xi_io_launch: partial

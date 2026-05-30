@@ -1,23 +1,43 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 14 — shell unminimize + session finish race; mirror complete @ `7f03390`)  
+Date: 2026-05-30 (Pass 15 — session ledger centralization; mirror pending)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
-## Latest mirror (Pass 14 — shell wake + restore banner)
+## Latest mirror (Pass 15 — session ledger + PID monitor)
 
 | Field | Value |
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `e1910fc` / docs `4ca3e28` |
-| xi-io.net mirror commit | `7f03390` |
+| Product source commit | `ad35c2d` |
+| xi-io.net mirror commit | **pending this pass** |
 | Mirror date | 2026-05-30 |
+| Mirror status | **In progress** |
+| CI run (product) | `26692720906` **success** |
+
+### Mirrored in Pass 15
+
+```txt
+docs/reports/pass-b-final-evidence-report.md (Pass 15 verify receipt)
+docs/framework/xi-io-net-sync-status.md (this file)
+docs/project-tracking/open-work-ledger.md (§021)
+projects/manifests/xi_io_emulator.project-manifest.yaml
+projects/hydration/xi_io_emulator.hydration-state.yaml
+projects/evidence/xi_io_emulator/pass-b-final-evidence-report.md
+projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
+```
+
+## Prior mirror (Pass 14 — shell wake + restore banner)
+
+| Field | Value |
+|-------|--------|
+| Product source commit | `e1910fc` / docs `4ca3e28` |
+| xi-io.net mirror commit | `6471d2c` |
 | Mirror status | **Complete** (Pass 14) |
-| CI run (product) | `26692451590` **success** |
 
 ### Mirrored in Pass 14
 

@@ -90,7 +90,7 @@ Verify: `npm run verify:deps` (npm audit; cargo-audit optional until installed).
 
 | Edge case | XIO code | Ledger today | Status |
 |-----------|----------|--------------|--------|
-| FCEUX ROM closed but emulator alive (black screen) | XIO-LCH-011 | none | Fix in progress; user retest pending |
+| FCEUX ROM closed but emulator alive (black screen) | XIO-LCH-011 | `emulator_exited` | Idle-kill wired; user retest pending |
 | Stale demo/mock `/media/arcade-usb/` records | XIO-LCH-010 | `launch_blocked` | Mitigated — proof shelf + blocker copy |
 | Duplicate xi-io instance | XIO-LCH-012 | none | `single_instance` flock; user verify pending |
 | Shell focus restore failure | XIO-LCH-008 | `shell_focus_restore_failed` + `shell_focus_restored` | **Fixed** — unified finish + restore retry; user HW retest (PRH-04) |
@@ -206,6 +206,26 @@ Tags:
 ```txt
 #xio:emulator/cheats/future
 #xio:emulator/patches/future
+```
+
+### 021, Session ledger centralization + PID monitor stop (Pass 15)
+
+Status: **done 2026-05-30** @ `ad35c2d` — AppShell owns ledger; admin launch → arcade; PID monitor stops after finish.
+
+```txt
+src/components/AppShell.tsx — emulator_exited ledger; admin handleLaunchFromShell → arcade on sessionActive
+src/components/ArcadeHome.tsx — UI-only shell restore banner (no duplicate ledger)
+src-tauri/src/lib.rs — session_pid_monitor_stop after try_finish
+scripts/verify-shell-restore-guardrails.sh — no duplicate ArcadeHome ledger
+scripts/verify-session-idle-guardrails.sh — PID monitor stop guardrail
+```
+
+Tags:
+
+```txt
+#xio:emulator/launch/exit-restore
+#ledger:emulator_exited
+#xio:emulator/pass-b/lifecycle
 ```
 
 ### 020, Shell wake unminimize + session finish race (Pass 14)

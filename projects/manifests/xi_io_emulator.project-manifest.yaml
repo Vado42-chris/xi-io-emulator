@@ -36,8 +36,8 @@ security:
 
 branch_policy:
   active_wip: wip/pass-b-lifecycle-display-shell
-  wip_head_sha: "69c3a66"
-  launch_exit_restore_sha: "e1910fc"
+  wip_head_sha: "ad35c2d"
+  launch_exit_restore_sha: "ad35c2d"
   launch_hardening_code_sha: "97e3a8d"
   security_docs_sha: "ab4365c"
   path_hygiene_sha: "afa9349"
