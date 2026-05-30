@@ -36,10 +36,12 @@ security:
 
 branch_policy:
   active_wip: wip/pass-b-lifecycle-display-shell
-  wip_head_sha: "15b6726"
+  wip_head_sha: "afbb359"
   launch_hardening_code_sha: "45d55ee"
   security_docs_sha: "ab4365c"
   path_hygiene_sha: "afa9349"
+  prh_02_sha: "897a97d"
+  prh_04_docs_sha: "e7530b8"
   merge_ready: false
   review_required: slice_before_main
 
@@ -51,7 +53,7 @@ status:
   lifecycle_state: in_build
   freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: synced_github_afa9349_xi_io_net_f2c9230
+  repo_sync_state: synced_github_afbb359_xi_io_net_pass7_pending
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
@@ -59,11 +61,12 @@ status:
     prh_01_sqlite: not_started
     prh_02_restore_failed_ledger: done
     prh_03_commit_push:
-      status: mostly_done
-      branch_head_sha: "afa9349"
+      status: done
+      branch_head_sha: "afbb359"
       launch_code_sha: "45d55ee"
-      xi_io_net_mirror_sha: "f2c9230"
-      xi_io_net_mirror_status: complete
+      xi_io_net_mirror_sha: "pass7_pending"
+      xi_io_net_security_mirror_sha: "f2c9230"
+      hydration_state_updated: true
     prh_04_pass_b_closeout: in_progress_user_signoff_pending
   known_blockers:
     - SNES xi-io GUI launch not fully evidenced in ledger

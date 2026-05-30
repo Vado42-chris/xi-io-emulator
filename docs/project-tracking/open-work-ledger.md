@@ -77,7 +77,7 @@ Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/tr
 |----|------|---------------------|
 | PRH-01 | SQLite play/session data | Not started |
 | PRH-02 | `shell_focus_restore_failed` ledger | **Done** |
-| PRH-03 | Commit + push WIP | Pushed `45d55ee` to GitHub; xi-io.net mirror pending |
+| PRH-03 | Commit + push WIP | GitHub @ `afbb359`; Pass 7 xi-io.net freshness mirror in progress |
 | PRH-04 | Pass B closeout + peer review | In progress |
 
 **Blocks bulk hydration until all four are Done or deferred with date in tracker.**
@@ -204,6 +204,23 @@ Tags:
 ```txt
 #xio:emulator/cheats/future
 #xio:emulator/patches/future
+```
+
+### 012, PRH-03 hydration SHA + xi-io.net Pass 7 freshness
+
+Status: **in progress 2026-05-30.**
+
+```txt
+projects/hydration/xi_io_emulator.hydration-state.yaml  — product_repo_commit @ afbb359
+docs/framework/xi-io-net-sync-status.md               — Pass 7 mirror scope
+xi-io.net evidence mirror                             — planning docs + hydration
+```
+
+Tags:
+
+```txt
+#xio:emulator/framework-sync
+#todo:prh-03/xi-io-net-pass7-push
 ```
 
 ### 011, PRH-04 Pass B evidence refresh

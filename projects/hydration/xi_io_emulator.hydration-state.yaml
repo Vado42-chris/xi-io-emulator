@@ -1,6 +1,6 @@
 xiio_version: "0.1.0"
 schema_version: "1.0.0"
-hydration_id: "xi_io_emulator.hydration.2026-05-29.pass-b-partial"
+hydration_id: "xi_io_emulator.hydration.2026-05-30.pass-b-partial-prh03"
 project_id: xi_io_emulator
 project_name: xi-io Emulator
 management_mode: first_party_product
@@ -29,21 +29,26 @@ completed_in_repo:
   - docs/reports/pass-b-final-evidence-report.md
   - Image hydration decision and handoff (0f738f5, 86090b3)
   - Standardization audit report (XARCADE-STANDARDIZATION-AUDIT-001)
+  - PRH-02 shell_focus_restore_failed ledger @ 897a97d
+  - Framework security standard + xi-io.net hub mirror @ f2c9230
+  - P0 path hygiene (VITE_* local overlay) @ afa9349
+  - PRH-04 evidence refresh + retest checklist @ e7530b8
 
 pass_b_evidence:
   nes_xi_io_launch: partial
-  nes_exit_return: pending_user_retest
+  nes_exit_return: user_confirmed_2026_05_30_pending_formal_signoff
   snes_xi_io_launch: not_evidenced
   snes_cli_smoke: pass
   controller_dpad_start_select: partial
-  controller_ab: fail
+  controller_ab: pending_retest
   mark_in_game_verified: not_done
   stale_demo_blocker: mitigated
+  shell_focus_restore_ledger: implemented_prh_02
 
 planned_next_slices:
   - id: Pass-B
     state: in_progress_user_assisted
-    gate: SNES xi-io launch + exit re-test + A/B + Mark Verified
+    gate: PRH-04 user hardware sign-off (NES + SNES proof shelf)
   - id: Pass-C
     state: blocked
     gate: Pass B checklist complete
@@ -59,7 +64,7 @@ planned_next_slices:
 
 deferred_until_pass_b_close:
   - bulk local library hydration
-  - SQLite migration
+  - SQLite migration (PRH-01)
   - full storage root scan
   - automatic artwork/provider downloads
   - Ibal assistant implementation
@@ -67,12 +72,12 @@ deferred_until_pass_b_close:
   - MCP integration
 
 blockers:
+  - PRH-04 user hardware sign-off table not filled
   - SNES launch through xi-io GUI not in ledger
-  - NES exit overlay re-test after b34a60d
-  - Controller A/B not applied at engine launch
+  - Controller A/B pending formal retest in sign-off
   - Mark In-Game Verified incomplete
 
-next_slice: Pass-B-user-hardware-proof
+next_slice: PRH-04-user-hardware-signoff
 
 bulk_hydration_gate:
   requires:
@@ -82,8 +87,10 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: mirrored_2026_05_30_ecf6902
-  workbench_preview_event: evt-xi-io-emulator-phase-0-docs-001
-  product_repo_commit: "ee76120"
+  xi_io_net_mirror: pass_7_freshness_pending
+  workbench_preview_event: evt-xi-io-emulator-pass-b-partial-001
+  product_repo_commit: "afbb359"
+  product_repo_branch: wip/pass-b-lifecycle-display-shell
+  framework_baseline_commit: "f2c9230"
   last_agent_pass: 2026-05-30
-  integration_note: "Three-bucket merge (A+B+C) on wip/pass-b-lifecycle-display-shell @ 53cd077"
+  pass_7_scope: hydration_sha_planning_docs_mirror

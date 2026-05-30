@@ -383,7 +383,8 @@ Until then, do not close the milestone or start Pass C.
 | 5 | 2026-05-30 | PRH-02 restore failure ledger | **pushed** | `897a97d` |
 | 6 | 2026-05-30 | Security + path hygiene + USB product docs | **pushed** | `5705344` |
 | 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **pushed** | `e7530b8`; verify:shell-restore + verify:session-idle exit 0 |
-| 7 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **commit afbb359** | verify exit 0; xi-io.net push pending |
+| 8 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 
 ### Remaining passes estimate (2026-05-30)
 
@@ -391,9 +392,8 @@ Until then, do not close the milestone or start Pass C.
 |------------|-------------|-------|
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; master plan |
-| xi-io.net mirror freshness @ `e7530b8` | **1 agent pass** | Two-way sync |
 | PRH-01 SQLite migration | **1–2 passes** | After PRH-04 |
 | GitHub compliance + CI hardening | **2 passes** | Pre-beta |
 | WIP review slicing | **2–3 passes** | Before main |
 | Code comments + runtime path config | **1–2 passes** | Pre-beta |
-| **Total to Pass B close + compliance baseline** | **~8–11 agent + 1 user** | Pass C adds ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~6–9 agent + 1 user** | Pass C adds ~2 after B close |
