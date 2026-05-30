@@ -82,7 +82,8 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: mirrored_2026_05_29_d338880
-  workbench_preview_event: pending
-  product_repo_commit: "d3cb2af"
-  last_agent_pass: 2026-05-29
+  xi_io_net_mirror: pending_2026_05_30_integration
+  workbench_preview_event: evt-xi-io-emulator-phase-0-docs-001
+  product_repo_commit: "ee76120"
+  last_agent_pass: 2026-05-30
+  integration_note: "Three-bucket merge (A+B+C) on wip/pass-b-lifecycle-display-shell @ 53cd077"
