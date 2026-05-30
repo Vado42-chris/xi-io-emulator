@@ -22,7 +22,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Scaffold started** @ Pass 11 (`754f258`) | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Done** (code + guardrails; user HW retest in PRH-04) | Yes |
-| PRH-03 | Commit + push WIP branch to GitHub | **Done** — WIP @ `fd623ab`; xi-io.net @ `f1cf7c7` (Pass 10) | Yes |
+| PRH-03 | Commit + push WIP branch to GitHub | **Done** — WIP @ `6e23c23`; Pass 12 mirror push pending | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** — evidence report refreshed @ `e7530b8`; **user sign-off pending** | Yes |
 
 **Last verified:** 2026-05-30 — framework security audit pass; public manifest path-sanitized; `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.

@@ -140,6 +140,8 @@ npm run verify:shell-restore
 npm run verify:session-idle
 npm run verify:ui-toolbar
 npm run verify:metadata-backup
+npm run cleanup:sessions:status
+npm run cleanup:sessions
 ```
 
 ### Launch troubleshooting

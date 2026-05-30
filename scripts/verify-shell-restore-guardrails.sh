@@ -62,6 +62,12 @@ if grep -rE 'pkill\s+-x\s+fceux|pkill\s+-f\s+fceux' src-tauri/src --include '*.r
 fi
 pass 'no global fceux pkill'
 
+# Safe operator cleanup script (Pass 12 — avoids pkill -f fceux on Cursor sandboxes)
+test -x scripts/pass-b-cleanup-sessions.sh || fail 'pass-b-cleanup-sessions.sh missing or not executable'
+grep -q 'cleanup:sessions' package.json || fail 'npm cleanup:sessions script missing'
+bash scripts/pass-b-cleanup-sessions.sh status >/dev/null || fail 'pass-b-cleanup-sessions.sh status failed'
+pass 'pass-b-cleanup-sessions operator script wired'
+
 # WM tools use timeout wrapper
 grep -q 'run_subprocess_with_timeout' src-tauri/src/window_registry.rs || fail 'timeout wrapper missing in window_registry'
 grep -q 'run_subprocess_with_timeout' src-tauri/src/single_instance.rs || fail 'timeout wrapper missing in single_instance'

@@ -31,21 +31,46 @@ Operator and user runbook for **XARCADE-CONTROLLER-LAUNCH-PROOF-001** hardware p
 
 ```bash
 # From another TTY (Ctrl+Alt+F3) or SSH — never rely on the frozen desktop
-pkill -f 'fceux.*your-rom-name' || true
-pkill -f xi-io-emulator || true
+npm run cleanup:sessions
 ```
 
-Report `[xi-io]` lines from `~/.local/share/xi-io-emulator/` logs or journal if available.
+Report `[xi-io]` lines from `~/.local/share/com.xi-io.emulator/` logs or journal if available.
+
+---
+
+## Session cleanup (do not use `pkill -f fceux`)
+
+On machines running **Cursor**, `pkill -f fceux` and `pkill -f xi-io-emulator` match hundreds of **agent sandbox** processes (their command lines mention `fceux` from past diagnostics). You will see `Permission denied` for each — **that is not your emulator leaking**; those processes are not killable and are unrelated to Pass B.
+
+Use the repo script instead (user-scoped, matches real binaries only):
+
+```bash
+npm run cleanup:sessions:status   # list fceux / retroarch / xi-io / session supervisors
+npm run cleanup:sessions          # SIGTERM then SIGKILL only those PIDs
+```
+
+Manual equivalents (same rules as `.memory/security.md` — no global broad kill):
+
+```bash
+pkill -u "$USER" -x fceux || true
+pkill -u "$USER" -x retroarch || true
+pkill -u "$USER" -f '--xi-io-session-run' || true
+# xi-io binary: match executable, not command-line substring
+for pid in $(pgrep -u "$USER" 2>/dev/null); do
+  exe=$(readlink -f "/proc/$pid/exe" 2>/dev/null || continue)
+  [[ "$exe" == */xi-io-emulator ]] && kill -TERM "$pid" 2>/dev/null || true
+done
+```
+
+**Hidden shell but app still running:** run `npm run tauri:dev` again — single-instance logic shows and focuses the existing window (no second copy).
 
 ---
 
 ## Before any test
 
 ```bash
-# Clean slate (manual — not app pkill)
-pkill -f fceux || true
-pkill -f xi-io-emulator || true
-pgrep -af 'fceux|xi-io-emulator|RetroArch|org.libretro' || echo "clean"
+npm run cleanup:sessions:status
+npm run cleanup:sessions
 
 # Start app
 export CARGO_TARGET_DIR=".tmp/cargo-target" TMPDIR=".tmp"
@@ -78,7 +103,7 @@ Alt-Tab as the primary return path
 
 If return chords fail, the bug is **lifecycle / termination / focus restore** — not “use the emulator menu.” Agents must never tell controller users to open FCEUX menus.
 
-Emergency cleanup only (operator terminal): `pkill -f fceux`
+Emergency cleanup: `npm run cleanup:sessions` (never `pkill -f fceux` on Cursor dev machines — see above).
 
 ---
 
@@ -133,7 +158,7 @@ Emergency cleanup only (operator terminal): `pkill -f fceux`
 | **Likely cause** | Return chord fired but FCEUX was not SIGKILL'd; or focus restored behind a live FCEUX window |
 | **In-app check** | Launch overlay hint should show Select+Start / Guide — no menu instructions |
 | **Terminal check** | `pgrep -af fceux`; `xdotool search --name FCEUX getwindowname %@` |
-| **Safe fix** | Operator: `pkill -f fceux`; re-test with latest lifecycle build |
+| **Safe fix** | `npm run cleanup:sessions`; re-test with latest lifecycle build |
 | **Verified when** | After **controller return chord only**: `pgrep -af fceux` empty; xi-io focused on game card |
 
 ---
@@ -175,7 +200,7 @@ Launch overlay shows plain-language recovery copy. This is **expected telemetry*
 | **Likely cause** | Second `tauri:dev` started before single-instance lock; or stale process |
 | **In-app check** | Launch again — should focus existing window |
 | **Terminal check** | `pgrep -af xi-io-emulator` (expect one debug binary + npm parent) |
-| **Safe fix** | `pkill -f xi-io-emulator`; single `npm run tauri:dev` |
+| **Safe fix** | `npm run cleanup:sessions`; single `npm run tauri:dev` |
 | **Verified when** | One dock icon; second launch focuses existing window |
 
 ---
@@ -203,9 +228,9 @@ Launch overlay shows plain-language recovery copy. This is **expected telemetry*
 | **Code** | XIO-LCH-014 |
 | **Symptom** | xi-io window disappears; no FCEUX/RetroArch game visible; desktop may look empty |
 | **Likely cause** | Startup falsely confirmed a stale engine PID, or emulator exited before a window appeared; shell hibernated too early (fixed in builds after 2026-05-30) |
-| **Immediate recovery** | **Alt+Tab** to xi-io or the emulator; or from another TTY: `pkill -f 'fceux\|retroarch'` then restart `npm run tauri:dev` |
+| **Immediate recovery** | **Alt+Tab** to xi-io or the emulator; or `npm run tauri:dev` to wake hidden shell; or `npm run cleanup:sessions` then restart dev |
 | **In-app check** | Admin → Logs: look for `launch_failed`, `emulator-session-finished` with `sessionReachedGame: false` |
-| **Terminal check** | During launch: `pgrep -af 'fceux\|retroarch\|xi-io-session-run'`; confirm proof ROM path with `test -f` |
+| **Terminal check** | `npm run cleanup:sessions:status`; confirm proof ROM path with `test -f` |
 | **Safe fix** | Admin → Engines → **Test Engine Paths**; confirm proof ROM on Pass B Launch Proof shelf; pull latest WIP with stricter startup gate |
 | **Verified when** | Game window visible before shell hides; or launch error shown in overlay without hiding shell |
 
@@ -341,7 +366,7 @@ After user reports failure, capture:
 ```txt
 1. XIO-LCH code (from launch-failure-codes.md)
 2. Admin → Logs last 10 events
-3. pgrep -af 'fceux|xi-io-emulator|RetroArch'
+3. npm run cleanup:sessions:status
 4. emulator_last_session.json if present
 5. Single vs multi monitor
 6. Demo mode on/off

@@ -388,7 +388,8 @@ Until then, do not close the milestone or start Pass C.
 | 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **pushed** | `7924d57`; hub `b3a9b96`; verify exit 0 |
 | 10 | 2026-05-30 | Admin Settings metadata export UI + download helper | **pushed** | `68d74ef`; hub `f1cf7c7`; CI `26689488311` success; verify exit 0 |
 | 11 | 2026-05-30 | PRH-01 SQLite scaffold + launch/db comments + verify | **pushed** | `754f258`; hub `9c79e81`; CI `26689725937` success |
-| 12 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 12 | 2026-05-30 | Safe session cleanup script + troubleshooting fix (Cursor pkill false positive) | **pending push** | `npm run cleanup:sessions:status` clean; verify suite exit 0 |
+| 12b | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 | 13 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
 ### Remaining passes estimate (2026-05-30)
@@ -396,10 +397,11 @@ Until then, do not close the milestone or start Pass C.
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
 | Metadata backup schema + pilot export | **Pass 9 schema + Pass 10 Admin UI done**; **1 operator pilot** | Settings → Export pilot (50) |
+| Session cleanup (Cursor-safe) | **Pass 12 done** | `npm run cleanup:sessions` |
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done |
 | PRH-01 SQLite implementation | **scaffold done Pass 11**; **1 pass** migration invoke | Parallel to PRH-04 |
 | GitHub branch protection verify | **API checked Pass 11** — not enabled; operator action | gh API 404 documented |
 | Code comments + runtime path config | **partial Pass 11**; **~1 pass** remaining | launchService + db.ts done |
 | WIP review slicing | **2–3 passes** | Before main |
-| **Total to Pass B close + compliance baseline** | **~2–5 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~2–4 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |

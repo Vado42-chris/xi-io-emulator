@@ -208,6 +208,24 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 018, Safe Pass B session cleanup (Pass 12)
+
+Status: **done 2026-05-30** — uncommitted until Pass 12 commit; fixes Cursor `pkill -f fceux` permission-denied storm.
+
+```txt
+scripts/pass-b-cleanup-sessions.sh
+npm run cleanup:sessions / cleanup:sessions:status
+docs/operations/troubleshooting-pass-b.md — do-not-use-pkill-f section
+scripts/verify-shell-restore-guardrails.sh — cleanup script wired
+```
+
+Tags:
+
+```txt
+#xio:emulator/operations/session-cleanup
+#xio:emulator/pass-b/troubleshooting
+```
+
 ### 017, PRH-01 SQLite scaffold + hot-path comments (Pass 11)
 
 Status: **done 2026-05-30** @ `754f258` — migration invoke pass 2 pending.

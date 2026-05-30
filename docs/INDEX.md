@@ -88,7 +88,9 @@ npm run verify:session-idle
 npm run verify:ui-toolbar
 npm run verify:metadata-backup
 npm run verify:play-session-migration
+npm run cleanup:sessions:status
 bash scripts/repo-health-audit.sh
+bash scripts/pass-b-cleanup-sessions.sh status
 ```
 
 ## Core product docs
