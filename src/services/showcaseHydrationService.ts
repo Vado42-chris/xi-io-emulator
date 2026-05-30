@@ -111,7 +111,7 @@ export const hydrateSnesUiShowcase = async (options?: {
 
   let added = 0;
   let updated = 0;
-  let skipped = 0;
+  const skipped = 0;
   const missing: string[] = [];
 
   for (const entry of SNES_SHOWCASE_CATALOG) {
