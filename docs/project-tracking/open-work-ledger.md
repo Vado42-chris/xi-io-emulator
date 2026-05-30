@@ -211,7 +211,7 @@ Tags:
 Status: **in progress 2026-05-30 — user hardware sign-off pending.**
 
 ```txt
-docs/reports/pass-b-final-evidence-report.md  — WIP refresh @ 5705344 + sign-off table
+docs/reports/pass-b-final-evidence-report.md  — WIP refresh @ e7530b8 + sign-off table
 docs/operations/troubleshooting-pass-b.md     — PRH-02 restore failure + retest checklist
 ```
 

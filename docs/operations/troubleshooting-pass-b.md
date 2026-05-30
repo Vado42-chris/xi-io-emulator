@@ -337,7 +337,7 @@ After user reports failure, capture:
 
 ## PRH-04 user hardware retest checklist
 
-WIP branch: `wip/pass-b-lifecycle-display-shell` @ `5705344`
+WIP branch: `wip/pass-b-lifecycle-display-shell` @ `e7530b8`
 
 Full sign-off table: [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) § User hardware sign-off.
 
