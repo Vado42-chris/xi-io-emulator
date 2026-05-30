@@ -2,7 +2,7 @@
 
 Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Branch: `wip/pass-b-lifecycle-display-shell` @ **`ad35c2d`** (Pass 15 source)  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`58494b1`** (xi-io.net @ `f0269e5`)  
 Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 

@@ -113,7 +113,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 
 xi-io.net is the intended **security policy hub** for sibling repos — see baseline doc for propagation pattern.
 
-**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `ad35c2d` (Pass 15). xi-io.net mirror pending.
+**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `58494b1`. xi-io.net mirror @ `f0269e5` (Pass 15).
 
 ## Development
 

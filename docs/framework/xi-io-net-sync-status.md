@@ -1,6 +1,6 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 15 — session ledger centralization; mirror pending)  
+Date: 2026-05-30 (Pass 15 — session ledger centralization; mirror @ `f0269e5`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
