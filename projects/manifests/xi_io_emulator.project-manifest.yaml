@@ -12,8 +12,32 @@ repository:
   full_name: Vado42-chris/xi-io-emulator
   url: git@github.com:Vado42-chris/xi-io-emulator.git
   default_branch: main
-  local_path: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+  local_path: "<set in projects/local/xi_io_emulator.local.yaml>"
   repo_safe: true
+
+security:
+  framework_baseline_commit: pending_xi_io_net_hub
+  product_baseline_doc: docs/security/supply-chain-security-baseline.md
+  framework_standard_doc: docs/security/framework-security-standard-v1.md
+  agent_rules: .memory/security.md
+  application_plan: docs/project-tracking/security-application-plan-xi-io-emulator.md
+  verify_commands:
+    deps: npm run verify:deps
+    shell_restore: npm run verify:shell-restore
+  audit_status:
+    npm_audit: clean_2026_05_30
+    cargo_audit: not_run_ci
+    sbom: not_generated
+    secret_scan: not_configured
+  local_overlay: projects/local/xi_io_emulator.local.yaml
+  local_overlay_example: projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml
+
+branch_policy:
+  active_wip: wip/pass-b-lifecycle-display-shell
+  wip_head_sha: "95e2426"
+  launch_hardening_code_sha: "45d55ee"
+  merge_ready: false
+  review_required: slice_before_main
 
 status:
   milestone: XARCADE-CONTROLLER-LAUNCH-PROOF-001
@@ -21,46 +45,49 @@ status:
   next_milestone: Pass-C-after-pass-b-close
   next_milestone_after: XARCADE-IMAGE-HYDRATION-001
   lifecycle_state: in_build
-  freshness_state: updated_2026_05_29
+  freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: pending_commit_push
+  repo_sync_state: pushed_github_95e2426_mirror_pending
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
     security_baseline: docs/security/supply-chain-security-baseline.md
     prh_01_sqlite: not_started
     prh_02_restore_failed_ledger: not_started
-    prh_03_commit_push: pushed_github_45d55ee_mirror_pending
+    prh_03_commit_push:
+      status: pushed_github
+      branch_head_sha: "95e2426"
+      launch_code_sha: "45d55ee"
+      xi_io_net_mirror: pending
     prh_04_pass_b_closeout: in_progress
   known_blockers:
-    - SNES xi-io GUI launch not evidenced in ledger (standalone RetroArch CLI smoke pass)
-    - NES exit return re-test pending after b34a60d null-exit fix
-    - Controller A/B in-game not mapped at launch
-    - Mark In-Game Verified not completed
-    - Stale demo /media/arcade-usb/ records mitigated via proof-only bootstrap (not missing user ROM)
-  next_action: User SNES launch from Pass B Launch Proof shelf; NES exit re-test; A/B; Mark Verified
+    - SNES xi-io GUI launch not fully evidenced in ledger
+    - Pass B full checklist not signed
+    - Public path hygiene in source catalogs (showcase) — see security application plan P0
+    - Stale demo /media/arcade-usb/ records mitigated via proof-only bootstrap
+  next_action: Path P0 slice; PRH-04 evidence; framework hub mirror; review-slice WIP before main merge
 
 runtime:
   local_preview:
     status: implemented
     command: npm run dev
-    working_directory: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+    working_directory: "<repo root — see local overlay>"
   desktop_shell:
     status: implemented
     command: npm run tauri:dev
-    working_directory: "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
     notes: Requires Linux Tauri prerequisites; CARGO_TARGET_DIR on Storage when /tmp full
 
 proof_roms:
   nes:
-    path: "/media/chrishallberg/Storage 22/Games/emulators/Legend of Zelda, The (USA) (Rev 1).nes"
+    proof_game_id: game_passb_nes
+    path_status: configured_in_local_overlay
     engine: fceux
   snes:
-    path: "/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS/Super Mario World (E) (V1.1) [!].smc"
-    engine: retroarch_bsnes_smoke
+    proof_game_id: game_passb_snes
+    path_status: configured_in_local_overlay
+    engine: retroarch
 
 notes:
-  - Pass B peer review confirmed stale demo ingress blocker (not missing user ROM) 2026-05-29.
-  - proofGameService + Pass B Launch Proof shelf + proof-only localStorage bootstrap.
-  - b34a60d exit/return fix merged; user re-test pending.
-  - Do not bulk-scan SNES library; do not start Pass C until checklist complete.
+  - Public manifest must not contain user machine paths — see product-security-manifest-v1.md
+  - WIP branch 18 commits ahead of main — not merge-ready without review slicing
+  - Do not bulk-scan SNES library; do not start Pass C until checklist complete

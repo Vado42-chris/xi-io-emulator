@@ -1,0 +1,94 @@
+# Framework security baseline schema v1
+# Canonical hub copy target: xi-io.net/security/baseline.yaml
+# Products pin framework_baseline_commit to the git SHA of this file.
+
+baseline_id: xi-io-security-baseline
+version: "1.0.0"
+effective_date: "2026-05-30"
+owner_repo: xi-io.net/framework-security
+description: >
+  Minimum security controls for xi-io product repos. Products inherit this
+  baseline and may declare local overrides in docs/security/supply-chain-security-baseline.md.
+
+minimum_safe_commits: {}
+  # product_id: git_sha
+  # xi_io_emulator: set after hub mirror
+
+required_checks:
+  pass_b_wip:
+    - npm run verify:deps          # npm audit moderate+; cargo-audit warn only
+    - npm run verify:shell-restore
+  pre_release:
+    - npm run verify:deps          # cargo-audit mandatory
+    - npm run typecheck:app
+    - npm run build
+    - bash scripts/repo-health-audit.sh
+  release:
+    - all pre_release checks
+    - sbom_generated
+    - secret_scan_clean
+    - codeql_clean_or_exception
+
+dependency_policy:
+  npm:
+    lockfile_required: package-lock.json
+    audit_level_fail: moderate
+    dependabot_or_renovate: recommended_pre_release
+  rust:
+    cargo_lock_required: true
+    cargo_audit: mandatory_pre_release
+    cargo_deny: recommended_release
+  new_dependencies:
+    require_pr_note: true
+    require_verify_deps_rerun: true
+
+sbom_policy:
+  format: cyclonedx_or_spdx
+  required_at: release
+  include: [npm, cargo]
+
+secret_policy:
+  never_commit: [.env, credentials.json, "*.pem", API keys]
+  scan_on_push: recommended
+  agent_rule: read .memory/security.md before commit
+
+tauri_capability_policy:
+  review_required_for: [shell spawn, /proc read, filesystem write outside app_data]
+  document_in: src-tauri/capabilities/
+  principle: least_privilege
+
+local_data_policy:
+  pass_b: localStorage acceptable for non-sensitive catalog
+  pre_release: sqlite_for_play_session_data  # PRH-01
+  no_rom_content_in_db: true
+  parameterized_queries_only: true
+
+path_privacy_policy:
+  public_manifests: no_user_home_paths
+  public_docs: use_placeholders_or_shape_examples
+  local_overlay: projects/local/*.local.yaml gitignored
+  source_constants: no_hardcoded_user_paths_in_committed_code
+
+incident_response:
+  playbook: docs/security/incident-playbook.md
+  hub_mirror: security/incident-playbook.md
+  severity_levels: [low, medium, high, critical]
+
+exceptions:
+  register: docs/security/security-exception-register.md
+  max_duration_days_default: 90
+  requires_review: true
+
+branch_protection:
+  main:
+    require_pr: true
+    require_review: true
+    block_force_push: true
+  wip_branches:
+    allow_direct_push: true
+    not_merge_ready_by_default: true
+
+verify_commands:
+  deps: npm run verify:deps
+  shell_restore: npm run verify:shell-restore
+  session_idle: npm run verify:session-idle

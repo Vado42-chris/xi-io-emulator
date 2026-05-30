@@ -22,10 +22,10 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Not started** | Yes |
-| PRH-03 | Commit + push WIP branch to GitHub | **In progress** — pushed `wip/pass-b-lifecycle-display-shell` @ `45d55ee`; xi-io.net mirror pending | Yes |
+| PRH-03 | Commit + push WIP branch to GitHub | **In progress** — GitHub pushed; branch head `95e2426`; launch code @ `45d55ee`; xi-io.net mirror pending | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** (NES launch/return improved; full checklist open) | Yes |
 
-**Last verified:** 2026-05-30 — `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.
+**Last verified:** 2026-05-30 — framework security audit pass; public manifest path-sanitized; `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.
 
 ---
 
@@ -122,11 +122,22 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 
 ### Done when
 
-- [ ] Branch `wip/pass-b-lifecycle-display-shell` has **one or more focused commits** (not one giant mixed commit)
-- [ ] `git push -u origin wip/pass-b-lifecycle-display-shell` completed (user-approved)
-- [ ] `projects/hydration/xi_io_emulator.hydration-state.yaml` `product_repo_commit` updated
+- [x] Branch `wip/pass-b-lifecycle-display-shell` has **focused commits** (18 ahead of main — review slice before merge)
+- [x] `git push -u origin wip/pass-b-lifecycle-display-shell` completed
+- [ ] `projects/hydration/xi_io_emulator.hydration-state.yaml` `product_repo_commit` updated to current head
 - [ ] xi-io.net evidence folder mirrored (see [xi-io-net-sync-status.md](../framework/xi-io-net-sync-status.md))
-- [ ] README or ledger lists current branch + SHA for Pass B retest
+- [x] README and manifest list branch + SHAs for Pass B retest
+
+### SHA reference (peer review — do not confuse)
+
+| Label | SHA | Meaning |
+|-------|-----|---------|
+| **Launch + hardening code** | `45d55ee` | Session supervisor, gamepad GUID, shell restore, verify scripts |
+| **Docs-only status update** | `95e2426` | Records GitHub push; no new launch code |
+| **Current WIP branch head** | `95e2426` | Use this SHA for clone/checkout and retest |
+
+PRH-03 **code push** is satisfied at `45d55ee` and included in head `95e2426`.  
+PRH-03 **xi-io.net mirror** and hydration-state commit field remain open.
 
 ### Suggested commit split (plain language)
 
@@ -134,10 +145,11 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 2. `fix(shell): eager restore, hide/show hibernate`
 3. `chore(verify): ui-toolbar, session-idle, deps guardrails`
 4. `docs: pre-release hardening + security baseline`
+5. `docs: framework security standard + path-safe manifest` (this pass)
 
-### Current local gap (2026-05-30)
+### Current gap (2026-05-30)
 
-Uncommitted / untracked work includes: `gamepad_guid.rs`, verify scripts, launch/session Rust changes, controller mapping TS changes. **Treat as PRH-03 blocker until pushed.**
+GitHub push complete. Remaining: xi-io.net mirror, hydration-state SHA update, WIP review slicing before any merge to `main`.
 
 ---
 
@@ -158,6 +170,7 @@ Pass B is “prove one NES and one SNES game launch, play, and return with a con
 - [ ] [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) updated with 2026-05-30 results (launch, return, controller, sound as applicable)
 - [ ] Ledger milestone state: Pass B **complete**, Pass C **in progress**
 - [ ] Peer review recorded (GitHub PR comment, review doc, or Workbench event)
+- [ ] Path-privacy sign-off: public manifest sanitized; source catalog path slice scheduled (see [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md))
 - [ ] `master-plan-2026-05.md` Pass B table updated — no row stuck at “Partial” without explanation
 - [ ] Only after the above: begin XARCADE-IMAGE-HYDRATION-001 planning execution
 
@@ -200,11 +213,12 @@ These were discussed in planning but are **separate** from PRH-01–04. Track he
 | Topic | Locked in repo? | Location |
 |-------|-----------------|----------|
 | PRH-01–04 | Yes | This file |
-| Security propagation / xi-io.net hub | Yes | [supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md) |
+| Security propagation / xi-io.net hub | Yes | [supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md), [framework-security-standard-v1.md](../security/framework-security-standard-v1.md) |
+| Path/privacy (public repo) | Partial | Manifest sanitized; showcase catalogs P0 in [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md) |
 | NES launch/return success | Partial | Update under PRH-04 → `pass-b-final-evidence-report.md` |
 | Navigation snapshot | Planned | XARCADE-NAV-SNAPSHOT-001 above |
 | In-game Continue | Planned | XARCADE-SAVE-STATE-001 above |
-| xi-io.net `security/baseline.yaml` | Not yet | Framework slice after PRH-03 |
+| xi-io.net `security/baseline.yaml` | Not yet | Hub mirror of [security-baseline.schema.yaml](../security/security-baseline.schema.yaml) |
 
 ---
 

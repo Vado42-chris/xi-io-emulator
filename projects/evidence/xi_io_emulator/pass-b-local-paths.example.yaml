@@ -1,0 +1,25 @@
+# Local path overlay — EXAMPLE ONLY
+# Copy to: projects/local/xi_io_emulator.local.yaml
+# That file is gitignored. Do not commit real paths to public manifest.
+
+local_path: "/path/to/your/015_emulator clone"
+
+runtime:
+  working_directory: "/path/to/your/015_emulator clone"
+
+proof_roms:
+  nes:
+    content_path: "/path/to/your/library/legend-of-zelda.nes"
+    title: "Legend of Zelda"
+  snes:
+    content_path: "/path/to/your/library/super-mario-world.smc"
+    title: "Super Mario World"
+
+showcase_rom_roots:
+  nes_usa: "/path/to/your/nes/roms/USA"
+  nes_hacks: "/path/to/your/nes/roms/Hacks"
+  snes: "/path/to/your/snes/roms"
+
+notes:
+  - Register proof games via Admin → Engines or Pass B bootstrap — not via public git.
+  - See docs/project-tracking/security-application-plan-xi-io-emulator.md

@@ -98,17 +98,22 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 |----|-------------|--------|
 | PRH-01 | SQLite for play/session data | Not started |
 | PRH-02 | `shell_focus_restore_failed` ledger | Not started |
-| PRH-03 | Commit + push WIP; mirror xi-io.net | In progress — GitHub @ `45d55ee`; mirror pending |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | In progress — GitHub head `95e2426`; launch code `45d55ee`; mirror pending |
 | PRH-04 | Pass B evidence + peer review | In progress |
 
 ## Security and dependencies
 
 - Baseline policy: [docs/security/supply-chain-security-baseline.md](docs/security/supply-chain-security-baseline.md)
+- Framework standard: [docs/security/framework-security-standard-v1.md](docs/security/framework-security-standard-v1.md)
+- Application plan (gap table, path audit): [docs/project-tracking/security-application-plan-xi-io-emulator.md](docs/project-tracking/security-application-plan-xi-io-emulator.md)
 - Agent rules: [.memory/security.md](.memory/security.md)
-- Verify before merge: `npm run verify:deps` (npm audit; optional `cargo-audit` for Rust)
+- Local paths: copy [pass-b-local-paths.example.yaml](projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml) → `projects/local/xi_io_emulator.local.yaml` (gitignored)
+- Verify before merge: `npm run verify:deps` — npm audit fail moderate+; `cargo-audit` **warn** on Pass B, **fail** pre-release
 - Last npm audit (2026-05-30): **0 vulnerabilities**
 
 xi-io.net is the intended **security policy hub** for sibling repos — see baseline doc for propagation pattern.
+
+**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `95e2426` — preserved on GitHub, **not merge-ready** without review slicing.
 
 ## Development
 

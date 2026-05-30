@@ -67,6 +67,32 @@ Last run: **2026-05-30**
 npm run verify:deps
 ```
 
+### `verify:deps` enforcement tiers
+
+| Phase | npm audit | cargo-audit |
+|-------|-----------|---------------|
+| Pass B / WIP | Fail on moderate+ | **Warn** if not installed |
+| Pre-release (PRH complete) | Fail on moderate+ | **Fail** if missing or vulnerable |
+| Release / public beta | Fail on moderate+ | Required + SBOM step |
+
+Future implementation: `VERIFY_DEPS_STRICT=1` or CI profile — not wired in this docs-only pass.
+
+---
+
+## Path and privacy policy (public repo)
+
+This repo is **public on GitHub**. User machine paths must not appear in tracked manifests or shared reports.
+
+| Location | Policy |
+|----------|--------|
+| `projects/manifests/*.yaml` | Public-safe: `proof_game_id`, `path_status`, placeholders only |
+| `projects/local/*.local.yaml` | Gitignored — real paths live here |
+| `projects/evidence/*/pass-b-local-paths.example.yaml` | Example shape only |
+| Source catalogs (`nesShowcaseCatalog.ts`, etc.) | **P0 slice** — remove hardcoded roots |
+| Shared evidence reports | Game IDs and reason codes, not full ROM paths |
+
+See [product-security-manifest-v1.md](./product-security-manifest-v1.md) and [security-application-plan-xi-io-emulator.md](../project-tracking/security-application-plan-xi-io-emulator.md).
+
 ---
 
 ## Security principles (non-negotiable)
@@ -135,7 +161,9 @@ When a CVE affects npm, Rust, or system packages:
 | Failure visibility | **Weak** | PRH-02 |
 | Data durability | **Weak** | PRH-01 |
 | Supply chain automation | **Started** | `npm run verify:deps`; hub not on xi-io.net |
-| Remote reproducibility | **Weak** | PRH-03 push pending |
+| Remote reproducibility | **Partial** | GitHub @ `95e2426`; xi-io.net mirror pending |
+| Path privacy (public manifest) | **Improved** | Sanitized 2026-05-30; source catalogs still P0 |
+| Framework security standard | **Started** | [framework-security-standard-v1.md](./framework-security-standard-v1.md) |
 
 ---
 
@@ -143,8 +171,8 @@ When a CVE affects npm, Rust, or system packages:
 
 | Capability | Status | Milestone |
 |------------|--------|-----------|
-| Central `baseline.yaml` on xi-io.net | **Not created** | Framework security slice |
-| `cargo audit` in CI | **Not wired** | PRH-03 + CI slice |
+| Central `baseline.yaml` on xi-io.net | **Not created** | Hub mirror of [security-baseline.schema.yaml](./security-baseline.schema.yaml) |
+| `cargo audit` in CI | **Not wired** | Fail pre-release per tier table above |
 | Dependabot / Renovate config | **Not present** | Optional after push to GitHub |
 | Signed releases / code signing | **Not present** | Phase 7 MVP hardening |
 | Threat model doc (STRIDE-lite) | **Not present** | Phase 7 |
@@ -169,6 +197,19 @@ Before implementation, confirm:
 [ ] No new dependencies without note in PR + audit re-run
 [ ] No secrets in diff
 [ ] If adding spawn/exec/file read: update Tauri capabilities
+```
+
+---
+
+## Related framework docs (this repo)
+
+```txt
+docs/security/framework-security-standard-v1.md
+docs/security/security-baseline.schema.yaml
+docs/security/security-exception-register.md
+docs/security/product-security-manifest-v1.md
+docs/security/incident-playbook.md
+docs/project-tracking/security-application-plan-xi-io-emulator.md
 ```
 
 ---

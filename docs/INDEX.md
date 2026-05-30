@@ -18,6 +18,8 @@ docs/project-tracking/historical-plans-consolidation.md
 docs/project-tracking/admin-feature-audit-index.md
 docs/project-tracking/feature-matrix.md
 docs/security/supply-chain-security-baseline.md   ← deps, CVE workflow, xi-io.net propagation
+docs/security/framework-security-standard-v1.md   ← SSDF/SLSA/SCVS framework policy
+docs/project-tracking/security-application-plan-xi-io-emulator.md   ← gap table + path audit
 ```
 
 Cursor IDE may mirror the master plan under `.cursor/plans/` — **if they diverge, the repo file wins.**
@@ -49,6 +51,8 @@ docs/architecture/conversation-decision-backlog.md
 docs/architecture/naming-and-pathing-standard.md
 docs/project-tracking/pre-release-hardening-milestones.md
 docs/security/supply-chain-security-baseline.md
+docs/security/framework-security-standard-v1.md
+docs/project-tracking/security-application-plan-xi-io-emulator.md
 ```
 
 ## Architecture
@@ -63,6 +67,14 @@ docs/architecture/conversation-decision-backlog.md
 ```txt
 .memory/security.md
 docs/security/supply-chain-security-baseline.md
+docs/security/framework-security-standard-v1.md
+docs/security/security-baseline.schema.yaml
+docs/security/security-exception-register.md
+docs/security/product-security-manifest-v1.md
+docs/security/incident-playbook.md
+docs/project-tracking/security-application-plan-xi-io-emulator.md
+projects/local/README.md
+projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml
 npm run verify:deps
 ```
 
