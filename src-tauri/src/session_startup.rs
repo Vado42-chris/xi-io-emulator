@@ -1,4 +1,8 @@
-//! Wait until the session supervisor has actually started the emulator before reporting success.
+//! Poll until an emulator PID exists before reporting launch success to the UI.
+//!
+//! Failure code: `XIO-LCH-014` (startup timeout — `startup_timeout()` is 12s).
+//! Runbook: `docs/operations/troubleshooting-pass-b.md` § loading then nothing.
+//! Supervisor exit code 2 → parse failure (`XIO-LCH-015` overlap via `format_supervisor_failure`).
 
 use crate::emulator_process::{
     collect_descendant_pids, find_emulator_pids, is_process_alive, resolve_session_pids,

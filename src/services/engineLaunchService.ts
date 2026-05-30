@@ -1,3 +1,7 @@
+/**
+ * TypeScript mirror of Rust `engine_launch.rs` — Flatpak normalize after display flags.
+ * Keep FLATPAK_RETROARCH_APP in sync with Rust. Failure code: XIO-LCH-015.
+ */
 /** Flatpak RetroArch app id — must match Rust `engine_launch.rs`. */
 export const FLATPAK_RETROARCH_APP = 'org.libretro.RetroArch';
 

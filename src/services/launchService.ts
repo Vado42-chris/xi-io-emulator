@@ -1,3 +1,9 @@
+/**
+ * Pass B launch orchestration — readiness blockers, preflight, invoke, ledger events.
+ *
+ * Failure codes: XIO-LCH-001–005, 010 (blockers), 016 (validateLaunchPlan preflight),
+ * 014/015/006 (post-invoke via Tauri/Rust). Runbook: docs/operations/troubleshooting-pass-b.md
+ */
 import type { GameRecord } from '../data/gameModels';
 import { getLibraryRoots, getEngineSettings, addLedgerEvent, getProofGameSettings, saveProofGameSettings } from './db';
 import { ingressSingleGame } from './ingressService';

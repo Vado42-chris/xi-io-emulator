@@ -1,4 +1,8 @@
 //! Normalize engine binaries (Flatpak RetroArch vs native) before session supervisor spawn.
+//!
+//! Failure codes: `XIO-LCH-015` (Flatpak/supervisor parse), `XIO-LCH-016` (preflight via `prepare_launch`).
+//! Runbook: `docs/operations/troubleshooting-pass-b.md` § SNES Flatpak / preflight validation.
+//! UI parity: `validate_launch_plan` Tauri command in `lib.rs` calls `prepare_launch` here.
 
 use std::path::{Path, PathBuf};
 

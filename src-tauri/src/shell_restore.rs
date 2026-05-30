@@ -1,3 +1,7 @@
+//! Debounced shell focus restore — single owner in Rust; UI listens on `emulator-session-finished` only.
+//!
+//! Failure codes: `XIO-LCH-008` (focus restore failed), desktop freeze mitigated (runbook freeze section).
+//! Guardrails: 2.5s debounce, mutex, `timeout` wrapper on WM tools, capped focus retries in `window_registry`.
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::OnceLock;
 

@@ -1,3 +1,7 @@
+/**
+ * Tauri `emulator-session-started` / `emulator-session-finished` wiring.
+ * UI must not call shell restore directly — Rust owns restore (XIO-LCH-008).
+ */
 import { useEffect, useRef } from 'react';
 import {
   isTauriRuntime,
