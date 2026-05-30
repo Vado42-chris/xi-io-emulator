@@ -387,8 +387,9 @@ Until then, do not close the milestone or start Pass C.
 | 8 | 2026-05-30 | GitHub CI + compliance checklist + PRH-01 plan | **pushed** | `8702185`→`2bab4a6`; hub `fcaddc2`; CI green run `26688165897` |
 | 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **pushed** | `7924d57`; hub `b3a9b96`; verify exit 0 |
 | 10 | 2026-05-30 | Admin Settings metadata export UI + download helper | **pushed** | `68d74ef`; hub `f1cf7c7`; CI `26689488311` success; verify exit 0 |
-| 11 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
-| 12 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
+| 11 | 2026-05-30 | PRH-01 SQLite scaffold + launch/db comments + verify | **pending push** | `754f258`; verify exit 0; cargo check exit 0 |
+| 12 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 13 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
 ### Remaining passes estimate (2026-05-30)
 
@@ -397,8 +398,8 @@ Until then, do not close the milestone or start Pass C.
 | Metadata backup schema + pilot export | **Pass 9 schema + Pass 10 Admin UI done**; **1 operator pilot** | Settings → Export pilot (50) |
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done |
-| PRH-01 SQLite implementation | **1–2 passes** | After PRH-04 |
-| GitHub branch protection verify | **1 pass** | Operator + doc |
+| PRH-01 SQLite implementation | **scaffold done Pass 11**; **1 pass** migration invoke | Parallel to PRH-04 |
+| GitHub branch protection verify | **API checked Pass 11** — not enabled; operator action | gh API 404 documented |
+| Code comments + runtime path config | **partial Pass 11**; **~1 pass** remaining | launchService + db.ts done |
 | WIP review slicing | **2–3 passes** | Before main |
-| Code comments + runtime path config | **1–2 passes** | Pre-beta |
-| **Total to Pass B close + compliance baseline** | **~3–6 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~2–5 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |

@@ -18,7 +18,7 @@ Track GitHub-side controls that cannot live only in local docs. Agents update ch
 | Dependabot (npm + cargo) | **Added** @ Pass 8 | `.github/dependabot.yml` present |
 | `npm run verify:deps` in CI | **Wired** | CI step passes; cargo-audit installed in runner |
 | Secret scanning (GitHub Advanced Security) | **Manual** | Repo Settings → Code security → enable if available |
-| Branch protection on `main` | **Manual** | Require CI status check; no force push |
+| Branch protection on `main` | **Verified not enabled** @ Pass 11 | `gh api .../branches/main/protection` → HTTP 404; operator must enable |
 | Signed releases / artifacts | **Not started** | Phase 7 MVP hardening |
 
 ---
@@ -60,7 +60,7 @@ Complete in GitHub UI — agents document status only:
 - [x] Dependabot config committed
 - [x] This checklist documents manual steps
 - [x] First green CI run on WIP branch @ `2bab4a6` (run `26688165897`, 2026-05-30)
-- [ ] Branch protection enabled on `main` (operator)
+- [ ] Branch protection enabled on `main` (operator) — **API verified absent 2026-05-30** (`gh api repos/Vado42-chris/xi-io-emulator/branches/main/protection` → 404)
 - [ ] Secret scanning enabled (operator, if available)
 
 ---

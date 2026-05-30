@@ -1,7 +1,7 @@
 # PRH-01 SQLite Migration Plan
 
 Date: 2026-05-30  
-Status: **Planning — implementation Pass 9+ (after PRH-04 user sign-off preferred)**  
+Status: **Scaffold started Pass 11** — Rust schema + verify script; migration invoke pass 2  
 Tracker: [pre-release-hardening-milestones.md](./pre-release-hardening-milestones.md) § PRH-01
 
 ## Goal
@@ -58,7 +58,7 @@ Store **game IDs only** — no ROM paths, no home directory strings.
 2. On first Tauri boot: read localStorage keys via frontend invoke → write SQLite → set `migration_version` flag
 3. Emit ledger event: `play_session_migration_succeeded` or `play_session_migration_failed`
 4. Update `playSessionService.ts` to call Tauri when `isTauriRuntime()`, keep localStorage for `npm run dev` web-only mode
-5. Add `scripts/verify-play-session-migration.sh` — checks migration code path exists
+5. Add `scripts/verify-play-session-migration.sh` — checks migration scaffold exists
 6. Update [storage-contract-v1.md](../contracts/storage-contract-v1.md) § play session
 
 ---

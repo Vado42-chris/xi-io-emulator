@@ -36,6 +36,7 @@ completed_in_repo:
   - GitHub CI + dependabot + compliance checklist @ 8702185
   - Metadata backup schema v1 + export service @ 7924d57
   - Settings metadata export download UI @ 68d74ef
+  - PRH-01 play_session_db SQLite schema scaffold @ 754f258
 
 pass_b_evidence:
   nes_xi_io_launch: partial
@@ -93,8 +94,8 @@ bulk_hydration_gate:
 sync_metadata:
   xi_io_net_mirror: pass_10_f1cf7c7
   workbench_preview_event: evt-xi-io-emulator-pass-b-partial-001
-  product_repo_commit: "bd1d088"
+  product_repo_commit: "754f258"
   product_repo_branch: wip/pass-b-lifecycle-display-shell
   framework_baseline_commit: "f2c9230"
-  last_agent_pass: 10
-  pass_10_scope: metadata_export_admin_ui_mirror
+  last_agent_pass: 11
+  pass_11_scope: prh_01_sqlite_scaffold_branch_protection_api_check

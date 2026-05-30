@@ -208,6 +208,24 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 017, PRH-01 SQLite scaffold + hot-path comments (Pass 11)
+
+Status: **done 2026-05-30** @ `754f258` — migration invoke pass 2 pending.
+
+```txt
+src-tauri/src/play_session_db.rs
+src/services/playSessionMigrationService.ts
+scripts/verify-play-session-migration.sh
+npm run verify:play-session-migration (CI wired)
+```
+
+Tags:
+
+```txt
+#xio:emulator/pre-release/hardening
+#todo:prh-01/migration-invoke
+```
+
 ### 016, Admin metadata export UI (Pass 10)
 
 Status: **done 2026-05-30** @ `68d74ef` — operator 50-title pilot pending.
