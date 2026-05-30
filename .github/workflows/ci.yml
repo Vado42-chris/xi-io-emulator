@@ -62,6 +62,9 @@ jobs:
       - name: UI toolbar guardrails
         run: npm run verify:ui-toolbar
 
+      - name: Metadata backup export guardrails
+        run: npm run verify:metadata-backup
+
       - name: Rust compile check
         run: cargo check --manifest-path src-tauri/Cargo.toml
 

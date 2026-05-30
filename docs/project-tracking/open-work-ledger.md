@@ -208,14 +208,33 @@ Tags:
 #xio:emulator/patches/future
 ```
 
-### 014, Personal library metadata backup (blocker)
+### 015, Metadata backup schema v1 + export service (Pass 9)
 
-Status: **design locked 2026-05-30 — implementation blocked until pilot.**
+Status: **done 2026-05-30 — operator 50-title pilot pending.**
 
 ```txt
-docs/future/personal-library-metadata-backup.md
-Private example repo: Vado42-chris/personal_game_library (metadata + artwork only)
-Ibal/Ollama/MCP: optional assistant for organize + export — not required for v1
+docs/contracts/metadata-backup-v1.schema.yaml
+src/services/metadataBackupService.ts
+scripts/verify-metadata-backup-export.mjs
+npm run verify:metadata-backup (CI wired)
+```
+
+Tags:
+
+```txt
+#xio:emulator/library/metadata-backup
+#todo:metadata-backup/pilot-50
+```
+
+### 014, Personal library metadata backup (blocker)
+
+Status: **schema v1 + export service done 2026-05-30 — pilot 50-title export on operator machine pending.**
+
+```txt
+docs/contracts/metadata-backup-v1.schema.yaml
+src/services/metadataBackupService.ts
+scripts/verify-metadata-backup-export.mjs
+projects/evidence/xi_io_emulator/metadata-backup-v1.example.json
 ```
 
 Tags:

@@ -385,16 +385,19 @@ Until then, do not close the milestone or start Pass C.
 | 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **pushed** | `e7530b8`; verify:shell-restore + verify:session-idle exit 0 |
 | 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **pushed** | product `a7c7305`; hub `888f4fa`; verify exit 0 |
 | 8 | 2026-05-30 | GitHub CI + compliance checklist + PRH-01 plan | **pushed** | `8702185`→`2bab4a6`; hub `fcaddc2`; CI green run `26688165897` |
-| 9 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **commit pending** | `verify:metadata-backup` |
+| 10 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 11 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | XARCADE-LIBRARY-METADATA-BACKUP-001 |
 
 ### Remaining passes estimate (2026-05-30)
 
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
+| Metadata backup schema + pilot export | **1 pass done**; **1 operator pilot** | Blocker 014 |
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
-| Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; master plan |
-| GitHub compliance + CI hardening | **1 pass done**; 1 pass for branch protection verify | Pre-beta |
-| PRH-01 SQLite migration | **1–2 passes** | Plan @ Pass 8; impl after PRH-04 |
+| Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done |
+| PRH-01 SQLite implementation | **1–2 passes** | After PRH-04 |
+| GitHub branch protection verify | **1 pass** | Operator + doc |
 | WIP review slicing | **2–3 passes** | Before main |
 | Code comments + runtime path config | **1–2 passes** | Pre-beta |
-| **Total to Pass B close + compliance baseline** | **~5–8 agent + 1 user** | Pass C adds ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~4–7 agent + 1 user + 1 operator pilot** | Pass C + ~2 after B close |

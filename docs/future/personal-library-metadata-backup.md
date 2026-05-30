@@ -1,7 +1,7 @@
 # Personal Library Metadata Backup (Peace of Mind)
 
 Date: 2026-05-30  
-Status: **Active blocker — design locked; implementation not started**  
+Status: **Active blocker — schema v1 + export service @ Pass 9; pilot export on operator machine pending**  
 Milestone: **XARCADE-LIBRARY-METADATA-BACKUP-001**  
 Related: **XARCADE-IBAL-METADATA-001** (assistant — deferred design slot)
 
@@ -103,7 +103,7 @@ Before a title counts as **passed** and merged into the live catalog from backup
 
 | # | Check | Pass condition |
 |---|-------|----------------|
-| 1 | Schema | Record validates against `metadata-backup.schema.yaml` (future) |
+| 1 | Schema | Record validates against [metadata-backup-v1.schema.yaml](../contracts/metadata-backup-v1.schema.yaml) |
 | 2 | System | `systemId` + adapter exists |
 | 3 | Root binding | `libraryRootId` resolves OR user assigns new root in UI |
 | 4 | Relative path | `relativePath` present; no absolute home path in committed JSON |
@@ -183,7 +183,7 @@ XARCADE-IMAGE-HYDRATION-001 execution — BLOCKED
 Pass C / bulk hydration — remains gated on PRH-04 + this design
 ```
 
-**Unblocked after:** schema v1, pilot 50-title export/import on operator machine, ledger events, legal sign-off row in PRH tracker.
+**Unblocked after:** pilot 50-title export on operator machine with `verify:metadata-backup` pass + ledger events + legal sign-off row in PRH tracker.
 
 ---
 

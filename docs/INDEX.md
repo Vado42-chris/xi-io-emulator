@@ -86,6 +86,7 @@ npm run verify:engine-launch
 npm run verify:shell-restore
 npm run verify:session-idle
 npm run verify:ui-toolbar
+npm run verify:metadata-backup
 bash scripts/repo-health-audit.sh
 ```
 
@@ -114,6 +115,7 @@ docs/contracts/game-management-contract-v1.md
 docs/contracts/storage-contract-v1.md
 docs/contracts/hydration-completeness-checklist.md
 docs/contracts/arcade-surface-field-spec.md
+docs/contracts/metadata-backup-v1.schema.yaml
 ```
 
 ## Packaging

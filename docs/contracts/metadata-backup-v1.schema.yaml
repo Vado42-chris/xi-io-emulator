@@ -1,0 +1,91 @@
+# Personal library metadata backup bundle schema v1
+# Milestone: XARCADE-LIBRARY-METADATA-BACKUP-001
+# ROM binaries must NEVER appear in exports validated by this schema.
+
+schema_id: xi-io-metadata-backup
+version: "1.0.0"
+effective_date: "2026-05-30"
+description: >
+  Portable metadata-only backup for xi-io Emulator catalogs. Maps game identity,
+  curation, and artwork to libraryRootId + relativePath — not absolute host paths.
+
+required_top_level:
+  - schemaVersion
+  - exportId
+  - exportedAt
+  - sourceApp
+  - libraryRoots
+  - games
+
+forbidden_in_git_backup:
+  - rom_binaries
+  - bios_binaries
+  - git_credentials
+  - absolute_home_paths_in_committed_fields
+
+library_root_fields:
+  required:
+    - id
+    - label
+    - systems
+    - mounted
+    - readOnlySource
+  optional:
+    - volumeHint
+    - lastSeenAt
+  forbidden_in_export:
+    - path          # absolute path — runtime/local overlay only
+
+game_record_fields:
+  required:
+    - id
+    - systemId
+    - title
+    - sortTitle
+    - originalFileName
+    - relativePath
+    - fileExtension
+    - libraryRootId
+    - identityStatus
+    - launchStatus
+    - favorite
+    - hidden
+    - playCount
+    - tags
+    - dataSource
+    - provenanceLabel
+    - reviewStatus
+    - createdAt
+    - updatedAt
+  optional:
+    - mappings
+    - ingressChecklist
+    - lastPlayedAt
+    - checksum
+    - fileSizeBytes
+  forbidden_in_export:
+    - contentPath   # absolute — resolve at runtime from root + relativePath
+
+mappings_artwork_allowed:
+  - boxart        # URL or relative artwork cache path under backup bundle
+  - screenshot
+  - background
+
+review_status_enum:
+  - approved
+  - needs_review
+  - rejected
+
+data_source_enum:
+  - single_ingress
+  - batch_library
+  - showcase_fixture
+  - import_by_reference
+  - metadata_backup_restore
+
+verify_script: npm run verify:metadata-backup
+example_fixture: projects/evidence/xi_io_emulator/metadata-backup-v1.example.json
+
+pilot_gate:
+  titles_first_pass: 50
+  requires_ledger_event: metadata_backup_export_succeeded

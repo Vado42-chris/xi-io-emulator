@@ -98,8 +98,8 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 |----|-------------|--------|
 | PRH-01 | SQLite for play/session data | Not started |
 | PRH-02 | `shell_focus_restore_failed` ledger | Done |
-| PRH-03 | Commit + push WIP; mirror xi-io.net | **Done** — GitHub `a7c7305`; xi-io.net `888f4fa` |
-| PRH-04 | Pass B evidence + peer review | **In progress** — report @ `5705344`; user sign-off pending |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | **Done** — GitHub `1fd57e5`; xi-io.net mirror Pass 9 pending |
+| PRH-04 | Pass B evidence + peer review | **In progress** — user sign-off pending |
 
 ## Security and dependencies
 
@@ -113,7 +113,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 
 xi-io.net is the intended **security policy hub** for sibling repos — see baseline doc for propagation pattern.
 
-**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `95e2426` — preserved on GitHub, **not merge-ready** without review slicing.
+**WIP branch:** `wip/pass-b-lifecycle-display-shell` @ `1fd57e5` — preserved on GitHub, **not merge-ready** without review slicing.
 
 ## Development
 
@@ -139,6 +139,7 @@ npm run verify:engine-launch
 npm run verify:shell-restore
 npm run verify:session-idle
 npm run verify:ui-toolbar
+npm run verify:metadata-backup
 ```
 
 ### Launch troubleshooting

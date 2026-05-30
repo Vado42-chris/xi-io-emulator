@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0.0",
+  "exportId": "example-export-2026-05-30",
+  "exportedAt": "2026-05-30T12:00:00.000Z",
+  "sourceApp": {
+    "name": "xi-io-emulator",
+    "version": "0.0.0",
+    "branch": "wip/pass-b-lifecycle-display-shell"
+  },
+  "libraryRoots": [
+    {
+      "id": "root_snes_showcase_local",
+      "label": "SNES Showcase (local library)",
+      "systems": ["snes"],
+      "mounted": true,
+      "readOnlySource": true,
+      "volumeHint": "operator-usb-label"
+    }
+  ],
+  "games": [
+    {
+      "id": "showcase_snes_action_super_mario_world",
+      "systemId": "snes",
+      "title": "Super Mario World",
+      "sortTitle": "super mario world",
+      "originalFileName": "Super Mario World (USA).smc",
+      "relativePath": "Super Mario World (USA).smc",
+      "fileExtension": ".smc",
+      "libraryRootId": "root_snes_showcase_local",
+      "identityStatus": "normalized",
+      "launchStatus": "ready",
+      "favorite": true,
+      "hidden": false,
+      "playCount": 3,
+      "tags": ["system:snes", "source:showcase_hydration", "region:usa"],
+      "dataSource": "showcase_fixture",
+      "provenanceLabel": "Curated showcase — not bulk import",
+      "reviewStatus": "approved",
+      "mappings": {
+        "artwork": {
+          "boxart": "https://example.libretro.com/boxart/snes/example.png"
+        }
+      },
+      "createdAt": "2026-05-30T12:00:00.000Z",
+      "updatedAt": "2026-05-30T12:00:00.000Z"
+    }
+  ]
+}
