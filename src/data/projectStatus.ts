@@ -2,7 +2,7 @@ export interface ProjectStatus {
   currentMilestone: string;
   currentSystem: string;
   currentBackendTarget: string;
-  storageState: 'not configured' | 'mounted' | 'missing' | 'error';
+  storageState: 'not configured' | 'mounted' | 'missing' | 'error' | 'configured' | 'offline';
   controllerState: 'not configured' | 'connected' | 'unmapped' | 'error';
   launchReadiness: 'not configured' | 'partial' | 'ready' | 'blocked';
   nesProofReady: 'not configured' | 'ready' | 'blocked';

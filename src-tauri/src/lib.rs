@@ -399,11 +399,7 @@ pub fn restore_arcade_shell(app: &AppHandle, _game_id: &str, _session_id: &str, 
         registry.wake_shell_wm_once(app);
     }
 
-    if registry.spawn_shell_focus_retries(app.clone()) {
-        // finish_shell_restore runs when retry thread completes
-    } else {
-        finish_shell_restore();
-    }
+    finish_shell_restore();
 }
 
 /// Window show/focus must run on Tauri's main thread — not from spawn_blocking or evdev monitor threads.
@@ -609,19 +605,26 @@ async fn launch_emulator(
             .terminate_requested
             .load(std::sync::atomic::Ordering::Relaxed);
 
-        let session_reached_game = state_bg
-            .active_session
-            .lock()
-            .ok()
-            .and_then(|g| g.as_ref().map(|s| s.session_reached_game))
-            .unwrap_or(false);
-
         eprintln!(
             "[xi-io] session supervisor exited terminated_by_shell={terminated_by_shell} status={wait_status:?}"
         );
 
+        let game_window_xids = window_registry_bg.session_window_xids(&session_id_bg);
+        let ended_at = chrono_like_now();
+        let session_duration_secs = ended_at
+            .parse::<u64>()
+            .ok()
+            .and_then(|end| {
+                started_at_bg
+                    .parse::<u64>()
+                    .ok()
+                    .map(|start| end.saturating_sub(start))
+            })
+            .unwrap_or(0);
+        let session_reached_game =
+            !game_window_xids.is_empty() || session_duration_secs >= 15;
+
         if !terminated_by_shell {
-            let ended_at = chrono_like_now();
             let record = EmulatorSessionRecord {
                 game_id: game_id_bg.clone(),
                 content_path: content_path_bg,
@@ -648,13 +651,22 @@ async fn launch_emulator(
             "emulator_session_ended"
         };
         if !terminated_by_shell {
+            let returned_cleanly = session_reached_game;
+            let error_message = if session_reached_game {
+                None
+            } else {
+                Some(
+                    "The emulator exited before the game window appeared. Check engine paths and display settings."
+                        .into(),
+                )
+            };
             complete_emulator_session(
                 &app_bg,
                 &game_id_bg,
                 &session_id_bg,
                 exit_reason,
-                true,
-                None,
+                returned_cleanly,
+                error_message,
                 session_reached_game,
             );
         }

@@ -3,6 +3,7 @@ use std::os::unix::io::AsRawFd;
 use std::process::Command;
 use tauri::{AppHandle, Manager};
 
+use crate::shell_restore::run_subprocess_with_timeout;
 use crate::window_registry::SHELL_WINDOW_TITLE;
 
 /// Ensures only one xi-io Emulator instance runs. A second launch focuses the existing window and exits.
@@ -38,9 +39,19 @@ pub fn acquire_or_exit(app: &AppHandle) {
         let _ = window.unminimize();
         let _ = window.set_focus();
     }
-    let _ = Command::new("xdotool")
-        .args(["search", "--name", SHELL_WINDOW_TITLE, "windowactivate", "--sync"])
-        .status();
+    if let Ok(output) = Command::new("xdotool")
+        .args(["search", "--name", SHELL_WINDOW_TITLE])
+        .output()
+    {
+        if output.status.success() {
+            if let Some(xid) = String::from_utf8_lossy(&output.stdout)
+                .split_whitespace()
+                .next()
+            {
+                let _ = run_subprocess_with_timeout("xdotool", &["windowactivate", xid], 2);
+            }
+        }
+    }
 
     std::process::exit(0);
 }

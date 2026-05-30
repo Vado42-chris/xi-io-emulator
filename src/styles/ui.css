@@ -521,3 +521,32 @@
 .ui-browse-popover__option:hover {
   background-color: rgba(255, 255, 255, 0.04);
 }
+
+.ui-boot-error {
+  min-height: 100vh;
+  padding: 32px;
+  background-color: #0a0b10;
+  color: #fca5a5;
+  font-family: system-ui, sans-serif;
+}
+
+.ui-boot-error h1 {
+  color: #fff;
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+
+.ui-boot-error p {
+  margin: 0 0 16px;
+}
+
+.ui-boot-error pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: #05060b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+}

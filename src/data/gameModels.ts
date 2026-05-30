@@ -27,6 +27,53 @@ export interface GameLaunchReadiness {
   blockers: string[];
 }
 
+export type IngressChecklistStepId =
+  | 'path_recorded'
+  | 'extension_valid'
+  | 'file_verified'
+  | 'title_normalized'
+  | 'identity_resolved'
+  | 'artwork_assigned'
+  | 'artwork_verified'
+  | 'library_root_linked'
+  | 'engine_ready'
+  | 'launch_ready';
+
+export type IngressChecklistStepStatus = 'pending' | 'passed' | 'failed' | 'skipped' | 'warning';
+
+export interface IngressChecklistStep {
+  id: IngressChecklistStepId;
+  label: string;
+  status: IngressChecklistStepStatus;
+  message?: string;
+  updatedAt?: string;
+}
+
+export interface GameIngressChecklist {
+  steps: IngressChecklistStep[];
+  complete: boolean;
+  passedCount: number;
+  totalRequired: number;
+  percentComplete: number;
+  lastValidatedAt?: string;
+}
+
+export interface BatchIngressProgress {
+  scanId: string;
+  folderPath: string;
+  status: 'running' | 'completed' | 'failed';
+  filesTotal: number;
+  filesProcessed: number;
+  gamesAdded: number;
+  gamesUpdated: number;
+  gamesSkipped: number;
+  gamesFullyIngested: number;
+  currentFileName?: string;
+  startedAt: string;
+  completedAt?: string;
+  errorMessage?: string;
+}
+
 export interface GameRecord {
   id: string;
   systemId: string;
@@ -46,6 +93,7 @@ export interface GameRecord {
   tags: GameTag[];
   libraryRootId?: string;
   mappings?: GameMappings;
+  ingressChecklist?: GameIngressChecklist;
   lastPlayedAt?: string;
   hasCheats?: boolean;
   hasPatches?: boolean;

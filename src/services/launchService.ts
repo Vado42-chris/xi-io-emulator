@@ -231,11 +231,10 @@ export const launchGame = async (
 
   const mapping = await applyControllerMappingForLaunch(adapter);
   if (mapping.warning && adapter.engine_id === 'fceux') {
-    addLedgerEvent('launch_blocked', `Launch blocked: ${mapping.warning}`, {
+    addLedgerEvent('controller_mapping_skipped', `FCEUX launch without mapping: ${mapping.warning}`, {
       gameId: game.id,
       profileId: adapter.controller_profile,
     });
-    return { success: false, command: withDisplay.plan.commandDisplay, error: mapping.warning };
   }
 
   const planWithMapping = {

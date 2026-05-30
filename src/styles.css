@@ -1267,9 +1267,220 @@ body {
 }
 
 /* Hero Preview Area */
+.arcade-preview-panel {
+  flex-shrink: 0;
+}
+
+.arcade-toolbar {
+  flex-shrink: 0;
+  padding: 12px 40px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  background: linear-gradient(to bottom, rgba(8, 9, 14, 0.96), rgba(8, 9, 14, 0.78));
+}
+
+.arcade-toolbar--focused {
+  outline: 2px solid rgba(56, 189, 248, 0.55);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.arcade-toolbar-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.arcade-toolbar-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.arcade-toolbar-focus-label {
+  font-size: 0.78rem;
+  color: #7dd3fc;
+  font-weight: 600;
+}
+
+.arcade-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.arcade-platform-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 320px;
+}
+
+.arcade-platform-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.arcade-platform-tab:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.arcade-platform-tab--active {
+  color: #fff;
+  border-color: rgba(99, 102, 241, 0.55);
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+}
+
+.arcade-platform-tab--focus {
+  box-shadow: 0 0 0 2px #38bdf8, 0 0 16px rgba(56, 189, 248, 0.35);
+  border-color: #38bdf8;
+}
+
+.arcade-platform-tab-count {
+  min-width: 1.4rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.arcade-toolbar-search {
+  position: relative;
+  flex: 1 1 280px;
+  max-width: 420px;
+}
+
+.arcade-toolbar-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.arcade-toolbar-search-input {
+  width: 100%;
+  padding: 10px 40px 10px 42px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.arcade-toolbar-search-input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.arcade-toolbar-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.arcade-toolbar-search-clear:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.arcade-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.arcade-filter-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.arcade-filter-chip:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.arcade-filter-chip--active {
+  color: #fff;
+  border-color: rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.16);
+}
+
+.arcade-filter-chip--focus {
+  box-shadow: 0 0 0 2px #38bdf8, 0 0 14px rgba(56, 189, 248, 0.3);
+  border-color: #38bdf8;
+}
+
+.arcade-toolbar-search--focus .arcade-toolbar-search-input {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+}
+
+.arcade-empty-filter {
+  margin: 48px auto;
+  max-width: 520px;
+  text-align: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.arcade-empty-filter h2 {
+  color: #fff;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.arcade-empty-filter p {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
 .arcade-hero {
-  flex: 0 0 35%;
-  min-height: 250px;
+  flex: 0 0 30%;
+  min-height: 220px;
   padding: 20px 40px;
   display: flex;
   flex-direction: column;
@@ -1637,6 +1848,358 @@ body {
 
 .game-tile.focused .game-tile-art-text {
   color: rgba(99, 102, 241, 0.08);
+}
+
+.game-tile.activated {
+  border-color: #38bdf8;
+  box-shadow: 0 8px 28px rgba(56, 189, 248, 0.35);
+}
+
+.game-tile-actions {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 12;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: linear-gradient(to top, rgba(6, 7, 10, 0.95) 0%, rgba(6, 7, 10, 0.75) 70%, transparent 100%);
+}
+
+.game-tile-action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.game-tile-action--selected {
+  border-color: var(--color-accent);
+  background: rgba(99, 102, 241, 0.25);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4);
+}
+
+.game-tile-action--launch.game-tile-action--selected {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.22);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+
+.game-tile.activated .game-tile-overlay {
+  opacity: 0.35;
+}
+
+.arcade-hero-hint {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+/* Game detail microsite */
+.arcade-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(4, 5, 8, 0.92);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+  padding: 32px 40px 80px;
+}
+
+.arcade-detail-close {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 101;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.arcade-detail-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.arcade-detail-art {
+  position: sticky;
+  top: 24px;
+}
+
+.arcade-detail-art-image {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.arcade-detail-art-fallback {
+  aspect-ratio: 3/4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #312e81, #111827);
+  font-size: 3rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.arcade-detail-main h1 {
+  font-size: 2.4rem;
+  margin: 12px 0 8px;
+}
+
+.arcade-detail-subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 20px;
+}
+
+.arcade-detail-meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.arcade-detail-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.arcade-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.arcade-detail-path {
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+}
+
+.arcade-detail-path code {
+  display: block;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  word-break: break-all;
+  font-size: 0.78rem;
+}
+
+.arcade-detail-engine {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 0.88rem;
+}
+
+.arcade-detail-engine--ready {
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+  color: #6ee7b7;
+}
+
+.arcade-detail-engine--missing {
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fcd34d;
+}
+
+.arcade-detail-engine p {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+}
+
+.arcade-detail-blockers {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.arcade-detail-blockers li {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.arcade-detail-blockers li span {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.arcade-detail-notes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.arcade-detail-notes-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.92rem;
+  resize: vertical;
+}
+
+.game-recommendations {
+  margin-top: 20px;
+}
+
+.game-recommendations-title {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.game-recommendations-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+
+.game-recommendation-card {
+  flex: 0 0 140px;
+  scroll-snap-align: start;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.game-recommendation-card:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  transform: translateY(-2px);
+}
+
+.game-recommendation-art {
+  aspect-ratio: 1;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.game-recommendation-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-recommendation-fallback {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.game-recommendation-body {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.game-recommendation-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.game-recommendation-system {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.game-recommendation-reason {
+  font-size: 0.65rem;
+  color: #93c5fd;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.game-recommendations--compact .game-recommendation-card {
+  flex-basis: 120px;
+}
+
+.arcade-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.arcade-detail-action--focused {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+}
+
+.arcade-detail-overlay .arcade-hint-rail {
+  position: sticky;
+  bottom: 0;
+  margin-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(6, 7, 10, 0.95);
 }
 
 /* Hint Rail */
@@ -2158,5 +2721,177 @@ body {
   text-decoration: underline;
   font: inherit;
   padding: 0;
+}
+
+/* Ingress checklist + batch progress */
+.library-ingress-summary {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.library-ingress-summary-text {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.library-ingress-summary-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.library-ingress-summary-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #38bdf8);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.ingress-checklist {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ingress-checklist--empty {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.ingress-checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ingress-checklist-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.ingress-checklist-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.ingress-checklist-percent {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.ingress-checklist-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px 0 12px;
+  overflow: hidden;
+}
+
+.ingress-checklist-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #38bdf8);
+  transition: width 0.3s ease;
+}
+
+.ingress-checklist-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingress-checklist-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.ingress-checklist-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ingress-checklist-step-label {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+.ingress-checklist-step-message {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+.ingress-step-icon--passed { color: #10b981; }
+.ingress-step-icon--warning { color: #fbbf24; }
+.ingress-step-icon--failed { color: #f87171; }
+.ingress-step-icon--skipped { color: #64748b; }
+.ingress-step-icon--pending { color: #475569; }
+
+.ingress-checklist-validated {
+  margin: 10px 0 0;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.batch-ingress-progress {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.batch-ingress-progress--completed {
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.batch-ingress-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.batch-ingress-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.batch-ingress-progress-fill {
+  height: 100%;
+  background: #38bdf8;
+  transition: width 0.25s ease;
+}
+
+.batch-ingress-progress-meta,
+.batch-ingress-progress-current {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.batch-ingress-progress-current {
+  margin-top: 6px;
+  color: #93c5fd;
 }
 

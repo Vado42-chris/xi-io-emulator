@@ -1,7 +1,7 @@
 //! Debounced shell focus restore — single owner in Rust; UI listens on `emulator-session-finished` only.
 //!
 //! Failure codes: `XIO-LCH-008` (focus restore failed), desktop freeze mitigated (runbook freeze section).
-//! Guardrails: 2.5s debounce, mutex, `timeout` wrapper on WM tools, capped focus retries in `window_registry`.
+//! Guardrails: 2.5s debounce, mutex, `timeout` wrapper on WM tools, single wake pass (no retry storm).
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::OnceLock;
 
@@ -48,19 +48,6 @@ pub fn try_begin_shell_restore(reason: &str) -> bool {
 
 pub fn finish_shell_restore() {
     RESTORE_IN_PROGRESS.store(false, Ordering::SeqCst);
-}
-
-/// Hard cap on concurrent focus-retry threads (prevents xdotool storms).
-static FOCUS_RETRY_SCHEDULED: AtomicBool = AtomicBool::new(false);
-
-pub fn try_schedule_focus_retries() -> bool {
-    FOCUS_RETRY_SCHEDULED
-        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-        .is_ok()
-}
-
-pub fn finish_focus_retries() {
-    FOCUS_RETRY_SCHEDULED.store(false, Ordering::SeqCst);
 }
 
 /// Run subprocess with `timeout` when available — prevents blocking the WM/compositor forever.

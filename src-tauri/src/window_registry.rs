@@ -4,10 +4,7 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use crate::platform::x11_wm_tools_available;
-use crate::shell_restore::{
-    finish_focus_retries, finish_shell_restore, run_subprocess_with_timeout,
-    try_schedule_focus_retries,
-};
+use crate::shell_restore::run_subprocess_with_timeout;
 use tauri::{AppHandle, Manager};
 
 /// Stable WM title for the xi-io arcade shell — never unmap/kill; target by stored XID.
@@ -98,6 +95,20 @@ impl WindowRegistry {
             .unwrap_or_default()
     }
 
+    pub fn session_window_xids(&self, session_id: &str) -> Vec<u64> {
+        self.inner
+            .open_sessions
+            .lock()
+            .ok()
+            .and_then(|guard| {
+                guard
+                    .iter()
+                    .find(|s| s.session_id == session_id)
+                    .map(|s| s.window_xids.clone())
+            })
+            .unwrap_or_default()
+    }
+
     /// Send shell behind the emulator. Process stays alive; Tauri minimize + optional X11 lower.
     pub fn hibernate_shell(&self, app: &AppHandle) {
         if let Some(main) = app.get_webview_window("main") {
@@ -176,29 +187,6 @@ impl WindowRegistry {
     /// WM wake via xdotool — X11 only; no-op on Wayland.
     pub fn wake_shell_wm(&self, app: &AppHandle) -> bool {
         self.wake_shell_wm_once(app)
-    }
-
-    pub fn spawn_shell_focus_retries(self, app: AppHandle) -> bool {
-        if !try_schedule_focus_retries() {
-            return false;
-        }
-        std::thread::spawn(move || {
-            for delay_ms in [250_u64, 1000] {
-                std::thread::sleep(Duration::from_millis(delay_ms));
-                let app_for_main = app.clone();
-                let app_in_closure = app_for_main.clone();
-                let registry = self.clone();
-                let _ = app_for_main.run_on_main_thread(move || {
-                    registry.wake_shell(&app_in_closure);
-                });
-                if x11_wm_tools_available() {
-                    self.wake_shell_wm_once(&app);
-                }
-            }
-            finish_focus_retries();
-            finish_shell_restore();
-        });
-        true
     }
 
     pub fn close_session_windows(&self, session_id: &str) {

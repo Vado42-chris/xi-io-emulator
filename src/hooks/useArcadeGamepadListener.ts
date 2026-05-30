@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import {
   mergeArcadeGamepadEdges,
+  emptyArcadeGamepadEdges,
   pollArcadeGamepadEdges,
   type ArcadeGamepadEdges,
   type ArcadeGamepadPollState,
@@ -88,32 +89,12 @@ export const useArcadeGamepadListener = (
 
       let nativeEdges = nativeQueueRef.current.reduce(
         (acc, edge) => mergeArcadeGamepadEdges(acc, edge),
-        {
-          up: false,
-          down: false,
-          left: false,
-          right: false,
-          confirm: false,
-          back: false,
-          favorite: false,
-          search: false,
-          menu: false,
-        } as ArcadeGamepadEdges
+        emptyArcadeGamepadEdges()
       );
       nativeQueueRef.current = [];
 
       if (state.connected) {
-        nativeEdges = {
-          up: false,
-          down: false,
-          left: false,
-          right: false,
-          confirm: false,
-          back: false,
-          favorite: false,
-          search: false,
-          menu: false,
-        };
+        nativeEdges = emptyArcadeGamepadEdges();
       }
 
       const edges = mergeArcadeGamepadEdges(browserEdges, nativeEdges);

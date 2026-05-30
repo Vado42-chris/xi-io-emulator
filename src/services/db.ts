@@ -1,4 +1,5 @@
 import type { GameRecord } from '../data/gameModels';
+import { clearPlaySessionData } from './playSessionService';
 
 export interface LibraryRoot {
   id: string;
@@ -159,7 +160,9 @@ export const clearDatabase = (): void => {
   localStorage.removeItem('xibalba_scan_history');
   localStorage.removeItem('xibalba_proof_games');
   localStorage.removeItem('xibalba_controller_proof');
-  localStorage.removeItem('xibalba_demo_mode');
+  localStorage.removeItem('xibalba_snes_showcase_hydrated');
+  localStorage.removeItem('xibalba_nes_showcase_hydrated');
+  clearPlaySessionData();
   addLedgerEvent('database_cleared', 'Database states cleared');
 };
 

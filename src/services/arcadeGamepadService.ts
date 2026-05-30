@@ -9,6 +9,8 @@ const BTN = {
   Y: 3,
   START: 9,
   SELECT: 8,
+  L1: 4,
+  R1: 5,
   D_UP: 12,
   D_DOWN: 13,
   D_LEFT: 14,
@@ -27,6 +29,8 @@ export interface ArcadeGamepadEdges {
   favorite: boolean;
   search: boolean;
   menu: boolean;
+  shoulderLeft: boolean;
+  shoulderRight: boolean;
 }
 
 export const emptyArcadeGamepadEdges = (): ArcadeGamepadEdges => ({
@@ -39,6 +43,8 @@ export const emptyArcadeGamepadEdges = (): ArcadeGamepadEdges => ({
   favorite: false,
   search: false,
   menu: false,
+  shoulderLeft: false,
+  shoulderRight: false,
 });
 
 export const mergeArcadeGamepadEdges = (
@@ -54,6 +60,8 @@ export const mergeArcadeGamepadEdges = (
   favorite: primary.favorite || secondary.favorite,
   search: primary.search || secondary.search,
   menu: primary.menu || secondary.menu,
+  shoulderLeft: primary.shoulderLeft || secondary.shoulderLeft,
+  shoulderRight: primary.shoulderRight || secondary.shoulderRight,
 });
 
 export interface ArcadeGamepadPollState {
@@ -109,6 +117,8 @@ export const pollArcadeGamepadEdges = (
         favorite: false,
         search: false,
         menu: false,
+        shoulderLeft: false,
+        shoulderRight: false,
       },
       state: emptyPollState(),
     };
@@ -132,6 +142,8 @@ export const pollArcadeGamepadEdges = (
     menu:
       edge(pressed[BTN.START] ?? false, prevPressed[BTN.START] ?? false) ||
       edge(pressed[BTN.SELECT] ?? false, prevPressed[BTN.SELECT] ?? false),
+    shoulderLeft: edge(pressed[BTN.L1] ?? false, prevPressed[BTN.L1] ?? false),
+    shoulderRight: edge(pressed[BTN.R1] ?? false, prevPressed[BTN.R1] ?? false),
   };
 
   return {
