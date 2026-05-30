@@ -11,12 +11,56 @@ export interface SpawnResult {
   exit_code: number | null;
   stdout: string;
   stderr: string;
+  /** Emulator still running; shell hibernated — wait for emulator-session-finished event. */
+  session_started?: boolean;
 }
 
 export interface InputDeviceInfo {
   name: string;
   handlers: string[];
   is_joystick: boolean;
+}
+
+export interface ShellExitMapping {
+  devicePath: string;
+  deviceName: string;
+  inputKind: 'evdev' | 'js';
+  buttonCode: number;
+  buttonLabel: string;
+  configuredAt: string;
+  /** Legacy js-only mappings */
+  buttonNumber?: number;
+}
+
+export interface ConnectedDisplay {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  primary: boolean;
+  index: number;
+}
+
+export interface LaunchDisplayPreferences {
+  mode: 'fullscreen' | 'windowed';
+  displayId: string;
+  displayIndex: number;
+  windowWidth: number;
+  windowHeight: number;
+  rememberChoice: boolean;
+}
+
+export interface EmulatorSessionRecord {
+  gameId: string;
+  contentPath: string;
+  engineId: string;
+  program: string;
+  startedAt: string;
+  endedAt?: string;
+  exitReason: string;
+  pids: number[];
 }
 
 export const isTauriRuntime = (): boolean => {
@@ -37,9 +81,63 @@ export const checkPathExists = async (path: string): Promise<PathCheckResult> =>
   return invoke<PathCheckResult>('path_exists', { path });
 };
 
+export interface EmulatorSessionStartedPayload {
+  gameId: string;
+  sessionId: string;
+  shellWindowTitle: string;
+  gameWindowTitle: string;
+}
+
+export const onEmulatorSessionStarted = async (
+  handler: (payload: EmulatorSessionStartedPayload) => void
+): Promise<() => void> => {
+  if (!isTauriRuntime()) {
+    return () => {};
+  }
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<EmulatorSessionStartedPayload>('emulator-session-started', (event) => {
+    handler(event.payload);
+  });
+};
+
+export interface EmulatorSessionFinishedPayload {
+  gameId: string;
+  sessionId: string;
+  reason: string;
+  returnedCleanly: boolean;
+}
+
+export const onEmulatorSessionFinished = async (
+  handler: (payload: EmulatorSessionFinishedPayload) => void
+): Promise<() => void> => {
+  if (!isTauriRuntime()) {
+    return () => {};
+  }
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<EmulatorSessionFinishedPayload>('emulator-session-finished', (event) => {
+    handler(event.payload);
+  });
+};
+
+export const restoreArcadeWindow = async (gameId?: string): Promise<void> => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+  const invoke = await getInvoke();
+  await invoke('restore_arcade_window', { gameId: gameId ?? null });
+};
+
+export interface LaunchEmulatorOptions {
+  program: string;
+  args: string[];
+  env?: Record<string, string>;
+  gameId: string;
+  engineId: string;
+  contentPath: string;
+}
+
 export const launchEmulatorProcess = async (
-  program: string,
-  args: string[]
+  options: LaunchEmulatorOptions
 ): Promise<SpawnResult> => {
   if (!isTauriRuntime()) {
     throw new Error(
@@ -47,7 +145,80 @@ export const launchEmulatorProcess = async (
     );
   }
   const invoke = await getInvoke();
-  return invoke<SpawnResult>('launch_emulator', { program, args });
+  return invoke<SpawnResult>('launch_emulator', {
+    program: options.program,
+    args: options.args,
+    env: options.env ?? {},
+    gameId: options.gameId,
+    engineId: options.engineId,
+    contentPath: options.contentPath,
+  });
+};
+
+export const identifyConnectedDisplays = async (
+  highlightIndex?: number
+): Promise<void> => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+  const invoke = await getInvoke();
+  await invoke('identify_connected_displays', {
+    highlightIndex: highlightIndex ?? null,
+  });
+};
+
+export const listConnectedDisplays = async (): Promise<ConnectedDisplay[]> => {
+  if (!isTauriRuntime()) {
+    return [
+      {
+        id: 'primary',
+        name: 'Primary Display',
+        width: 1920,
+        height: 1080,
+        x: 0,
+        y: 0,
+        primary: true,
+        index: 0,
+      },
+    ];
+  }
+  const invoke = await getInvoke();
+  return invoke<ConnectedDisplay[]>('list_connected_displays_cmd');
+};
+
+export const getLaunchDisplayPreferences = async (): Promise<LaunchDisplayPreferences | null> => {
+  if (!isTauriRuntime()) {
+    return null;
+  }
+  const invoke = await getInvoke();
+  return invoke<LaunchDisplayPreferences | null>('get_launch_display_preferences');
+};
+
+export const saveLaunchDisplayPreferences = async (
+  prefs: LaunchDisplayPreferences
+): Promise<void> => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+  const invoke = await getInvoke();
+  await invoke('save_launch_display_preferences', { prefs });
+};
+
+export const getLastEmulatorSession = async (): Promise<EmulatorSessionRecord | null> => {
+  if (!isTauriRuntime()) {
+    return null;
+  }
+  const invoke = await getInvoke();
+  return invoke<EmulatorSessionRecord | null>('get_last_emulator_session');
+};
+
+/** Request clean return from an in-flight emulator (Esc fallback from the shell UI). */
+export const terminateActiveEmulator = async (): Promise<boolean> => {
+  if (!isTauriRuntime()) {
+    return false;
+  }
+  const invoke = await getInvoke();
+  return invoke<boolean>('terminate_active_emulator');
 };
 
 export const listLinuxInputDevices = async (): Promise<InputDeviceInfo[]> => {
@@ -60,4 +231,44 @@ export const listLinuxInputDevices = async (): Promise<InputDeviceInfo[]> => {
   } catch {
     return [];
   }
+};
+
+export const getShellExitMapping = async (): Promise<ShellExitMapping | null> => {
+  if (!isTauriRuntime()) {
+    return null;
+  }
+  const invoke = await getInvoke();
+  return invoke<ShellExitMapping | null>('get_shell_exit_mapping');
+};
+
+export const saveShellExitMapping = async (mapping: ShellExitMapping): Promise<void> => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+  const invoke = await getInvoke();
+  await invoke('save_shell_exit_mapping_cmd', { mapping });
+};
+
+export const clearShellExitMapping = async (): Promise<void> => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+  const invoke = await getInvoke();
+  await invoke('clear_shell_exit_mapping_cmd');
+};
+
+export const captureShellExitButton = async (timeoutMs = 20000): Promise<ShellExitMapping> => {
+  if (!isTauriRuntime()) {
+    throw new Error('Return-to-Arcade button setup requires the Tauri desktop shell.');
+  }
+  const invoke = await getInvoke();
+  return invoke<ShellExitMapping>('capture_shell_exit_button_cmd', { timeoutMs });
+};
+
+export const listShellExitCaptureSources = async (): Promise<string> => {
+  if (!isTauriRuntime()) {
+    return 'Tauri required for native input capture.';
+  }
+  const invoke = await getInvoke();
+  return invoke<string>('list_shell_exit_capture_sources');
 };

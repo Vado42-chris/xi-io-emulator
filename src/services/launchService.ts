@@ -9,6 +9,11 @@ import {
 import { isTauriRuntime, launchEmulatorProcess } from './tauriService';
 import { classifyEmulatorExit, emulatorExitSummary } from './launchExitService';
 import { isStaleDemoContentPath, staleDemoLaunchBlocker } from './proofGameService';
+import {
+  applyDisplaySettingsToLaunchPlan,
+  type LaunchDisplaySettings,
+} from './launchDisplayService';
+import { listConnectedDisplays } from './tauriService';
 
 export interface LaunchBlocker {
   code:
@@ -37,6 +42,8 @@ export interface LaunchResult {
   exitCode?: number | null;
   /** True when the emulator process ended and the shell should return to Arcade Home. */
   returnedCleanly?: boolean;
+  /** True when launch returned immediately and the game is still running in the background. */
+  sessionActive?: boolean;
 }
 
 const isDemoMode = (): boolean => localStorage.getItem('xibalba_demo_mode') === 'true';
@@ -144,7 +151,10 @@ export const simulateLaunchGame = (game: GameRecord): LaunchResult => {
 
 // #ledger:launch_requested
 // #xar:controller-launch-proof/current
-export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
+export const launchGame = async (
+  game: GameRecord,
+  displaySettings?: LaunchDisplaySettings
+): Promise<LaunchResult> => {
   addLedgerEvent('launch_requested', `Launch requested for ${game.title}`, {
     gameId: game.id,
     systemId: game.systemId,
@@ -166,22 +176,48 @@ export const launchGame = async (game: GameRecord): Promise<LaunchResult> => {
 
   const adapter = getAdapterForSystem(game.systemId)!;
   const engine = getEngineSettings();
-  const plan = buildLaunchPlan(adapter, engine, game.contentPath);
-  if (!plan) {
+  const basePlan = buildLaunchPlan(adapter, engine, game.contentPath);
+  if (!basePlan) {
     addLedgerEvent('launch_failed', `Could not build launch plan for ${game.title}`, {
       gameId: game.id,
     });
     return { success: false, command: '', error: 'Launch plan could not be built.' };
   }
 
+  const displays = isTauriRuntime() ? await listConnectedDisplays() : [];
+  const { plan, env } = displaySettings
+    ? applyDisplaySettingsToLaunchPlan(basePlan, adapter, displaySettings, displays)
+    : { plan: basePlan, env: {} as Record<string, string> };
+
   addLedgerEvent('launch_started', `Starting ${game.title} via ${adapter.display_name}`, {
     gameId: game.id,
     command: plan.commandDisplay,
     adapterId: adapter.adapter_id,
+    displayMode: displaySettings?.mode,
+    displayId: displaySettings?.displayId,
   });
 
   try {
-    const result = await launchEmulatorProcess(plan.program, plan.args);
+    const result = await launchEmulatorProcess({
+      program: plan.program,
+      args: plan.args,
+      env,
+      gameId: game.id,
+      engineId: adapter.engine_id,
+      contentPath: game.contentPath,
+    });
+
+    if (result.session_started) {
+      addLedgerEvent('launch_started', `${game.title} session active (shell hibernated)`, {
+        gameId: game.id,
+      });
+      return {
+        success: true,
+        sessionActive: true,
+        command: plan.commandDisplay,
+      };
+    }
+
     const exitKind = classifyEmulatorExit(result.exit_code);
 
     if (exitKind === 'clean') {

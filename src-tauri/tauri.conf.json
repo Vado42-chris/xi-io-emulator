@@ -23,7 +23,7 @@
   "app": {
     "windows": [
       {
-        "title": "xi-io Emulator",
+        "title": "xi-io::shell",
         "width": 1280,
         "height": 720,
         "resizable": true,

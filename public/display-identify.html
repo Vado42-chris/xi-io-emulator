@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Display Identify</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(8, 12, 24, 0.88);
+        color: #fff;
+      }
+      body.selected {
+        background: rgba(6, 40, 28, 0.92);
+        outline: 12px solid #10b981;
+        outline-offset: -12px;
+      }
+      .panel {
+        text-align: center;
+        padding: 24px;
+      }
+      .number {
+        font-size: min(28vw, 220px);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .label {
+        margin-top: 16px;
+        font-size: clamp(1rem, 2.4vw, 1.75rem);
+        opacity: 0.9;
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(16, 185, 129, 0.55);
+        color: #6ee7b7;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="number" id="number">1</div>
+      <div class="label" id="label">Display</div>
+      <div class="badge" id="badge" hidden>Selected for launch</div>
+    </div>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const n = params.get('n') || '1';
+      const name = params.get('name') || 'Display';
+      const selected = params.get('selected') === '1';
+      document.getElementById('number').textContent = n;
+      document.getElementById('label').textContent = name;
+      if (selected) {
+        document.body.classList.add('selected');
+        document.getElementById('badge').hidden = false;
+      }
+    </script>
+  </body>
+</html>

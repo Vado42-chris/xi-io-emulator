@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Gamepad, RefreshCw, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Gamepad, RefreshCw, CheckCircle, XCircle, AlertTriangle, RotateCcw } from 'lucide-react';
 import {
   getControllerSnapshot,
   pollControllerDevices,
@@ -7,16 +7,37 @@ import {
   markInGameControllerVerified,
   type ControllerSnapshot,
 } from '../services/controllerService';
+import {
+  captureShellExitButton,
+  clearShellExitMapping,
+  getShellExitMapping,
+  saveShellExitMapping,
+  type ShellExitMapping,
+} from '../services/shellExitButtonService';
 import { isTauriRuntime } from '../services/tauriService';
 
 interface ControllersPanelProps {
   onSnapshotChange?: (snapshot: ControllerSnapshot) => void;
+  onMappingChange?: (mapping: ShellExitMapping | null) => void;
 }
 
-export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotChange }) => {
+export const ControllersPanel: React.FC<ControllersPanelProps> = ({
+  onSnapshotChange,
+  onMappingChange,
+}) => {
   const [snapshot, setSnapshot] = useState<ControllerSnapshot>(getControllerSnapshot());
   const [testing, setTesting] = useState(false);
   const [pressedButtons, setPressedButtons] = useState<string[]>([]);
+  const [shellExitMapping, setShellExitMapping] = useState<ShellExitMapping | null>(null);
+  const [shellExitCapturing, setShellExitCapturing] = useState(false);
+  const [shellExitError, setShellExitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void getShellExitMapping().then((mapping) => {
+      setShellExitMapping(mapping);
+      onMappingChange?.(mapping);
+    });
+  }, [onMappingChange]);
 
   useEffect(() => {
     void pollControllerDevices().then((s) => {
@@ -66,6 +87,28 @@ export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotCh
     onSnapshotChange?.(s);
   };
 
+  const handleCaptureShellExit = async () => {
+    setShellExitCapturing(true);
+    setShellExitError(null);
+    try {
+      const captured = await captureShellExitButton(20000);
+      await saveShellExitMapping(captured);
+      setShellExitMapping(captured);
+      onMappingChange?.(captured);
+    } catch (err) {
+      setShellExitError(err instanceof Error ? err.message : 'Unable to capture button.');
+    } finally {
+      setShellExitCapturing(false);
+    }
+  };
+
+  const handleClearShellExit = async () => {
+    await clearShellExitMapping();
+    setShellExitMapping(null);
+    onMappingChange?.(null);
+    setShellExitError(null);
+  };
+
   const hasDetection =
     snapshot.devices.length > 0 ||
     snapshot.browserGamepadCount > 0 ||
@@ -73,6 +116,48 @@ export const ControllersPanel: React.FC<ControllersPanelProps> = ({ onSnapshotCh
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div
+        className="status-card"
+        style={{
+          padding: '16px',
+          borderLeft: `3px solid ${shellExitMapping ? '#10b981' : '#60a5fa'}`,
+        }}
+      >
+        <h4 style={{ fontWeight: 600, marginBottom: '8px' }}>Return to Arcade (in-game exit)</h4>
+        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: '0 0 12px 0' }}>
+          {isTauriRuntime()
+            ? 'Choose any button your games do not use — Guide, Home, or System is recommended. xi-io listens in the background while an emulator runs.'
+            : 'Requires the Tauri desktop shell for in-game exit. Run npm run tauri:dev.'}
+        </p>
+        {shellExitMapping ? (
+          <p style={{ fontSize: '0.85rem', margin: '0 0 12px 0' }}>
+            Configured: <strong>{shellExitMapping.buttonLabel}</strong> on {shellExitMapping.deviceName}
+          </p>
+        ) : (
+          <p style={{ fontSize: '0.85rem', color: '#fbbf24', margin: '0 0 12px 0' }}>
+            Not configured yet — set this on first launch or remap below.
+          </p>
+        )}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-primary"
+            disabled={shellExitCapturing || !isTauriRuntime()}
+            onClick={() => void handleCaptureShellExit()}
+          >
+            {shellExitCapturing ? 'Press your button now…' : shellExitMapping ? 'Remap button' : 'Choose button'}
+          </button>
+          {shellExitMapping && (
+            <button type="button" className="btn-secondary" onClick={() => void handleClearShellExit()}>
+              <RotateCcw size={14} style={{ marginRight: 6 }} /> Clear mapping
+            </button>
+          )}
+        </div>
+        {shellExitError && (
+          <p style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: '10px', marginBottom: 0 }}>{shellExitError}</p>
+        )}
+      </div>
+
       <div
         className="status-card"
         style={{

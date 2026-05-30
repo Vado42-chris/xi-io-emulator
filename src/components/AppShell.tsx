@@ -47,6 +47,7 @@ import { LibraryGrid } from './LibraryGrid';
 import { GameDetailPanel } from './GameDetailPanel';
 import { ArcadeHome } from './ArcadeHome';
 import { ControllersPanel } from './ControllersPanel';
+import { ShellExitSetupModal } from './ShellExitSetupModal';
 import {
   buildGameSearchIndex,
   detectDuplicateCandidates,
@@ -66,6 +67,13 @@ import {
 } from '../services/controllerService';
 import { computeProofReadiness, launchReadinessFromProof } from '../services/proofReadinessService';
 import { checkPathExists, isTauriRuntime } from '../services/tauriService';
+import { useArcadeGamepadListener } from '../hooks/useArcadeGamepadListener';
+import {
+  getShellExitMapping,
+  shouldShowShellExitSetup,
+  type ShellExitMapping,
+} from '../services/shellExitButtonService';
+import { hydrateSnesUiShowcase } from '../services/showcaseHydrationService';
 
 export const AppShell: React.FC = () => {
   const [appMode, setAppMode] = useState<'arcade' | 'admin'>('arcade');
@@ -114,6 +122,9 @@ export const AppShell: React.FC = () => {
   
   // Status panel projection
   const [projectStatus, setProjectStatus] = useState(initialProjectStatus);
+  const [shellExitSetupOpen, setShellExitSetupOpen] = useState(false);
+  const [shellExitSetupNonce, setShellExitSetupNonce] = useState(0);
+  const [shellExitMapping, setShellExitMapping] = useState<ShellExitMapping | null>(null);
 
   const refreshState = async () => {
     let updatedGames = getGameRecords();
@@ -188,9 +199,12 @@ export const AppShell: React.FC = () => {
       addLedgerEvent('engine_missing', 'RetroArch path not configured (engine.retroarch.binary_path)');
       addLedgerEvent('core_missing', 'Snes9x core path not configured (engine.retroarch.snes_core_path)');
     }
-    // Defer the state refresh to avoid calling setState synchronously within the effect body
+    // Hydrate curated SNES showcase from local ROM folder, then refresh UI state
     const timer = setTimeout(() => {
-      void refreshState();
+      void (async () => {
+        await hydrateSnesUiShowcase();
+        await refreshState();
+      })();
     }, 0);
     return () => clearTimeout(timer);
   }, []);
@@ -209,6 +223,24 @@ export const AppShell: React.FC = () => {
       window.removeEventListener('gamepaddisconnected', onGamepad);
       window.clearInterval(interval);
     };
+  }, []);
+
+  useArcadeGamepadListener(appMode === 'admin' && !shellExitSetupOpen, {
+    onMenu: () => setAppMode('arcade'),
+    onConfirm: () => setAppMode('arcade'),
+  });
+
+  useEffect(() => {
+    if (!isTauriRuntime()) {
+      return;
+    }
+    void getShellExitMapping().then(setShellExitMapping);
+    void shouldShowShellExitSetup().then((show) => {
+      if (show) {
+        setShellExitSetupNonce((nonce) => nonce + 1);
+        setShellExitSetupOpen(true);
+      }
+    });
   }, []);
 
   const handleSingleIngress = async (e: React.FormEvent) => {
@@ -806,6 +838,7 @@ export const AppShell: React.FC = () => {
                   controllerState: controllerStateForStatusPanel(snapshot),
                 }));
               }}
+              onMappingChange={setShellExitMapping}
             />
           </div>
         );
@@ -1251,6 +1284,33 @@ export const AppShell: React.FC = () => {
 
               <div className="settings-item">
                 <div className="settings-meta">
+                  <span className="settings-label">SNES UI Showcase Library</span>
+                  <span className="settings-desc">
+                    Re-import 19 curated SNES titles from your local Aries ROM folder (metadata, tags, box art)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+                  onClick={() => {
+                    void (async () => {
+                      const result = await hydrateSnesUiShowcase({ force: true });
+                      await refreshState();
+                      addLedgerEvent(
+                        'showcase_hydration_completed',
+                        `Manual SNES showcase refresh (${result.added} added, ${result.updated} updated, ${result.missing.length} missing)`
+                      );
+                    })();
+                  }}
+                >
+                  <RefreshCw size={14} style={{ marginRight: '6px' }} />
+                  Re-hydrate Showcase
+                </button>
+              </div>
+
+              <div className="settings-item">
+                <div className="settings-meta">
                   <span className="settings-label">Start Fullscreen</span>
                   <span className="settings-desc">Launch the xi-io Emulator shell in fullscreen mode</span>
                 </div>
@@ -1315,6 +1375,12 @@ export const AppShell: React.FC = () => {
 
   return (
     <div className="app-container">
+      <ShellExitSetupModal
+        key={shellExitSetupNonce}
+        open={shellExitSetupOpen}
+        onClose={() => setShellExitSetupOpen(false)}
+        onConfigured={(mapping) => setShellExitMapping(mapping)}
+      />
       {appMode === 'admin' ? (
         <>
           <NavigationRail
@@ -1349,11 +1415,17 @@ export const AppShell: React.FC = () => {
           status={projectStatus}
           roots={roots}
           demoMode={demoMode}
+          shellExitMapping={shellExitMapping}
           onToggleAdminMode={() => setAppMode('admin')}
           onQuickSingleIngress={handleQuickSingleIngress}
           onQuickBatchIngress={handleQuickBatchIngress}
           onToggleFavorite={toggleFavorite}
           onLaunchComplete={refreshState}
+          onOpenShellExitSetup={() => {
+            setShellExitSetupNonce((nonce) => nonce + 1);
+            setShellExitSetupOpen(true);
+          }}
+          gamepadSuspended={shellExitSetupOpen}
         />
       )}
     </div>

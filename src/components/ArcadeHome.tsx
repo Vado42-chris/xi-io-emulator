@@ -14,14 +14,29 @@ import type { GameRecord } from '../data/gameModels';
 import type { ProjectStatus } from '../data/projectStatus';
 import type { LibraryRoot } from '../services/db';
 import { getProofLaunchGames } from '../services/proofGameService';
+import { GAME_GENRES } from '../data/libraryFacets';
 import {
-  pollArcadeGamepadEdges,
-  type ArcadeGamepadPollState,
+  type ArcadeGamepadEdges,
 } from '../services/arcadeGamepadService';
+import { useArcadeGamepadListener } from '../hooks/useArcadeGamepadListener';
 import { GameTile } from './GameTile';
+import { ShellGamepadHintRail } from './ShellGamepadHintRail';
 import { detectDuplicateCandidates } from '../services/searchService';
 import { checkLaunchReadiness, launchGame, getDemoMode, simulateLaunchGame } from '../services/launchService';
 import type { LaunchBlocker, LaunchResult } from '../services/launchService';
+import { isTauriRuntime, terminateActiveEmulator, listConnectedDisplays, onEmulatorSessionStarted, onEmulatorSessionFinished, restoreArcadeWindow, type ConnectedDisplay } from '../services/tauriService';
+import {
+  resolveLaunchDisplaySettings,
+  formatDisplaySettingsSummary,
+  type LaunchDisplaySettings,
+} from '../services/launchDisplayService';
+import { LaunchDisplayOverlay } from './LaunchDisplayOverlay';
+import {
+  formatShellExitHint,
+  formatShellExitShortLabel,
+  getShellExitMapping,
+  type ShellExitMapping,
+} from '../services/shellExitButtonService';
 
 interface ArcadeHomeProps {
   games: GameRecord[];
@@ -33,6 +48,9 @@ interface ArcadeHomeProps {
   onQuickBatchIngress: () => void;
   onToggleFavorite: (game: GameRecord) => void;
   onLaunchComplete?: () => void;
+  shellExitMapping?: ShellExitMapping | null;
+  onOpenShellExitSetup?: () => void;
+  gamepadSuspended?: boolean;
 }
 
 export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
@@ -43,6 +61,9 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   onQuickBatchIngress,
   onToggleFavorite,
   onLaunchComplete,
+  shellExitMapping: shellExitMappingProp,
+  onOpenShellExitSetup,
+  gamepadSuspended = false,
   demoMode: demoModeProp,
 }) => {
   const [activeShelfIndex, setActiveShelfIndex] = useState(0);
@@ -53,7 +74,9 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchIndex, setActiveSearchIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const gamepadPollRef = useRef<ArcadeGamepadPollState>({ connected: false, label: '', pressed: [], axes: [] });
+  const exitGameInFlightRef = useRef(false);
+  const lastLaunchedGameIdRef = useRef<string | null>(null);
+  const activeSessionIdRef = useRef<string | null>(null);
 
   // Launch state
   const [launchingGame, setLaunchingGame] = useState<GameRecord | null>(null);
@@ -61,43 +84,114 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [launchBlockers, setLaunchBlockers] = useState<LaunchBlocker[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
   const [activeBlocker, setActiveBlocker] = useState<LaunchBlocker | null>(null);
+  const [localShellExitMapping, setLocalShellExitMapping] = useState<ShellExitMapping | null>(null);
+  const [displayPickerGame, setDisplayPickerGame] = useState<GameRecord | null>(null);
+  const [connectedDisplays, setConnectedDisplays] = useState<ConnectedDisplay[]>([]);
+  const [displaySettings, setDisplaySettings] = useState<LaunchDisplaySettings | null>(null);
+  const [launchDisplaySummary, setLaunchDisplaySummary] = useState<string | null>(null);
 
   const demoMode = demoModeProp ?? getDemoMode();
+  const shellExitMapping = shellExitMappingProp ?? localShellExitMapping;
 
-  const handleLaunchGame = useCallback(async (game: GameRecord) => {
+  useEffect(() => {
+    if (shellExitMappingProp != null || !isTauriRuntime()) {
+      return;
+    }
+    void getShellExitMapping().then(setLocalShellExitMapping);
+  }, [shellExitMappingProp]);
+
+  const runLaunch = useCallback(async (game: GameRecord, settings?: LaunchDisplaySettings) => {
+    lastLaunchedGameIdRef.current = game.id;
+    setIsLaunching(true);
+    setLaunchDisplaySummary(settings ? formatDisplaySettingsSummary(settings, connectedDisplays) : null);
+    let sessionActive = false;
+    try {
+      const result = demoMode ? simulateLaunchGame(game) : await launchGame(game, settings);
+      if (result.sessionActive) {
+        sessionActive = true;
+        return;
+      }
+      if (result.returnedCleanly) {
+        setLaunchingGame(null);
+        setLaunchResult(null);
+        setLaunchBlockers([]);
+        if (isTauriRuntime()) {
+          void restoreArcadeWindow(game.id);
+        }
+      } else {
+        setLaunchResult(result);
+      }
+      onLaunchComplete?.();
+    } finally {
+      if (!sessionActive) {
+        setIsLaunching(false);
+        setLaunchDisplaySummary(null);
+      }
+    }
+  }, [connectedDisplays, demoMode, onLaunchComplete]);
+
+  const handleLaunchGame = useCallback(async (game: GameRecord, forceDisplayPicker = false) => {
     const readiness = await checkLaunchReadiness(game);
     setLaunchBlockers(readiness.blockers);
-    setLaunchingGame(game);
 
     if (!readiness.ready) {
+      setLaunchingGame(game);
       setLaunchResult({ success: false, command: '', error: readiness.blockers[0]?.desc });
       return;
     }
 
-    setIsLaunching(true);
-    try {
-      const result = demoMode ? simulateLaunchGame(game) : await launchGame(game);
-      setLaunchResult(result);
-      onLaunchComplete?.();
-    } finally {
-      setIsLaunching(false);
-    }
-  }, [demoMode, onLaunchComplete]);
-
-  // Return to Arcade Home automatically after a clean emulator exit.
-  useEffect(() => {
-    if (!launchingGame || isLaunching || !launchResult?.returnedCleanly) {
+    if (demoMode || !isTauriRuntime()) {
+      setLaunchingGame(game);
+      await runLaunch(game);
       return;
     }
 
-    const timer = window.setTimeout(() => {
-      setLaunchingGame(null);
-      setLaunchResult(null);
-      setLaunchBlockers([]);
-    }, 600);
+    const displays = await listConnectedDisplays();
+    setConnectedDisplays(displays);
+    const { settings, skipPicker } = await resolveLaunchDisplaySettings(forceDisplayPicker, displays);
 
-    return () => window.clearTimeout(timer);
-  }, [launchingGame, isLaunching, launchResult]);
+    if (skipPicker) {
+      setLaunchingGame(game);
+      await runLaunch(game, settings);
+      return;
+    }
+
+    setLaunchResult(null);
+    setDisplaySettings(settings);
+    setDisplayPickerGame(game);
+  }, [demoMode, runLaunch]);
+
+  const handleDisplayPickerConfirm = useCallback(async (settings: LaunchDisplaySettings) => {
+    const game = displayPickerGame;
+    setDisplayPickerGame(null);
+    setDisplaySettings(null);
+    if (!game) {
+      return;
+    }
+    setLaunchingGame(game);
+    await runLaunch(game, settings);
+  }, [displayPickerGame, runLaunch]);
+
+  const handleDisplayPickerCancel = useCallback(() => {
+    setDisplayPickerGame(null);
+    setDisplaySettings(null);
+    setLaunchingGame(null);
+    setLaunchBlockers([]);
+  }, []);
+
+  const handleExitGame = useCallback(async () => {
+    if (!isLaunching || exitGameInFlightRef.current || !isTauriRuntime()) {
+      return;
+    }
+    exitGameInFlightRef.current = true;
+    try {
+      await terminateActiveEmulator();
+    } finally {
+      window.setTimeout(() => {
+        exitGameInFlightRef.current = false;
+      }, 500);
+    }
+  }, [isLaunching]);
 
   // Memoize all shelf derivations to avoid re-renders and fix hook dependencies
   const { shelves, allGames, proofLaunchGames } = useMemo(() => {
@@ -116,6 +210,10 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     const duplicateGameIds = new Set(duplicateGroups.flatMap((dg) => dg.gameIds));
     const duplicates = activeGames.filter((g) => duplicateGameIds.has(g.id));
 
+    const showcaseGames = activeGames
+      .filter((g) => g.tags.includes('showcase:ui'))
+      .sort((a, b) => a.title.localeCompare(b.title));
+
     const list: { id: string; title: string; count: number; games: GameRecord[] }[] = [];
 
     // #xar:controller-launch-proof/pass-b — proof shelf first so stale demo tiles are not default focus
@@ -128,14 +226,39 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       });
     }
 
+    if (showcaseGames.length > 0) {
+      list.push({
+        id: 'snes_showcase',
+        title: 'SNES Showcase (local library preview)',
+        count: showcaseGames.length,
+        games: showcaseGames,
+      });
+    }
+
+    for (const genre of GAME_GENRES) {
+      const genreGames = activeGames
+        .filter((g) => g.tags.includes(`genre:${genre.id}`))
+        .sort((a, b) => a.title.localeCompare(b.title));
+      if (genreGames.length > 0) {
+        list.push({
+          id: `genre_${genre.id}`,
+          title: genre.label,
+          count: genreGames.length,
+          games: genreGames,
+        });
+      }
+    }
+
     const proofIds = new Set(proofLaunchGames.map((g) => g.id));
     const isProofOnlyLibrary =
       proofLaunchGames.length > 0 &&
       activeGames.length === proofLaunchGames.length &&
       activeGames.every((g) => proofIds.has(g.id));
 
+    const hasShowcase = showcaseGames.length > 0;
+
     // Pass B proof-only: avoid duplicate Recently Added / Favorites / All shelves (same 2 tiles)
-    if (!isProofOnlyLibrary) {
+    if (!isProofOnlyLibrary || hasShowcase) {
       if (recentlyAdded.length > 0) {
         list.push({ id: 'recent', title: 'Recently Added', count: recentlyAdded.length, games: recentlyAdded });
       }
@@ -155,6 +278,65 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
     return { shelves: list, allGames: all, proofLaunchGames };
   }, [games, demoMode]);
+
+  const focusGameById = useCallback((gameId: string) => {
+    for (let shelfIdx = 0; shelfIdx < shelves.length; shelfIdx++) {
+      const gameIdx = shelves[shelfIdx].games.findIndex((g) => g.id === gameId);
+      if (gameIdx >= 0) {
+        setActiveShelfIndex(shelfIdx);
+        setActiveGameIndex(gameIdx);
+        return;
+      }
+    }
+  }, [shelves]);
+
+  // Shell hibernates once the emulator owns the screen; dismiss overlay so return feels like wake, not relaunch.
+  useEffect(() => {
+    if (!isTauriRuntime()) {
+      return;
+    }
+    let unlisten: (() => void) | undefined;
+    void onEmulatorSessionStarted((payload) => {
+      activeSessionIdRef.current = payload.sessionId;
+      setLaunchingGame(null);
+      setLaunchResult(null);
+      setLaunchBlockers([]);
+      setIsLaunching(false);
+    }).then((dispose) => {
+      unlisten = dispose;
+    });
+    return () => {
+      unlisten?.();
+    };
+  }, []);
+
+  // Return to Arcade as soon as the Rust shell wakes (chord, kill, or natural emulator exit).
+  useEffect(() => {
+    if (!isTauriRuntime()) {
+      return;
+    }
+    let unlisten: (() => void) | undefined;
+    void onEmulatorSessionFinished((payload) => {
+      activeSessionIdRef.current = null;
+      setLaunchingGame(null);
+      setLaunchResult(null);
+      setLaunchBlockers([]);
+      setIsLaunching(false);
+      setLaunchDisplaySummary(null);
+      const gameId = payload.gameId || lastLaunchedGameIdRef.current || '';
+      void restoreArcadeWindow(gameId || undefined).then(() => {
+        if (gameId) {
+          focusGameById(gameId);
+        }
+      });
+      onLaunchComplete?.();
+    }).then((dispose) => {
+      unlisten = dispose;
+    });
+    return () => {
+      unlisten?.();
+    };
+  }, [focusGameById, onLaunchComplete]);
 
   // Active focused game in the carousel
   const activeShelf = shelves[activeShelfIndex];
@@ -181,10 +363,15 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   // Handle keyboard events (D-pad emulator)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 1. Launching Overlay active: Only Esc returns
+      // 1. Launch overlay: exit running game or dismiss finished overlay
       if (launchingGame) {
-        if (e.key === 'Escape') {
+        if (isLaunching && e.key === 'Escape') {
+          void handleExitGame();
+          e.preventDefault();
+        } else if (!isLaunching && e.key === 'Escape') {
           setLaunchingGame(null);
+          setLaunchResult(null);
+          setLaunchBlockers([]);
         }
         return;
       }
@@ -292,105 +479,107 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     searchQuery,
     activeSearchIndex,
     launchingGame,
+    isLaunching,
     allGames,
     onToggleFavorite,
     onToggleAdminMode,
     handleLaunchGame,
+    handleExitGame,
   ]);
 
-  // Gamepad navigation (W3C Gamepad API — complements keyboard handler above).
-  useEffect(() => {
-    let frame = 0;
-    const tick = () => {
-      const { edges, state } = pollArcadeGamepadEdges(gamepadPollRef.current);
-      gamepadPollRef.current = state;
+  const handleGamepadNavigation = useCallback((edges: ArcadeGamepadEdges) => {
+    if (displayPickerGame) {
+      return;
+    }
 
-      if (launchingGame) {
-        if (edges.menu) setLaunchingGame(null);
-        frame = window.requestAnimationFrame(tick);
-        return;
+    if (launchingGame) {
+      if (!isLaunching && (edges.menu || edges.back || edges.confirm)) {
+        setLaunchingGame(null);
+        setLaunchResult(null);
+        setLaunchBlockers([]);
       }
+      return;
+    }
 
-      if (isSearchOpen) {
-        const filteredSearchGames = allGames.filter((g) =>
-          g.title.toLowerCase().includes(searchQuery.toLowerCase())
+    if (isSearchOpen) {
+      const filteredSearchGames = allGames.filter((g) =>
+        g.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      if (edges.menu || edges.back) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        setActiveSearchIndex(0);
+      } else if (edges.left) {
+        setActiveSearchIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      } else if (edges.right) {
+        setActiveSearchIndex((prev) =>
+          prev < filteredSearchGames.length - 1 ? prev + 1 : prev
         );
-        if (edges.menu) {
+      } else if (edges.confirm) {
+        const selected = filteredSearchGames[activeSearchIndex];
+        if (selected) {
+          handleLaunchGame(selected);
           setIsSearchOpen(false);
           setSearchQuery('');
           setActiveSearchIndex(0);
-        } else if (edges.left) {
-          setActiveSearchIndex((prev) => (prev > 0 ? prev - 1 : prev));
-        } else if (edges.right) {
-          setActiveSearchIndex((prev) =>
-            prev < filteredSearchGames.length - 1 ? prev + 1 : prev
-          );
-        } else if (edges.confirm) {
-          const selected = filteredSearchGames[activeSearchIndex];
-          if (selected) {
-            handleLaunchGame(selected);
-            setIsSearchOpen(false);
-            setSearchQuery('');
-            setActiveSearchIndex(0);
-          }
         }
-        frame = window.requestAnimationFrame(tick);
-        return;
       }
+      return;
+    }
 
-      if (shelves.length === 0) {
-        frame = window.requestAnimationFrame(tick);
-        return;
-      }
+    if (shelves.length === 0) {
+      return;
+    }
 
-      if (edges.up) {
-        setActiveShelfIndex((prev) => {
-          const next = prev > 0 ? prev - 1 : prev;
-          setActiveGameIndex(0);
-          return next;
-        });
-      } else if (edges.down) {
-        setActiveShelfIndex((prev) => {
-          const next = prev < shelves.length - 1 ? prev + 1 : prev;
-          setActiveGameIndex(0);
-          return next;
-        });
-      } else if (edges.left) {
-        setActiveGameIndex((prev) => (prev > 0 ? prev - 1 : prev));
-      } else if (edges.right) {
-        const currentShelfGames = shelves[activeShelfIndex]?.games || [];
-        setActiveGameIndex((prev) =>
-          prev < currentShelfGames.length - 1 ? prev + 1 : prev
-        );
-      } else if (edges.confirm && activeGame) {
-        handleLaunchGame(activeGame);
-      } else if (edges.favorite && activeGame) {
-        onToggleFavorite(activeGame);
-      } else if (edges.search) {
-        setIsSearchOpen(true);
-      } else if (edges.menu) {
-        onToggleAdminMode();
-      }
-
-      frame = window.requestAnimationFrame(tick);
-    };
-
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
+    if (edges.up) {
+      setActiveShelfIndex((prev) => {
+        const next = prev > 0 ? prev - 1 : prev;
+        setActiveGameIndex(0);
+        return next;
+      });
+    } else if (edges.down) {
+      setActiveShelfIndex((prev) => {
+        const next = prev < shelves.length - 1 ? prev + 1 : prev;
+        setActiveGameIndex(0);
+        return next;
+      });
+    } else if (edges.left) {
+      setActiveGameIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (edges.right) {
+      const currentShelfGames = shelves[activeShelfIndex]?.games || [];
+      setActiveGameIndex((prev) =>
+        prev < currentShelfGames.length - 1 ? prev + 1 : prev
+      );
+    } else if (edges.confirm && edges.menu && activeGame) {
+      handleLaunchGame(activeGame, true);
+    } else if (edges.confirm && activeGame) {
+      handleLaunchGame(activeGame);
+    } else if (edges.favorite && activeGame) {
+      onToggleFavorite(activeGame);
+    } else if (edges.search) {
+      setIsSearchOpen(true);
+    } else if (edges.menu) {
+      onToggleAdminMode();
+    }
   }, [
     shelves,
     activeShelfIndex,
-    activeGameIndex,
     activeGame,
     isSearchOpen,
     searchQuery,
     activeSearchIndex,
     launchingGame,
+    isLaunching,
     allGames,
     onToggleFavorite,
     onToggleAdminMode,
     handleLaunchGame,
+    displayPickerGame,
   ]);
+
+  useArcadeGamepadListener(!gamepadSuspended && !displayPickerGame, {
+    onEdges: handleGamepadNavigation,
+  });
 
   // Onboarding Layout
   if (games.length === 0) {
@@ -650,7 +839,11 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       <footer className="arcade-hint-rail">
         <div className="arcade-hint-item">
           <span className="arcade-hint-button action-a">A</span>
-          <span>Play / Select</span>
+          <span>Play / Accept</span>
+        </div>
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-x" style={{ backgroundColor: '#3b82f6' }}>B</span>
+          <span>Back / Cancel</span>
         </div>
         <div className="arcade-hint-item">
           <span className="arcade-hint-button action-x">X</span>
@@ -661,7 +854,11 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           <span>Search Library</span>
         </div>
         <div className="arcade-hint-item">
-          <span className="arcade-hint-button action-menu">Esc</span>
+          <span className="arcade-hint-button action-menu">Start</span>
+          <span>Admin Mode</span>
+        </div>
+        <div className="arcade-hint-item">
+          <span className="arcade-hint-button action-menu">Select</span>
           <span>Admin Mode</span>
         </div>
       </footer>
@@ -723,8 +920,19 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         </div>
       )}
 
+      {/* Display picker — shown before emulator launch when settings are not sticky */}
+      {displayPickerGame && displaySettings && (
+        <LaunchDisplayOverlay
+          game={displayPickerGame}
+          displays={connectedDisplays}
+          initialSettings={displaySettings}
+          onConfirm={(settings) => void handleDisplayPickerConfirm(settings)}
+          onCancel={handleDisplayPickerCancel}
+        />
+      )}
+
       {/* Launch / Blocker Overlay */}
-      {launchingGame && (
+      {launchingGame && !displayPickerGame && (
         <div className="launch-overlay" style={{ flexDirection: 'column', padding: '40px', justifyContent: 'center' }}>
           {launchBlockers.length > 0 ? (
             <div style={{ maxWidth: '600px', width: '100%', backgroundColor: 'rgba(20, 21, 33, 0.95)', border: '1px solid var(--color-warning)', borderRadius: '12px', padding: '32px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }}>
@@ -765,6 +973,11 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
                       ? `${launchingGame.title} finished`
                       : `Could not launch ${launchingGame.title}`}
               </h1>
+              {isLaunching && launchDisplaySummary && (
+                <p style={{ color: 'var(--color-text-muted)', maxWidth: '600px', textAlign: 'center', marginTop: '-8px' }}>
+                  {launchDisplaySummary}
+                </p>
+              )}
               {isLaunching && (
                 <div className="launch-overlay-spinner" style={{ margin: '24px auto' }} />
               )}
@@ -788,13 +1001,57 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
 
               <p className="launch-overlay-hint">
                 {isLaunching
-                  ? 'Emulator is running. Quit from the emulator window to return here.'
+                  ? formatShellExitHint(shellExitMapping)
                   : launchResult?.returnedCleanly
                     ? 'Arcade Home will restore automatically.'
                     : launchResult?.success
-                      ? 'Press Escape to close this overlay.'
-                      : 'Press Escape to close this overlay. If an emulator is still running, quit it from its window.'}
+                      ? 'Press A, B, Start, Select, or Esc to close this overlay.'
+                      : 'Press A, B, Start, Select, or Esc to close this overlay.'}
               </p>
+              {isLaunching ? (
+                <div className="arcade-hint-rail" style={{ marginTop: '24px', justifyContent: 'center' }}>
+                  <div className="arcade-hint-item">
+                    <span className="arcade-hint-button action-menu">Select + Start</span>
+                    <span>Hold 1s to return (always works)</span>
+                  </div>
+                  <div className="arcade-hint-item">
+                    <span className="arcade-hint-button action-y">Guide</span>
+                    <span>Press Home to return</span>
+                  </div>
+                  {shellExitMapping ? (
+                    <div className="arcade-hint-item">
+                      <span className="arcade-hint-button action-menu">{formatShellExitShortLabel(shellExitMapping)}</span>
+                      <span>Your custom return button</span>
+                    </div>
+                  ) : (
+                    <div className="arcade-hint-item">
+                      <span className="arcade-hint-button action-menu">Optional</span>
+                      <span>
+                        Map a different return button in{' '}
+                        <button
+                          type="button"
+                          className="arcade-inline-link"
+                          onClick={() => onOpenShellExitSetup?.()}
+                        >
+                          Controllers
+                        </button>
+                      </span>
+                    </div>
+                  )}
+                  <div className="arcade-hint-item">
+                    <span className="arcade-hint-button action-x" style={{ backgroundColor: '#64748b' }}>Esc</span>
+                    <span>Keyboard fallback</span>
+                  </div>
+                </div>
+              ) : (
+                <ShellGamepadHintRail
+                  hints={[
+                    { button: 'A', label: 'Close overlay', tone: 'confirm' },
+                    { button: 'B', label: 'Close overlay', tone: 'back' },
+                    { button: 'Start', label: 'Close overlay', tone: 'menu' },
+                  ]}
+                />
+              )}
             </>
           )}
         </div>

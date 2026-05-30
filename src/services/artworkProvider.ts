@@ -7,7 +7,9 @@ const LIBRETRO_SNES_BASE = 'https://raw.githubusercontent.com/libretro-thumbnail
 const SNES_SPECIAL_MAPPINGS: Record<string, string> = {
   'super mario kart': 'Super Mario Kart (USA)',
   'f-zero': 'F-Zero (USA)',
-  'street fighter ii': 'Street Fighter II (USA)',
+  'f zero': 'F-Zero (USA)',
+  'street fighter ii': 'Street Fighter II - The World Warrior (USA)',
+  'street fighter ii the world warrior': 'Street Fighter II - The World Warrior (USA)',
   'super metroid': 'Super Metroid (Japan, USA) (En,Ja)',
   'the legend of zelda - a link to the past': 'Legend of Zelda, The - A Link to the Past (USA)',
   'the legend of zelda: a link to the past': 'Legend of Zelda, The - A Link to the Past (USA)',
@@ -15,7 +17,20 @@ const SNES_SPECIAL_MAPPINGS: Record<string, string> = {
   'mega man x': 'Mega Man X (USA)',
   'chrono trigger': 'Chrono Trigger (USA)',
   'donkey kong country': 'Donkey Kong Country (USA)',
-  'super mario world': 'Super Mario World (USA)'
+  'super mario world': 'Super Mario World (USA)',
+  "super mario world 2 yoshi's island": "Super Mario World 2 - Yoshi's Island (USA)",
+  'super mario world 2: yoshis island': "Super Mario World 2 - Yoshi's Island (USA)",
+  'final fantasy vi': 'Final Fantasy III (USA)',
+  'final fantasy iii': 'Final Fantasy III (USA)',
+  'earthbound': 'EarthBound (USA)',
+  'secret of mana': 'Secret of Mana (USA)',
+  'star fox': 'Star Fox (USA)',
+  'contra iii the alien wars': 'Contra III - The Alien Wars (USA)',
+  'contra iii: the alien wars': 'Contra III - The Alien Wars (USA)',
+  'nba jam': 'NBA Jam (USA)',
+  'tetris attack': 'Tetris Attack (USA)',
+  'pilotwings': 'Pilotwings (USA)',
+  'killer instinct': 'Killer Instinct (USA)',
 };
 
 /**

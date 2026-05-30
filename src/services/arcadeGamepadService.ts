@@ -4,6 +4,7 @@
 /** Standard W3C gamepad button indices used for Arcade Home navigation. */
 const BTN = {
   A: 0,
+  B: 1,
   X: 2,
   Y: 3,
   START: 9,
@@ -22,10 +23,38 @@ export interface ArcadeGamepadEdges {
   left: boolean;
   right: boolean;
   confirm: boolean;
+  back: boolean;
   favorite: boolean;
   search: boolean;
   menu: boolean;
 }
+
+export const emptyArcadeGamepadEdges = (): ArcadeGamepadEdges => ({
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+  confirm: false,
+  back: false,
+  favorite: false,
+  search: false,
+  menu: false,
+});
+
+export const mergeArcadeGamepadEdges = (
+  primary: ArcadeGamepadEdges,
+  secondary: ArcadeGamepadEdges
+): ArcadeGamepadEdges => ({
+  up: primary.up || secondary.up,
+  down: primary.down || secondary.down,
+  left: primary.left || secondary.left,
+  right: primary.right || secondary.right,
+  confirm: primary.confirm || secondary.confirm,
+  back: primary.back || secondary.back,
+  favorite: primary.favorite || secondary.favorite,
+  search: primary.search || secondary.search,
+  menu: primary.menu || secondary.menu,
+});
 
 export interface ArcadeGamepadPollState {
   connected: boolean;
@@ -76,6 +105,7 @@ export const pollArcadeGamepadEdges = (
         left: false,
         right: false,
         confirm: false,
+        back: false,
         favorite: false,
         search: false,
         menu: false,
@@ -96,6 +126,7 @@ export const pollArcadeGamepadEdges = (
     left: edge(dir.left, prevDir.left),
     right: edge(dir.right, prevDir.right),
     confirm: edge(pressed[BTN.A] ?? false, prevPressed[BTN.A] ?? false),
+    back: edge(pressed[BTN.B] ?? false, prevPressed[BTN.B] ?? false),
     favorite: edge(pressed[BTN.X] ?? false, prevPressed[BTN.X] ?? false),
     search: edge(pressed[BTN.Y] ?? false, prevPressed[BTN.Y] ?? false),
     menu:

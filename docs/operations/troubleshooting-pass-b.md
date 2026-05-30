@@ -27,6 +27,32 @@ npm run tauri:dev
 
 Launch only from **Pass B Launch Proof** shelf unless explicitly testing blockers.
 
+### Controller-only exit (hard rule)
+
+Pass B proof assumes a **Zikway / arcade controller**, not keyboard+mouse at the emulator window.
+
+**The only acceptable user exit paths during proof:**
+
+```txt
+Hold Select + Start (~1 second)   → return to xi-io and kill emulator session
+Press Guide / Home                → instant return to xi-io
+Optional saved single-button map  → return to xi-io (if configured in setup)
+Esc                               → keyboard-only emergency; not proof path
+```
+
+**Not acceptable for Pass B proof or agent retest instructions:**
+
+```txt
+FCEUX File → Close Game
+FCEUX File → Exit
+Any emulator menu navigation
+Alt-Tab as the primary return path
+```
+
+If return chords fail, the bug is **lifecycle / termination / focus restore** — not “use the emulator menu.” Agents must never tell controller users to open FCEUX menus.
+
+Emergency cleanup only (operator terminal): `pkill -f fceux`
+
 ---
 
 ## Game says Missing Engine
@@ -71,19 +97,17 @@ Launch only from **Pass B Launch Proof** shelf unless explicitly testing blocker
 
 ---
 
-## FCEUX black screen after File → Close Game
+## FCEUX black screen after return chord (XIO-LCH-011)
 
 | | |
 |---|---|
 | **Code** | XIO-LCH-011 |
-| **Symptom** | FCEUX stays fullscreen black; xi-io does not return |
-| **Likely cause** | FCEUX keeps process alive after ROM unload; lifecycle monitor must detect idle and kill session |
-| **In-app check** | Prefer **controller return**: hold **Select + Start** 1s or press **Guide/Home** (not FCEUX menus) |
+| **Symptom** | User pressed **Select+Start** or **Guide/Home**; FCEUX stays fullscreen black; xi-io does not return |
+| **Likely cause** | Return chord fired but FCEUX was not SIGKILL'd; or focus restored behind a live FCEUX window |
+| **In-app check** | Launch overlay hint should show Select+Start / Guide — no menu instructions |
 | **Terminal check** | `pgrep -af fceux`; `xdotool search --name FCEUX getwindowname %@` |
-| **Safe fix** | Re-test with latest lifecycle build; if stuck: `pkill -f fceux` then return to xi-io |
-| **Verified when** | After return chord: `pgrep -af fceux` empty; xi-io focused on game card |
-
-**Note:** File → Close Game is a keyboard/menu path. Controller-only users should use **Select+Start / Guide**, not FCEUX menus.
+| **Safe fix** | Operator: `pkill -f fceux`; re-test with latest lifecycle build |
+| **Verified when** | After **controller return chord only**: `pgrep -af fceux` empty; xi-io focused on game card |
 
 ---
 
@@ -96,7 +120,7 @@ Launch only from **Pass B Launch Proof** shelf unless explicitly testing blocker
 | **Likely cause** | Focus restore failed; FCEUX still alive; or launch overlay waiting on invoke |
 | **In-app check** | Admin → Logs: `launch_failed`, `emulator_exited`, `shell_focus_restored` |
 | **Terminal check** | `pgrep -af 'fceux|xi-io-emulator'`; `cat ~/.local/share/com.xi-io.emulator/emulator_last_session.json` |
-| **Safe fix** | Kill orphan FCEUX; Alt-Tab to xi-io; File → Exit if needed |
+| **Safe fix** | `pkill -f fceux`; confirm xi-io window visible; re-test return chord |
 | **Verified when** | Clean return to Zelda card; overlay clears; ledger `emulator_exited` |
 
 ---

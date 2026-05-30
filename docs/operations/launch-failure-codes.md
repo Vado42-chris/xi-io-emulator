@@ -181,7 +181,7 @@ docs/framework/serialized-hashtags-standard.md
 
 | Field | Value |
 |-------|-------|
-| **Symptom** | FCEUX fullscreen black window after File → Close Game; xi-io waits or user stuck |
+| **Symptom** | FCEUX fullscreen black window after **Select+Start / Guide return chord**; xi-io waits or user stuck |
 | **Subsystem** | Lifecycle / emulator_process |
 | **Blocker code** | — |
 | **UI surface** | Often none until timeout; may show launching overlay stuck |
