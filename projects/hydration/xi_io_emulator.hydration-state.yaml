@@ -1,6 +1,6 @@
 xiio_version: "0.1.0"
 schema_version: "1.0.0"
-hydration_id: "xi_io_emulator.hydration.2026-05-30.pass-b-partial-prh03"
+hydration_id: "xi_io_emulator.hydration.2026-05-30.pass-b-partial-pass10"
 project_id: xi_io_emulator
 project_name: xi-io Emulator
 management_mode: first_party_product
@@ -33,6 +33,9 @@ completed_in_repo:
   - Framework security standard + xi-io.net hub mirror @ f2c9230
   - P0 path hygiene (VITE_* local overlay) @ afa9349
   - PRH-04 evidence refresh + retest checklist @ e7530b8
+  - GitHub CI + dependabot + compliance checklist @ 8702185
+  - Metadata backup schema v1 + export service @ 7924d57
+  - Settings metadata export download UI @ 68d74ef
 
 pass_b_evidence:
   nes_xi_io_launch: partial
@@ -76,6 +79,7 @@ blockers:
   - SNES launch through xi-io GUI not in ledger
   - Controller A/B pending formal retest in sign-off
   - Mark In-Game Verified incomplete
+  - Metadata backup 50-title pilot export not validated on operator machine
 
 next_slice: PRH-04-user-hardware-signoff
 
@@ -87,10 +91,10 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: pass_7_888f4fa
+  xi_io_net_mirror: pass_10_pending
   workbench_preview_event: evt-xi-io-emulator-pass-b-partial-001
-  product_repo_commit: "a7c7305"
+  product_repo_commit: "bd1d088"
   product_repo_branch: wip/pass-b-lifecycle-display-shell
   framework_baseline_commit: "f2c9230"
-  last_agent_pass: 2026-05-30
-  pass_7_scope: hydration_sha_planning_docs_mirror
+  last_agent_pass: 10
+  pass_10_scope: metadata_export_admin_ui_mirror
