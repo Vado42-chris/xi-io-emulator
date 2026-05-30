@@ -2,7 +2,7 @@
 
 Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Branch: `wip/pass-b-lifecycle-display-shell` @ **`e1910fc`** (xi-io.net pending Pass 14 mirror)  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`4ca3e28`** (xi-io.net @ `7f03390`)  
 Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 
@@ -392,7 +392,7 @@ Until then, do not close the milestone or start Pass C.
 | 12b | 2026-05-30 | CI fix: git chmod +x on cleanup script | **pushed** | `1f301a9`; CI `26690791201` **success** |
 | 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 locally |
 | 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pushed** | `2e03637`; CI `26692163994` **success** |
-| 14 | 2026-05-30 | Launch exit: unminimize wake + session finish race + global restore banner | **pushed** | `e1910fc`; verify suite exit 0 locally |
+| 14 | 2026-05-30 | Launch exit: unminimize wake + session finish race + global restore banner | **pushed** | `e1910fc` + docs `4ca3e28`; CI `26692451590` **success**; hub `7f03390` |
 | 13 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
 | 14 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 
@@ -438,7 +438,7 @@ Until then, do not close the milestone or start Pass C.
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker — SNES + A/B still open |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; Pass C prep |
 | PRH-01 SQLite migration invoke | **1 agent pass** | Scaffold @ Pass 11; wire playSessionService |
-| xi-io.net mirror freshness | **Pass 14 this pass** | mirror + hub push pending |
+| xi-io.net mirror freshness | **Pass 14 done** | hub `7f03390`; CI `26692451590` |
 | GitHub branch protection | **operator** | API 404 @ Pass 11 |
 | WIP review slicing | **2–3 passes** | Before main |
 | **Total to Pass B close + compliance baseline** | **~2 agent + 1 user + 1 operator** | Pass C + ~2 after B close |

@@ -1,6 +1,6 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 14 — shell unminimize + session finish race; mirror pending push)  
+Date: 2026-05-30 (Pass 14 — shell unminimize + session finish race; mirror complete @ `7f03390`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
@@ -13,10 +13,11 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `e1910fc` |
-| xi-io.net mirror commit | **pending** |
+| Product source commit | `e1910fc` / docs `4ca3e28` |
+| xi-io.net mirror commit | `7f03390` |
 | Mirror date | 2026-05-30 |
-| Mirror status | **In progress** (this pass) |
+| Mirror status | **Complete** (Pass 14) |
+| CI run (product) | `26692451590` **success** |
 
 ### Mirrored in Pass 14
 
