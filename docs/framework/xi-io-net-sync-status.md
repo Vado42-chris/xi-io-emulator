@@ -1,68 +1,91 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (integration pass — three-bucket merge on WIP)  
-Tags: `#xio:emulator/framework-sync` `#xar:controller-launch-proof/pass-b` `#xio:emulator/pathing/standard` `#xibalba:ui-framework/001`
+Date: 2026-05-30 (Pass 3 — security hub mirror @ `edc6bc2`)  
+Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
+## Latest mirror (Pass 3 — security)
+
+| Field | Value |
+|-------|--------|
+| Product repo | `Vado42-chris/xi-io-emulator` |
+| Product branch | `wip/pass-b-lifecycle-display-shell` |
+| Product source commit | `afa9349` |
+| xi-io.net mirror commit | `edc6bc2` |
+| Mirror date | 2026-05-30 |
+| Mirror status | **Complete** (security/framework pass) |
+| Remaining gaps | Hydration-state SHA update; full planning doc refresh; push xi-io.net to origin |
+
+### Mirrored in Pass 3
+
+**Hub (`003_xi-io_net/security/`):**
+
+```txt
+framework-security-standard-v1.md
+security-baseline.schema.yaml
+security-exception-register.md
+product-security-manifest-v1.md
+incident-playbook.md
+```
+
+**Product evidence (`projects/evidence/xi_io_emulator/security/`):**
+
+```txt
+supply-chain-security-baseline.md
+security-application-plan-xi-io-emulator.md
+pre-release-hardening-milestones.md
+xi_io_emulator.project-manifest.yaml
+pass-b-local-paths.example.yaml
+memory-security.md
+```
+
+Also: `projects/evidence/xi_io_emulator/README.md`, `projects/manifests/xi_io_emulator.project-manifest.yaml`
+
 ## Emulator repo → xi-io.net (outbound)
 
 | Artifact | Local path | xi-io.net target | Status |
 |----------|------------|------------------|--------|
-| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `003_xi-io_net/projects/manifests/` | **mirrored 2026-05-28** |
-| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `003_xi-io_net/projects/hydration/` | **mirrored — pending SHA update this pass** |
-| Master plan | `docs/project-tracking/master-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored 2026-05-29; update pending** |
-| Repo health audit | `docs/project-tracking/repo-health-audit-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored 2026-05-29** |
-| WIP branch map | `docs/project-tracking/wip-branch-map-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored; update pending** |
-| Pass B module map | `docs/project-tracking/pass-b-module-map-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored; update pending** |
-| Controller mapping plan | `docs/project-tracking/controller-mapping-001-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **mirrored** |
-| UI framework trio | `docs/framework/xibalba-*.md` | `003_xi-io_net/docs/framework/xibalba/` | **mirrored 2026-05-29** |
-| Launch failure codes 014–016 | `docs/operations/launch-failure-codes.md` | Ops runbook mirror | **local only** |
-| Pre-release hardening tracker | `docs/project-tracking/pre-release-hardening-milestones.md` | `projects/evidence/xi_io_emulator/` | **pending mirror (PRH-03)** |
-| Supply chain security baseline | `docs/security/supply-chain-security-baseline.md` | `003_xi-io_net/security/` (proposed hub) | **pending mirror (PRH-03)** |
-| Workbench preview event | `evt-xi-io-emulator-phase-0-docs-001` | `public/data/workbench-events.preview.json` | **mirrored 2026-05-29** |
+| Security framework standard | `docs/security/framework-security-standard-v1.md` | `security/` | **mirrored @ edc6bc2** |
+| Security baseline schema | `docs/security/security-baseline.schema.yaml` | `security/` | **mirrored @ edc6bc2** |
+| Security exception register | `docs/security/security-exception-register.md` | `security/` | **mirrored @ edc6bc2** |
+| Product security manifest spec | `docs/security/product-security-manifest-v1.md` | `security/` | **mirrored @ edc6bc2** |
+| Incident playbook | `docs/security/incident-playbook.md` | `security/` | **mirrored @ edc6bc2** |
+| Supply chain baseline | `docs/security/supply-chain-security-baseline.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
+| Security application plan | `docs/project-tracking/security-application-plan-xi-io-emulator.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
+| Pre-release hardening | `docs/project-tracking/pre-release-hardening-milestones.md` | `projects/evidence/xi_io_emulator/security/` | **mirrored @ edc6bc2** |
+| Agent security rules | `.memory/security.md` | `projects/evidence/xi_io_emulator/security/memory-security.md` | **mirrored @ edc6bc2** |
+| Project manifest | `projects/manifests/xi_io_emulator.project-manifest.yaml` | `projects/manifests/` + evidence | **mirrored @ edc6bc2** |
+| Local paths example | `projects/evidence/.../pass-b-local-paths.example.yaml` | evidence/security/ | **mirrored @ edc6bc2** |
+| Master plan | `docs/project-tracking/master-plan-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
+| Repo health audit | `docs/project-tracking/repo-health-audit-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
+| WIP branch map | `docs/project-tracking/wip-branch-map-2026-05.md` | `projects/evidence/xi_io_emulator/` | **stale — update pending** |
+| Hydration state | `projects/hydration/xi_io_emulator.hydration-state.yaml` | `projects/hydration/` | **pending — file not in product repo yet** |
 
 ## xi-io.net → Emulator repo (inbound)
 
 | Source | Expected use | Status |
 |--------|--------------|--------|
 | UI framework branch docs | `origin/docs/xibalba-ui-framework-001` | **merged 2026-05-29** |
-| UI framework CSS (bucket B) | `feature/ui-framework-001` styles | **merged into WIP 2026-05-30** |
-| Showcase UX (bucket C) | `feature/showcase-hydration-arcade-ux` | **merged into WIP 2026-05-30** |
-
-## Integration pass 2026-05-30 (this session)
-
-**Problem:** WIP committed ArcadeHome browse UX (bucket A) without CSS (bucket B) or GameTile/gamepad APIs (bucket C).
-
-**Resolved on WIP:**
-
-- Merged `styles.css`, `ui.css`, `tokens.css` from `feature/ui-framework-001`
-- Merged `GameTile.tsx`, `arcadeGamepadService.ts` (L1/R1 shoulders) from showcase branch
-- Committed bucket C services (catalog, recommendations, ingress, play sessions)
-- Shell restore guardrails + `verify:shell-restore` script
-- `typecheck:app` gate; FCEUX mapping warns instead of hard-blocking when no pad
-- `vite.config.ts` `base: './'` + `scripts/tauri-build-watch.mjs`
-
-**Repo health:** RED → **YELLOW** (build + typecheck pass; HW proof still open)
+| Security hub @ `edc6bc2` | Product repos pin `framework_baseline_commit` | **available — pin in manifest** |
 
 ## Sync commits (latest)
 
 | Repo | Commit | Notes |
 |------|--------|-------|
-| xi-io-emulator | `45d55ee` | Launch hardening + pre-release/security docs (WIP branch pushed) |
-| xi-io-emulator | `f4a0924` | PRH tracker + supply-chain baseline |
-| xi-io-emulator | `db0d5c1` | Browse toolbar WebKit fix |
-| xi-io.net | `6749225` | Workbench preview event Pass B partial |
+| xi-io-emulator | `afa9349` | P0 path hygiene (WIP head) |
+| xi-io-emulator | `ab4365c` | Framework security standard |
+| xi-io.net | `edc6bc2` | Security hub mirror @ source `afa9349` |
 
 ## Blockers
 
 ```txt
-Pass B partial: SNES xi-io GUI launch + NES exit re-test + A/B HW verify + Mark Verified pending user.
-Three-bucket split-brain resolved on WIP — peer review + push still pending.
-Bulk library ingress gated by XARCADE-IMAGE-HYDRATION-001.
-SNES controller mapping slice 3 (RetroArch) not started.
+Pass B partial: SNES xi-io GUI launch + full checklist + user sign-off pending (PRH-04).
+WIP not merge-ready — review slice before main.
+Bulk hydration blocked until PRH-01–04 complete.
+VITE_* showcase roots are Pass B/WIP only — XARCADE-RUNTIME-CONFIG-001 before public beta.
 ```
 
 ## Freshness rule
@@ -70,7 +93,6 @@ SNES controller mapping slice 3 (RetroArch) not started.
 Update this file whenever:
 
 - A milestone completes in xi-io-emulator
-- A hydration artifact changes
-- xi-io.net Workbench receives a mirror update
+- A security or hydration artifact changes
+- xi-io.net receives a mirror update
 - Launch proof passes or fails on user hardware
-- Planning docs (master plan, audit, framework standard) change

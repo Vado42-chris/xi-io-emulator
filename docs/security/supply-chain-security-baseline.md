@@ -88,10 +88,12 @@ This repo is **public on GitHub**. User machine paths must not appear in tracked
 | `projects/manifests/*.yaml` | Public-safe: `proof_game_id`, `path_status`, placeholders only |
 | `projects/local/*.local.yaml` | Gitignored — real paths live here |
 | `projects/evidence/*/pass-b-local-paths.example.yaml` | Example shape only |
-| Source catalogs (`nesShowcaseCatalog.ts`, etc.) | **P0 slice** — remove hardcoded roots |
+| Source catalogs (`nesShowcaseCatalog.ts`, etc.) | **WIP** — `VITE_*` via `.env.local`; move to Tauri runtime before beta (XARCADE-RUNTIME-CONFIG-001) |
 | Shared evidence reports | Game IDs and reason codes, not full ROM paths |
 
 See [product-security-manifest-v1.md](./product-security-manifest-v1.md) and [security-application-plan-xi-io-emulator.md](../project-tracking/security-application-plan-xi-io-emulator.md).
+
+**VITE_* showcase roots (Pass B/WIP only):** `.env.local` variables are frontend build-time config and may appear in client bundles. Acceptable for local Tauri dev; before public beta, move ROM roots behind Tauri runtime config or SQLite/local overlay (`XARCADE-RUNTIME-CONFIG-001`).
 
 ---
 
@@ -162,8 +164,8 @@ When a CVE affects npm, Rust, or system packages:
 | Data durability | **Weak** | PRH-01 |
 | Supply chain automation | **Started** | `npm run verify:deps`; hub not on xi-io.net |
 | Remote reproducibility | **Partial** | GitHub @ `95e2426`; xi-io.net mirror pending |
-| Path privacy (public manifest) | **Improved** | Sanitized 2026-05-30; source catalogs still P0 |
-| Framework security standard | **Started** | [framework-security-standard-v1.md](./framework-security-standard-v1.md) |
+| Path privacy (public manifest) | **Improved** | Sanitized; showcase via `.env.local` (WIP); runtime config before beta |
+| Framework security standard | **Mirrored** | xi-io.net @ `edc6bc2` |
 
 ---
 

@@ -1,7 +1,8 @@
 # xi-io Emulator — Security Application Plan
 
 Date: 2026-05-30  
-Branch audited: `wip/pass-b-lifecycle-display-shell` @ `95e2426`  
+Branch audited: `wip/pass-b-lifecycle-display-shell` @ `afa9349`  
+xi-io.net mirror: `edc6bc2` @ 2026-05-30  
 Framework standard: [framework-security-standard-v1.md](../security/framework-security-standard-v1.md)  
 Peer review: external audit 2026-05-30 (WIP preservation, not merge-ready)
 

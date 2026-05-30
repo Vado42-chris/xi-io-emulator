@@ -22,7 +22,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Not started** | Yes |
-| PRH-03 | Commit + push WIP branch to GitHub | **In progress** — GitHub pushed; branch head `95e2426`; launch code @ `45d55ee`; xi-io.net mirror pending | Yes |
+| PRH-03 | Commit + push WIP branch to GitHub | **Mostly done** — GitHub @ `afa9349`; xi-io.net security mirror @ `edc6bc2`; hydration-state SHA update pending | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** (NES launch/return improved; full checklist open) | Yes |
 
 **Last verified:** 2026-05-30 — framework security audit pass; public manifest path-sanitized; `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.
@@ -125,7 +125,7 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 - [x] Branch `wip/pass-b-lifecycle-display-shell` has **focused commits** (18 ahead of main — review slice before merge)
 - [x] `git push -u origin wip/pass-b-lifecycle-display-shell` completed
 - [ ] `projects/hydration/xi_io_emulator.hydration-state.yaml` `product_repo_commit` updated to current head
-- [ ] xi-io.net evidence folder mirrored (see [xi-io-net-sync-status.md](../framework/xi-io-net-sync-status.md))
+- [x] xi-io.net security evidence mirrored @ `edc6bc2` (see [xi-io-net-sync-status.md](../framework/xi-io-net-sync-status.md))
 - [x] README and manifest list branch + SHAs for Pass B retest
 
 ### SHA reference (peer review — do not confuse)
@@ -134,10 +134,11 @@ Launch, session supervisor, controller GUID, shell restore, and verify scripts m
 |-------|-----|---------|
 | **Launch + hardening code** | `45d55ee` | Session supervisor, gamepad GUID, shell restore, verify scripts |
 | **Docs-only status update** | `95e2426` | Records GitHub push; no new launch code |
-| **Current WIP branch head** | `95e2426` | Use this SHA for clone/checkout and retest |
+| **Current WIP branch head** | `afa9349` | Security + path hygiene; use for clone/checkout and retest |
+| **xi-io.net security mirror** | `edc6bc2` | Hub `security/` + product evidence @ source `afa9349` |
 
-PRH-03 **code push** is satisfied at `45d55ee` and included in head `95e2426`.  
-PRH-03 **xi-io.net mirror** and hydration-state commit field remain open.
+PRH-03 **code push** is satisfied at `45d55ee` and included in head `afa9349`.  
+PRH-03 **xi-io.net security mirror** complete @ `edc6bc2`. Hydration-state `product_repo_commit` update remains open.
 
 ### Suggested commit split (plain language)
 
@@ -149,7 +150,7 @@ PRH-03 **xi-io.net mirror** and hydration-state commit field remain open.
 
 ### Current gap (2026-05-30)
 
-GitHub push complete. Remaining: xi-io.net mirror, hydration-state SHA update, WIP review slicing before any merge to `main`.
+GitHub push complete @ `afa9349`. xi-io.net security mirror complete @ `edc6bc2`. Remaining: hydration-state SHA update, WIP review slicing before any merge to `main`.
 
 ---
 
@@ -203,6 +204,9 @@ These were discussed in planning but are **separate** from PRH-01–04. Track he
 | XARCADE-NAV-SNAPSHOT-001 | Restore browse filters, shelf index, scroll on game exit | Not started | No |
 | XARCADE-SAVE-STATE-001 | Engine save-state paths + Continue on game card | Not started | No |
 | XARCADE-QUICK-RESUME-001 | Suspend-without-exit (engine-specific) | Deferred | No |
+| XARCADE-RUNTIME-CONFIG-001 | Move local ROM/path config out of frontend `VITE_*` build env | Not started | No (blocks public beta) |
+
+**VITE_* showcase roots (Pass B/WIP only):** `.env.local` → `VITE_NES_SHOWCASE_ROM_ROOT` etc. is acceptable for local dev. `VITE_*` is frontend build-time config and may appear in client bundles — **not** the final release privacy model. Before public beta, move paths behind Tauri runtime config or SQLite/local overlay (companion to PRH-01).
 
 **Today on game exit:** `focusGameById()` restores the game tile; in-game progress relies on FCEUX/RetroArch native `.sav` files only.
 
@@ -218,7 +222,7 @@ These were discussed in planning but are **separate** from PRH-01–04. Track he
 | NES launch/return success | Partial | Update under PRH-04 → `pass-b-final-evidence-report.md` |
 | Navigation snapshot | Planned | XARCADE-NAV-SNAPSHOT-001 above |
 | In-game Continue | Planned | XARCADE-SAVE-STATE-001 above |
-| xi-io.net `security/baseline.yaml` | Not yet | Hub mirror of [security-baseline.schema.yaml](../security/security-baseline.schema.yaml) |
+| xi-io.net security hub | Yes | Mirrored @ `edc6bc2` — [xi-io-net-sync-status.md](../framework/xi-io-net-sync-status.md) |
 
 ---
 
