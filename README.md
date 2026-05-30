@@ -98,7 +98,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 |----|-------------|--------|
 | PRH-01 | SQLite for play/session data | Not started |
 | PRH-02 | `shell_focus_restore_failed` ledger | Not started |
-| PRH-03 | Commit + push WIP; mirror xi-io.net | In progress |
+| PRH-03 | Commit + push WIP; mirror xi-io.net | In progress — GitHub @ `45d55ee`; mirror pending |
 | PRH-04 | Pass B evidence + peer review | In progress |
 
 ## Security and dependencies

@@ -22,7 +22,7 @@ Before we invite more users or import thousands of ROMs, we finish four small bu
 |----|------------|--------|----------------------|
 | PRH-01 | Move play/session data to SQLite | **Not started** | Yes |
 | PRH-02 | Emit `shell_focus_restore_failed` when wake fails | **Not started** | Yes |
-| PRH-03 | Commit + push WIP branch to GitHub | **In progress** (local fixes uncommitted) | Yes |
+| PRH-03 | Commit + push WIP branch to GitHub | **In progress** — pushed `wip/pass-b-lifecycle-display-shell` @ `45d55ee`; xi-io.net mirror pending | Yes |
 | PRH-04 | Pass B closeout + peer review | **In progress** (NES launch/return improved; full checklist open) | Yes |
 
 **Last verified:** 2026-05-30 — `npm audit` 0 vulnerabilities; launch/return UX user-confirmed improved.

@@ -77,7 +77,7 @@ Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/tr
 |----|------|---------------------|
 | PRH-01 | SQLite play/session data | Not started |
 | PRH-02 | `shell_focus_restore_failed` ledger | Not started |
-| PRH-03 | Commit + push WIP | In progress (local uncommitted launch fixes) |
+| PRH-03 | Commit + push WIP | Pushed `45d55ee` to GitHub; xi-io.net mirror pending |
 | PRH-04 | Pass B closeout + peer review | In progress |
 
 **Blocks bulk hydration until all four are Done or deferred with date in tracker.**

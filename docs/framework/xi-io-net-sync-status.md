@@ -51,8 +51,9 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 
 | Repo | Commit | Notes |
 |------|--------|-------|
-| xi-io-emulator | `82c26d5` | FCEUX controller mapping (pre-integration) |
-| xi-io-emulator | *(this pass)* | Three-bucket integration + shell restore |
+| xi-io-emulator | `45d55ee` | Launch hardening + pre-release/security docs (WIP branch pushed) |
+| xi-io-emulator | `f4a0924` | PRH tracker + supply-chain baseline |
+| xi-io-emulator | `db0d5c1` | Browse toolbar WebKit fix |
 | xi-io.net | `6749225` | Workbench preview event Pass B partial |
 
 ## Blockers
