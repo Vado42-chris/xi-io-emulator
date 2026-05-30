@@ -19,6 +19,9 @@ docs/agent-master-prompt-current-next.md
 docs/agent-master-prompt-pass-b-pass-c.md
 docs/framework/repo-sync-contract.md
 docs/framework/serialized-hashtags-standard.md
+docs/framework/xibalba-ui-framework-standard-v1.md
+docs/framework/xibalba-ui-adoption-matrix-v1.md
+docs/framework/xibalba-ui-component-registry-plan-v1.md
 docs/arcade-ui-product-pivot.md
 docs/agent-handoff-controller-launch.md
 docs/future/media-platform-extension-track.md
@@ -125,6 +128,9 @@ docs/agent-master-prompt-standardization-audit.md
 docs/framework/repo-sync-contract.md
 docs/framework/xi-io-net-sync-status.md
 docs/framework/serialized-hashtags-standard.md
+docs/framework/xibalba-ui-framework-standard-v1.md
+docs/framework/xibalba-ui-adoption-matrix-v1.md
+docs/framework/xibalba-ui-component-registry-plan-v1.md
 docs/project-tracking/open-work-ledger.md
 ```
 
@@ -177,6 +183,8 @@ Pass B may proceed with two hand-picked proof games only.
 ```txt
 Pass B  — local hardware proof (two hand-picked games)
 Pass C  — close launch proof milestone docs + framework sync
+XIBALBA-UI-FRAMEWORK-001 — cross-suite UI framework standard (docs-only branch; source implementation deferred)
+XARCADE-UI-FRAMEWORK-001 — first app-specific consumer of the Xibalba UI standard
 XARCADE-IMAGE-HYDRATION-001  — Rosetta + local artwork + fallback + review queue
 XARCADE-IBAL-SLOT-001        — optional assistant slot (not blocking image hydration)
 XARCADE-STORAGE-001          — bulk library ingress (gated; never text-only GameRecords)
