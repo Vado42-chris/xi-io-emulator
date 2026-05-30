@@ -383,8 +383,9 @@ Until then, do not close the milestone or start Pass C.
 | 5 | 2026-05-30 | PRH-02 restore failure ledger | **pushed** | `897a97d` |
 | 6 | 2026-05-30 | Security + path hygiene + USB product docs | **pushed** | `5705344` |
 | 6b | 2026-05-30 | PRH-04 evidence refresh + retest checklist (docs) | **pushed** | `e7530b8`; verify:shell-restore + verify:session-idle exit 0 |
-| 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **commit a7c7305** | verify exit 0; xi-io.net push pending |
-| 8 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
+| 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **pushed** | product `a7c7305`; hub `888f4fa`; verify exit 0 |
+| 8 | 2026-05-30 | GitHub CI + compliance checklist + PRH-01 plan | **commit pending** | typecheck + verify exit 0 |
+| 9 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 
 ### Remaining passes estimate (2026-05-30)
 
@@ -392,8 +393,8 @@ Until then, do not close the milestone or start Pass C.
 |------------|-------------|-------|
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; master plan |
-| PRH-01 SQLite migration | **1–2 passes** | After PRH-04 |
-| GitHub compliance + CI hardening | **2 passes** | Pre-beta |
+| GitHub compliance + CI hardening | **1 pass done**; 1 pass for branch protection verify | Pre-beta |
+| PRH-01 SQLite migration | **1–2 passes** | Plan @ Pass 8; impl after PRH-04 |
 | WIP review slicing | **2–3 passes** | Before main |
 | Code comments + runtime path config | **1–2 passes** | Pre-beta |
-| **Total to Pass B close + compliance baseline** | **~6–9 agent + 1 user** | Pass C adds ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~5–8 agent + 1 user** | Pass C adds ~2 after B close |

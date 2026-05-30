@@ -162,8 +162,8 @@ When a CVE affects npm, Rust, or system packages:
 | Read-only ROM policy | **Strong** | Decision doc locked |
 | Failure visibility | **Improved** | PRH-02 `shell_focus_restore_failed` |
 | Data durability | **Weak** | PRH-01 |
-| Supply chain automation | **Started** | `npm run verify:deps`; hub not on xi-io.net |
-| Remote reproducibility | **Partial** | GitHub @ `95e2426`; xi-io.net mirror pending |
+| Supply chain automation | **Improved** | CI @ Pass 8; `verify:deps`; hub @ `888f4fa` |
+| Remote reproducibility | **Good** | GitHub WIP @ `c4d3c5b`; xi-io.net @ `888f4fa` |
 | Path privacy (public manifest) | **Improved** | Sanitized; showcase via `.env.local` (WIP); runtime config before beta |
 | Framework security standard | **Mirrored** | xi-io.net @ `f2c9230` |
 
@@ -174,8 +174,8 @@ When a CVE affects npm, Rust, or system packages:
 | Capability | Status | Milestone |
 |------------|--------|-----------|
 | Central `baseline.yaml` on xi-io.net | **Not created** | Hub mirror of [security-baseline.schema.yaml](./security-baseline.schema.yaml) |
-| `cargo audit` in CI | **Not wired** | Fail pre-release per tier table above |
-| Dependabot / Renovate config | **Not present** | Optional after push to GitHub |
+| `cargo audit` in CI | **Wired** @ Pass 8 | `.github/workflows/ci.yml` |
+| Dependabot / Renovate config | **Added** @ Pass 8 | `.github/dependabot.yml` |
 | Signed releases / code signing | **Not present** | Phase 7 MVP hardening |
 | Threat model doc (STRIDE-lite) | **Not present** | Phase 7 |
 | `shell_focus_restore_failed` | **Implemented** | PRH-02 |

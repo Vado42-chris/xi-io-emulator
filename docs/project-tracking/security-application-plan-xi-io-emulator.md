@@ -129,16 +129,16 @@ Shared reports → game IDs and reason codes, not full ROM paths
 
 ---
 
-## PRH tracker — changes from framework pass
+## PRH tracker — changes from framework pass (2026-05-30)
 
 | PRH | Change |
 |-----|--------|
-| PRH-01 | Unchanged — still not started |
-| PRH-02 | Unchanged — still not started |
-| PRH-03 | Clarify SHAs (see table above); mirror xi-io.net security docs when hub ready |
-| PRH-04 | Add path-privacy sign-off to Pass B checklist |
+| PRH-01 | Migration plan added — [prh-01-sqlite-migration-plan.md](./prh-01-sqlite-migration-plan.md); implementation not started |
+| PRH-02 | **Done** @ `897a97d` — `shell_focus_restore_failed` ledger + guardrails |
+| PRH-03 | **Done** — GitHub `a7c7305`; xi-io.net `888f4fa` |
+| PRH-04 | In progress — user hardware sign-off pending |
 
-**Do not merge PRH-01/02 implementation before path P0 source slice is scheduled.**
+Path P0 source slice is complete @ `afa9349`. PRH-01/02 code may proceed per tracker order.
 
 ---
 
@@ -159,11 +159,12 @@ Implement tier flag in a future slice (`VERIFY_DEPS_STRICT=1`), not in this docs
 1. **P0 Path hygiene** — public manifest (done); showcase catalog refactor; redact evidence reports  
 2. **P1 Framework hub mirror** — copy security docs to xi-io.net `security/`  
 3. **P1 GitHub** — enable secret scanning; branch protection on `main`  
-4. **PRH-02** — `shell_focus_restore_failed`  
-5. **PRH-04** — Pass B evidence + peer review close  
-6. **PRH-01** — SQLite play/session migration  
-7. **PRH-03 complete** — xi-io.net evidence mirror @ `95e2426`  
-8. **Review slicing** — split 18-commit WIP into mergeable PRs  
+4. **PRH-02** — `shell_focus_restore_failed` — **done** @ `897a97d`
+5. **PRH-04** — Pass B evidence + peer review close — **user sign-off pending**
+6. **PRH-01** — SQLite play/session migration — plan @ Pass 8; impl Pass 9+
+7. **PRH-03 complete** — xi-io.net evidence mirror @ `888f4fa`
+8. **GitHub CI + Dependabot** — Pass 8
+9. **Review slicing** — split WIP into mergeable PRs
 
 ---
 

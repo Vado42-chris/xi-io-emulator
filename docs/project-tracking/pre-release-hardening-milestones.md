@@ -62,6 +62,7 @@ Today, “last played game,” co-play stats, and some library metadata live in 
 src/services/playSessionService.ts
 src/services/db.ts
 src-tauri/ (new db module or existing persistence layer)
+docs/project-tracking/prh-01-sqlite-migration-plan.md
 docs/contracts/storage-contract-v1.md
 ```
 

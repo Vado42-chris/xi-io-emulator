@@ -206,6 +206,24 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 013, GitHub CI + PRH-01 migration plan (Pass 8)
+
+Status: **in progress 2026-05-30.**
+
+```txt
+.github/workflows/ci.yml
+.github/dependabot.yml
+docs/operations/github-compliance-checklist.md
+docs/project-tracking/prh-01-sqlite-migration-plan.md
+```
+
+Tags:
+
+```txt
+#xio:emulator/compliance/github
+#todo:prh-01/sqlite-implementation
+```
+
 ### 012, PRH-03 hydration SHA + xi-io.net Pass 7 freshness
 
 Status: **done 2026-05-30** @ xi-io.net `888f4fa`.

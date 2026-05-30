@@ -1,3 +1,10 @@
+/**
+ * Play session + co-play tracking (PRH-01: localStorage today → SQLite in Tauri).
+ *
+ * Stores game IDs and ISO timestamps only — never ROM paths or home directories.
+ * Web-only dev (`npm run dev`) keeps localStorage; Tauri migration planned in
+ * docs/project-tracking/prh-01-sqlite-migration-plan.md.
+ */
 import type { GameRecord } from '../data/gameModels';
 import { getGameRecords, saveGameRecord } from './db';
 

@@ -446,6 +446,8 @@ struct ShellFocusRestorePayload {
     timestamp: String,
 }
 
+/// PRH-02 / XIO-LCH-008: emit `shell-focus-restored` or `shell-focus-restore-failed` to UI.
+/// Payload: gameId, sessionId, reasonCode?, stage?, timestamp — no ROM paths.
 fn emit_shell_focus_restore_result(
     app: &AppHandle,
     game_id: &str,
