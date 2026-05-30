@@ -10,6 +10,7 @@
 //! xi-io never sends process-group signals. The supervisor owns emulator lifecycle.
 
 use crate::emulator_process::{resolve_session_pids, wait_for_session_end};
+use crate::engine_launch::prepare_launch;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -124,13 +125,11 @@ fn parse_session_run_cli() -> Result<SessionLaunchSpec, String> {
     if emulator_args.is_empty() {
         return Err("Emulator arguments required after --".into());
     }
-    if !Path::new(&program).exists() {
-        return Err(format!("Engine binary not found: {program}"));
-    }
+    let prepared = prepare_launch(&program, &emulator_args).map_err(|e| e)?;
 
     Ok(SessionLaunchSpec {
-        program,
-        args: emulator_args,
+        program: prepared.program,
+        args: prepared.args,
         env: Vec::new(),
         content_path,
     })

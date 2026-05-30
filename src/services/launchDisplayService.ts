@@ -2,6 +2,11 @@
 
 import type { AdapterLaunchPlan, AdapterManifest } from './adapterService';
 import {
+  formatLaunchCommand,
+  isFlatpakLaunch,
+  splitFlatpakArgs,
+} from './engineLaunchService';
+import {
   getLaunchDisplayPreferences as getNativeLaunchDisplayPreferences,
   isTauriRuntime,
   saveLaunchDisplayPreferences as saveNativeLaunchDisplayPreferences,
@@ -106,7 +111,17 @@ export const applyDisplaySettingsToLaunchPlan = (
     displays[0];
 
   const env: Record<string, string> = {};
+  let program = plan.program;
   let args = [...plan.args];
+
+  // Display flags belong on RetroArch args, not between `flatpak` and `run`.
+  if (isFlatpakLaunch(program)) {
+    if (program === 'flatpak') {
+      const split = splitFlatpakArgs(args);
+      program = 'flatpak';
+      args = split.emulatorArgs;
+    }
+  }
 
   if (adapter.engine_id === 'fceux') {
     if (settings.mode === 'fullscreen') {
@@ -140,12 +155,10 @@ export const applyDisplaySettingsToLaunchPlan = (
     }
   }
 
-  const commandDisplay = [plan.program, ...args]
-    .map((p) => (p.includes(' ') ? `"${p}"` : p))
-    .join(' ');
+  const commandDisplay = formatLaunchCommand(program, args);
 
   return {
-    plan: { ...plan, args, commandDisplay },
+    plan: { ...plan, program, args, commandDisplay },
     env,
   };
 };

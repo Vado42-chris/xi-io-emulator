@@ -3,7 +3,7 @@ import { NavigationRail } from './NavigationRail';
 import type { ActiveTab } from './NavigationRail';
 import { StatusPanel } from './StatusPanel';
 import { initialProjectStatus } from '../data/projectStatus';
-import type { GameRecord, GameSortOption } from '../data/gameModels';
+import type { GameRecord, GameSortOption, BatchIngressProgress } from '../data/gameModels';
 import {
   getGameRecords,
   saveGameRecord,
@@ -52,7 +52,6 @@ import {
   filterGameSearchDocuments,
   sortGameSearchDocuments
 } from '../services/searchService';
-import { getArtworkMappingForTitle } from '../services/artworkProvider';
 import {
   getDemoMode,
   launchGame,
@@ -66,12 +65,31 @@ import {
 import { computeProofReadiness, launchReadinessFromProof } from '../services/proofReadinessService';
 import { checkPathExists, isTauriRuntime } from '../services/tauriService';
 import { useArcadeGamepadListener } from '../hooks/useArcadeGamepadListener';
+import { useEmulatorSessionLifecycle } from '../hooks/useEmulatorSessionLifecycle';
 import {
   getShellExitMapping,
   shouldShowShellExitSetup,
   type ShellExitMapping,
 } from '../services/shellExitButtonService';
-import { hydrateSnesUiShowcase } from '../services/showcaseHydrationService';
+import {
+  backfillShowcaseArtwork,
+  hydrateAllUiShowcases,
+  hydrateNesUiShowcase,
+  hydrateSnesUiShowcase,
+} from '../services/showcaseHydrationService';
+import { ensureDefaultEngineSettings } from '../services/engineDiscoveryService';
+import {
+  reconcileAllGamesIngress,
+  summarizeLibraryIngress,
+  type LibraryIngressSummary,
+} from '../services/ingressChecklistService';
+import {
+  subscribeBatchIngressProgress,
+} from '../services/batchIngressProgress';
+import {
+  BatchIngressProgressPanel,
+  LibraryIngressSummaryBar,
+} from './IngressChecklistPanel';
 
 export const AppShell: React.FC = () => {
   const [appMode, setAppMode] = useState<'arcade' | 'admin'>('arcade');
@@ -81,6 +99,11 @@ export const AppShell: React.FC = () => {
   const [logs, setLogs] = useState<LedgerEvent[]>([]);
   const [engineSettings, setEngineSettings] = useState<EngineSettings>(getEngineSettings());
   const [scanHistory, setScanHistory] = useState<LibraryScanResult[]>(getScanHistory());
+  const [ingressSummary, setIngressSummary] = useState<LibraryIngressSummary>(() =>
+    summarizeLibraryIngress(getGameRecords()),
+  );
+  const [batchIngressProgress, setBatchIngressProgress] = useState<BatchIngressProgress | null>(null);
+  const [reconcilingLibrary, setReconcilingLibrary] = useState(false);
   
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,37 +148,18 @@ export const AppShell: React.FC = () => {
   const [shellExitMapping, setShellExitMapping] = useState<ShellExitMapping | null>(null);
 
   const refreshState = async () => {
-    let updatedGames = getGameRecords();
-    
-    // Backfill artwork mappings for legacy/preloaded game records that lack them
-    updatedGames = updatedGames.map(game => {
-      if (game.systemId === 'snes' && (!game.mappings || !game.mappings.artwork || !game.mappings.artwork.boxart)) {
-        const artwork = getArtworkMappingForTitle(game.title, 'snes');
-        if (artwork.boxart) {
-          const updated = {
-            ...game,
-            mappings: {
-              ...game.mappings,
-              artwork
-            }
-          };
-          saveGameRecord(updated);
-          return updated;
-        }
-      }
-      return game;
-    });
-
+    const updatedGames = getGameRecords();
     const updatedRoots = getLibraryRoots();
     const updatedLogs = getLedgerEvents();
     const engine = getEngineSettings();
     const history = getScanHistory();
-    
+
     setGames(updatedGames);
     setRoots(updatedRoots);
     setLogs(updatedLogs);
     setEngineSettings(engine);
     setScanHistory(history);
+    setIngressSummary(summarizeLibraryIngress(updatedGames));
 
     // Compute status variables
     const proofSettings = getProofGameSettings();
@@ -197,15 +201,47 @@ export const AppShell: React.FC = () => {
       addLedgerEvent('engine_missing', 'RetroArch path not configured (engine.retroarch.binary_path)');
       addLedgerEvent('core_missing', 'Snes9x core path not configured (engine.retroarch.snes_core_path)');
     }
-    // Hydrate curated SNES showcase from local ROM folder, then refresh UI state
+    // Auto-detect engines, hydrate curated SNES + NES showcases, then refresh UI state
     const timer = setTimeout(() => {
       void (async () => {
-        await hydrateSnesUiShowcase();
+        await ensureDefaultEngineSettings();
+        backfillShowcaseArtwork();
+        await hydrateAllUiShowcases();
+        setReconcilingLibrary(true);
+        try {
+          const { games: reconciled, summary } = await reconcileAllGamesIngress();
+          setGames(reconciled);
+          setIngressSummary(summary);
+        } finally {
+          setReconcilingLibrary(false);
+        }
         await refreshState();
       })();
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    return subscribeBatchIngressProgress(setBatchIngressProgress);
+  }, []);
+
+  useEmulatorSessionLifecycle({
+    onSessionFinished: () => {
+      void refreshState();
+    },
+  });
+
+  const handleReconcileLibrary = async () => {
+    setReconcilingLibrary(true);
+    try {
+      const { games: reconciled, summary } = await reconcileAllGamesIngress();
+      setGames(reconciled);
+      setIngressSummary(summary);
+      addLedgerEvent('ingress_reconciled', `Reconciled ${summary.total} games (${summary.fullyIngested} fully ingressed)`);
+    } finally {
+      setReconcilingLibrary(false);
+    }
+  };
 
   // Keep controller status live on Arcade Home (Gamepad API requires periodic polling).
   useEffect(() => {
@@ -654,6 +690,26 @@ export const AppShell: React.FC = () => {
               </form>
             </div>
 
+            <LibraryIngressSummaryBar
+              {...ingressSummary}
+              onReconcile={handleReconcileLibrary}
+              reconciling={reconcilingLibrary}
+            />
+
+            {batchIngressProgress && (
+              <BatchIngressProgressPanel
+                scanId={batchIngressProgress.scanId}
+                folderPath={batchIngressProgress.folderPath}
+                status={batchIngressProgress.status}
+                filesTotal={batchIngressProgress.filesTotal}
+                filesProcessed={batchIngressProgress.filesProcessed}
+                gamesAdded={batchIngressProgress.gamesAdded}
+                gamesFullyIngested={batchIngressProgress.gamesFullyIngested}
+                gamesSkipped={batchIngressProgress.gamesSkipped}
+                currentFileName={batchIngressProgress.currentFileName}
+              />
+            )}
+
             {/* Duplicate Advisory Notice */}
             {duplicateGroups.length > 0 && (
               <div className="duplicate-warning-banner">
@@ -1058,7 +1114,7 @@ export const AppShell: React.FC = () => {
                 <div className="settings-meta">
                   <span className="settings-label">SNES UI Showcase Library</span>
                   <span className="settings-desc">
-                    Re-import 19 curated SNES titles from your local Aries ROM folder (metadata, tags, box art)
+                    Re-import curated SNES titles from your local Aries ROM folder (metadata, tags, box art)
                   </span>
                 </div>
                 <button
@@ -1077,7 +1133,34 @@ export const AppShell: React.FC = () => {
                   }}
                 >
                   <RefreshCw size={14} style={{ marginRight: '6px' }} />
-                  Re-hydrate Showcase
+                  Re-hydrate SNES
+                </button>
+              </div>
+
+              <div className="settings-item">
+                <div className="settings-meta">
+                  <span className="settings-label">NES UI Showcase Library</span>
+                  <span className="settings-desc">
+                    Re-import curated NES USA + hack titles from your local Aries ROM folders
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+                  onClick={() => {
+                    void (async () => {
+                      const result = await hydrateNesUiShowcase({ force: true });
+                      await refreshState();
+                      addLedgerEvent(
+                        'showcase_hydration_completed',
+                        `Manual NES showcase refresh (${result.added} added, ${result.updated} updated, ${result.missing.length} missing)`
+                      );
+                    })();
+                  }}
+                >
+                  <RefreshCw size={14} style={{ marginRight: '6px' }} />
+                  Re-hydrate NES
                 </button>
               </div>
 
@@ -1146,7 +1229,7 @@ export const AppShell: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <>
       <ShellExitSetupModal
         key={shellExitSetupNonce}
         open={shellExitSetupOpen}
@@ -1154,7 +1237,7 @@ export const AppShell: React.FC = () => {
         onConfigured={(mapping) => setShellExitMapping(mapping)}
       />
       {appMode === 'admin' ? (
-        <>
+        <div className="app-container">
           <NavigationRail
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -1180,7 +1263,7 @@ export const AppShell: React.FC = () => {
               }}
             />
           )}
-        </>
+        </div>
       ) : (
         <ArcadeHome
           games={games}
@@ -1200,6 +1283,6 @@ export const AppShell: React.FC = () => {
           gamepadSuspended={shellExitSetupOpen}
         />
       )}
-    </div>
+    </>
   );
 };

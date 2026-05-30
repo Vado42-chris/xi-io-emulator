@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::process::Command;
 use std::time::Duration;
-use tauri::{AppHandle, Manager, Url, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -113,14 +113,7 @@ fn identify_page_url(display: &DisplayInfo, highlight_index: Option<u32>) -> Web
         if selected { "1" } else { "0" }
     );
 
-    if cfg!(debug_assertions) {
-        let url: Url = format!("http://localhost:5173/display-identify.html?{query}")
-            .parse()
-            .unwrap_or_else(|_| Url::parse("http://localhost:5173/display-identify.html").unwrap());
-        WebviewUrl::External(url)
-    } else {
-        WebviewUrl::App(format!("display-identify.html?{query}").into())
-    }
+    WebviewUrl::App(format!("display-identify.html?{query}").into())
 }
 
 fn url_encode(input: &str) -> String {

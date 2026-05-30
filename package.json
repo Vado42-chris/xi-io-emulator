@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:tauri": "node scripts/tauri-build-watch.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "verify:engine-launch": "node scripts/verify-engine-launch.mjs",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",

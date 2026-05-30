@@ -3,8 +3,8 @@
   "adapter_version": "1.0.0",
   "engine_id": "retroarch",
   "system_id": "snes",
-  "display_name": "SNES via RetroArch Snes9x",
-  "description": "Launches SNES games using RetroArch and the Snes9x libretro core.",
+  "display_name": "SNES via RetroArch",
+  "description": "Launches SNES games using RetroArch and a libretro SNES core (Snes9x, bsnes, etc.).",
   "content_extensions": [".sfc", ".smc"],
   "requires_bios": false,
   "required_files": [
@@ -16,7 +16,7 @@
     {
       "kind": "libretro_core",
       "setting_id": "engine.retroarch.snes_core_path",
-      "label": "Snes9x libretro core"
+      "label": "SNES libretro core"
     }
   ],
   "launch_template": ["{engine_path}", "-f", "-L", "{core_path}", "{content_path}"],

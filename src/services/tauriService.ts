@@ -81,6 +81,32 @@ export const checkPathExists = async (path: string): Promise<PathCheckResult> =>
   return invoke<PathCheckResult>('path_exists', { path });
 };
 
+export const commandOnPath = async (name: string): Promise<boolean> => {
+  if (!isTauriRuntime()) {
+    return false;
+  }
+  const invoke = await getInvoke();
+  return invoke<boolean>('command_on_path', { name });
+};
+
+export interface LaunchPlanValidation {
+  valid: boolean;
+  error?: string | null;
+  program: string;
+  args: string[];
+}
+
+export const validateLaunchPlan = async (
+  program: string,
+  args: string[],
+): Promise<LaunchPlanValidation> => {
+  if (!isTauriRuntime()) {
+    return { valid: true, program, args };
+  }
+  const invoke = await getInvoke();
+  return invoke<LaunchPlanValidation>('validate_launch_plan', { program, args });
+};
+
 export interface EmulatorSessionStartedPayload {
   gameId: string;
   sessionId: string;
@@ -105,6 +131,8 @@ export interface EmulatorSessionFinishedPayload {
   sessionId: string;
   reason: string;
   returnedCleanly: boolean;
+  errorMessage?: string | null;
+  sessionReachedGame?: boolean;
 }
 
 export const onEmulatorSessionFinished = async (
@@ -119,6 +147,7 @@ export const onEmulatorSessionFinished = async (
   });
 };
 
+/** Manual recovery only — normal session exit restores the shell in Rust before this event fires. */
 export const restoreArcadeWindow = async (gameId?: string): Promise<void> => {
   if (!isTauriRuntime()) {
     return;

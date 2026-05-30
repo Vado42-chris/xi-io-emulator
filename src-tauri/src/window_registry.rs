@@ -4,6 +4,10 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use crate::platform::x11_wm_tools_available;
+use crate::shell_restore::{
+    finish_focus_retries, finish_shell_restore, run_subprocess_with_timeout,
+    try_schedule_focus_retries,
+};
 use tauri::{AppHandle, Manager};
 
 /// Stable WM title for the xi-io arcade shell — never unmap/kill; target by stored XID.
@@ -106,9 +110,7 @@ impl WindowRegistry {
                 persist_shell_xid(app, xid);
                 eprintln!("[xi-io] hibernate shell xid={xid}");
                 let id = xid.to_string();
-                let _ = Command::new("xdotool")
-                    .args(["windowlower", &id])
-                    .status();
+                let _ = run_xdotool(&["windowlower", &id]);
             }
         }
     }
@@ -131,59 +133,58 @@ impl WindowRegistry {
         }
     }
 
-    /// WM wake via xdotool — X11 only; no-op on Wayland.
-    pub fn wake_shell_wm(&self, app: &AppHandle) -> bool {
-        if !x11_wm_tools_available() {
-            return false;
-        }
-        let mut tried = false;
-        if let Some(xid) = self
-            .shell_xid()
-            .or_else(|| load_persisted_shell_xid(app))
-        {
-            eprintln!("[xi-io] wake_shell_wm stored xid={xid}");
-            wm_activate_xid(xid);
-            tried = true;
-        }
-        self.refresh_shell_xid(app);
-        if let Some(xid) = self.shell_xid() {
-            eprintln!("[xi-io] wake_shell_wm refreshed xid={xid}");
-            wm_activate_xid(xid);
-            return true;
-        }
-        for xid in discover_shell_xids() {
-            eprintln!("[xi-io] wake_shell_wm discovered xid={xid}");
-            wm_activate_xid(xid);
-            persist_shell_xid(app, xid);
-            if let Ok(mut guard) = self.inner.shell_xid.lock() {
-                *guard = Some(xid);
-            }
-            return true;
-        }
-        tried
-    }
-
+    /// Tauri-only wake — safe on Wayland and X11; avoids WM tool storms.
     pub fn wake_shell(&self, app: &AppHandle) {
         if let Some(main) = app.get_webview_window("main") {
             let _ = main.set_title(SHELL_WINDOW_TITLE);
             let _ = main.show();
             let _ = main.unminimize();
-            let _ = main.set_always_on_top(true);
             let _ = main.set_focus();
-            let _ = main.request_user_attention(Some(tauri::UserAttentionType::Critical));
-            let _ = main.set_always_on_top(false);
-        }
-        if x11_wm_tools_available() {
-            self.wake_shell_wm(app);
         }
     }
 
-    pub fn spawn_shell_focus_retries(self, app: AppHandle) {
-        std::thread::spawn(move || {
-            for delay_ms in [0_u64, 100, 250, 500, 1000, 2000, 4000] {
-                if delay_ms > 0 {
-                    std::thread::sleep(Duration::from_millis(delay_ms));
+    /// Optional bounded X11 focus pass — never blocks on compositor sync.
+    pub fn wake_shell_wm_once(&self, app: &AppHandle) -> bool {
+        if !x11_wm_tools_available() {
+            return false;
+        }
+        self.refresh_shell_xid(app);
+        if let Some(xid) = self
+            .shell_xid()
+            .or_else(|| load_persisted_shell_xid(app))
+        {
+            if window_title_matches_shell(xid) {
+                eprintln!("[xi-io] wake_shell_wm_once xid={xid}");
+                wm_activate_xid(xid);
+                return true;
+            }
+        }
+        for xid in discover_shell_xids() {
+            if window_title_matches_shell(xid) {
+                eprintln!("[xi-io] wake_shell_wm_once discovered xid={xid}");
+                wm_activate_xid(xid);
+                persist_shell_xid(app, xid);
+                if let Ok(mut guard) = self.inner.shell_xid.lock() {
+                    *guard = Some(xid);
                 }
+                return true;
+            }
+        }
+        false
+    }
+
+    /// WM wake via xdotool — X11 only; no-op on Wayland.
+    pub fn wake_shell_wm(&self, app: &AppHandle) -> bool {
+        self.wake_shell_wm_once(app)
+    }
+
+    pub fn spawn_shell_focus_retries(self, app: AppHandle) -> bool {
+        if !try_schedule_focus_retries() {
+            return false;
+        }
+        std::thread::spawn(move || {
+            for delay_ms in [250_u64, 1000] {
+                std::thread::sleep(Duration::from_millis(delay_ms));
                 let app_for_main = app.clone();
                 let app_in_closure = app_for_main.clone();
                 let registry = self.clone();
@@ -191,18 +192,25 @@ impl WindowRegistry {
                     registry.wake_shell(&app_in_closure);
                 });
                 if x11_wm_tools_available() {
-                    self.wake_shell_wm(&app);
+                    self.wake_shell_wm_once(&app);
                 }
             }
+            finish_focus_retries();
+            finish_shell_restore();
         });
+        true
     }
 
     pub fn close_session_windows(&self, session_id: &str) {
+        if !x11_wm_tools_available() {
+            return;
+        }
         let title = game_window_title(session_id);
         for xid in discover_xids_by_title(&title) {
-            let _ = Command::new("xdotool")
-                .args(["windowkill", &xid.to_string()])
-                .status();
+            if window_title_matches_game_session(xid, session_id) {
+                let id = xid.to_string();
+                let _ = run_xdotool(&["windowkill", &id]);
+            }
         }
     }
 }
@@ -215,9 +223,7 @@ pub fn tag_session_windows(session_id: &str, pids: &[u32]) -> Vec<u64> {
     while Instant::now() < deadline {
         for pid in pids {
             for xid in discover_xids_for_pid(*pid) {
-                let _ = Command::new("xdotool")
-                    .args(["set_window", "--name", &title, &xid.to_string()])
-                    .status();
+                let _ = run_xdotool(&["set_window", "--name", &title, &xid.to_string()]);
                 if !tagged.contains(&xid) {
                     tagged.push(xid);
                 }
@@ -295,35 +301,65 @@ fn xdotool_search(args: &[&str]) -> Vec<u64> {
         .collect()
 }
 
+fn run_xdotool(args: &[&str]) -> bool {
+    run_subprocess_with_timeout("xdotool", args, 2)
+}
+
 fn wm_activate_xid(xid: u64) {
     let id = xid.to_string();
-    let _ = Command::new("xdotool")
-        .args(["windowmap", &id])
-        .status();
-    let _ = Command::new("xdotool")
-        .args(["windowraise", &id])
-        .status();
-    let _ = Command::new("xdotool")
-        .args(["windowactivate", "--sync", &id])
-        .status();
+    let _ = run_xdotool(&["windowmap", &id]);
+    let _ = run_xdotool(&["windowraise", &id]);
+    // Never use --sync: it can block indefinitely and wedge the compositor under load.
+    let _ = run_xdotool(&["windowactivate", &id]);
     if Command::new("wmctrl")
         .arg("-V")
         .output()
         .map(|o| o.status.success())
         .unwrap_or(false)
     {
-        let _ = Command::new("wmctrl")
-            .args(["-ia", &format!("0x{xid:x}")])
-            .status();
+        let _ = run_subprocess_with_timeout("wmctrl", &["-ia", &format!("0x{xid:x}")], 2);
     }
 }
 
-fn xid_is_alive(xid: u64) -> bool {
-    Command::new("xdotool")
-        .args(["getwindowname", &xid.to_string()])
-        .output()
-        .map(|o| o.status.success())
+fn window_name_for_xid(xid: u64) -> Option<String> {
+    let output = run_xdotool_output(&["getwindowname", &xid.to_string()])?;
+    let name = output.trim().to_string();
+    if name.is_empty() {
+        None
+    } else {
+        Some(name)
+    }
+}
+
+fn window_title_matches_shell(xid: u64) -> bool {
+    window_name_for_xid(xid)
+        .map(|name| name == SHELL_WINDOW_TITLE)
         .unwrap_or(false)
+}
+
+fn window_title_matches_game_session(xid: u64, session_id: &str) -> bool {
+    let expected = game_window_title(session_id);
+    window_name_for_xid(xid)
+        .map(|name| name == expected)
+        .unwrap_or(false)
+}
+
+fn run_xdotool_output(args: &[&str]) -> Option<String> {
+    let output = if crate::shell_restore::has_timeout_binary() {
+        let mut cmd_args: Vec<String> = vec!["2".to_string(), "xdotool".to_string()];
+        cmd_args.extend(args.iter().map(|s| s.to_string()));
+        Command::new("timeout").args(&cmd_args).output().ok()?
+    } else {
+        Command::new("xdotool").args(args).output().ok()?
+    };
+    if !output.status.success() {
+        return None;
+    }
+    Some(String::from_utf8_lossy(&output.stdout).to_string())
+}
+
+fn xid_is_alive(xid: u64) -> bool {
+    window_name_for_xid(xid).is_some()
 }
 
 fn regex_escape(s: &str) -> String {

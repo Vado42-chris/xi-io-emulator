@@ -53,7 +53,20 @@ fn is_pid_alive(pid: u32) -> bool {
     Path::new(&format!("/proc/{pid}")).exists()
 }
 
+pub fn is_process_alive(pid: u32) -> bool {
+    is_pid_alive(pid)
+}
+
 fn program_matches_pid(program: &str, pid: u32) -> bool {
+    if program == "flatpak" {
+        return read_cmdline(pid)
+            .map(|cmd| {
+                let lower = cmd.to_lowercase();
+                lower.contains("retroarch") || lower.contains("org.libretro")
+            })
+            .unwrap_or(false);
+    }
+
     let program_path = Path::new(program);
     let program_base = program_path
         .file_name()
@@ -336,6 +349,15 @@ fn session_content_active(program: &str, content_path: &str, accumulated: &HashS
         }
     }
 
+    if program_base.contains("retroarch") || program == "flatpak" {
+        for pid in &alive {
+            let titles = window_titles_for_pid(*pid);
+            if titles.iter().any(|t| !t.trim().is_empty()) {
+                return true;
+            }
+        }
+    }
+
     alive
         .iter()
         .any(|pid| pid_has_open_content(*pid, content_path))
@@ -508,7 +530,6 @@ fn force_terminate_fceux_session(
     let mut pids = stored_pids.to_vec();
     pids.extend(collect_descendant_pids(stored_pids));
     pids.extend(find_emulator_pids(program, content_path, false));
-    pids.extend(find_emulator_pids_by_program(program));
     if let Some(g) = pgid {
         pids.extend(pids_in_process_group(program, g));
     }
@@ -526,13 +547,11 @@ fn force_terminate_fceux_session(
     if let Some(g) = session_pgid {
         signal_pgid_safe(g, program, "-KILL");
     }
-    let _ = Command::new("pkill")
-        .args(["-KILL", "-x", "fceux"])
-        .status();
 
     std::thread::sleep(Duration::from_millis(200));
-    let remaining: Vec<u32> = find_emulator_pids_by_program(program)
-        .into_iter()
+    let remaining: Vec<u32> = pids
+        .iter()
+        .copied()
         .filter(|pid| is_pid_alive(*pid))
         .collect();
     TerminateOutcome {
@@ -727,7 +746,7 @@ pub fn wait_for_session_end<F: FnOnce()>(
     on_session_end: Option<F>,
 ) {
     const LAUNCH_GRACE_MS: u64 = 6000;
-    const IDLE_KILL_MS: u64 = 250;
+    const IDLE_KILL_MS: u64 = 500;
 
     let session_started = Instant::now();
     let mut content_ever_active = false;
@@ -794,7 +813,11 @@ pub fn wait_for_session_end<F: FnOnce()>(
         } else {
             let past_grace =
                 session_started.elapsed() >= Duration::from_millis(LAUNCH_GRACE_MS);
-            let may_kill_idle = content_ever_active || rom_fd_ever_open || past_grace;
+            let fceux = is_fceux_program(program);
+            // FCEUX black-window idle exit uses grace; RetroArch must show content/window first.
+            let may_kill_idle = content_ever_active
+                || rom_fd_ever_open
+                || (past_grace && fceux);
             if may_kill_idle {
                 idle_since.get_or_insert_with(Instant::now);
                 if idle_since

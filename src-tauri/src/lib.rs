@@ -12,6 +12,9 @@ pub mod emulator_process;
 pub mod game_session;
 pub mod platform;
 mod shell_exit_input;
+mod engine_launch;
+mod session_startup;
+mod shell_restore;
 mod single_instance;
 mod window_registry;
 
@@ -21,7 +24,7 @@ use emulator_process::{
     save_session_record, EmulatorSessionRecord,
 };
 use game_session::{
-    resolve_emulator_pids_after_start, resolve_session_runner_path, signal_supervisor_stop,
+    resolve_session_runner_path, signal_supervisor_stop,
     wait_for_supervisor_exit, SESSION_RUN_ARG,
 };
 use shell_exit_input::{
@@ -30,6 +33,7 @@ use shell_exit_input::{
     ShellExitMapping,
 };
 use window_registry::{tag_session_windows, new_session_id, WindowRegistry};
+use shell_restore::{finish_shell_restore, try_begin_shell_restore};
 
 #[derive(Clone, Debug)]
 struct ActiveEmulatorSession {
@@ -43,12 +47,14 @@ struct ActiveEmulatorSession {
     engine_id: String,
     started_at: String,
     game_window_xids: Vec<u64>,
+    session_reached_game: bool,
 }
 
 #[derive(Clone, Default)]
 struct EmulatorLaunchState {
     active_session: Arc<Mutex<Option<ActiveEmulatorSession>>>,
     terminate_requested: Arc<AtomicBool>,
+    terminate_in_progress: Arc<AtomicBool>,
 }
 
 impl EmulatorLaunchState {
@@ -63,6 +69,22 @@ impl EmulatorLaunchState {
     }
 
     fn terminate_session(&self, app: &AppHandle, reason: &str) -> bool {
+        if self
+            .terminate_in_progress
+            .compare_exchange(false, true, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
+            .is_err()
+        {
+            eprintln!("[xi-io] skip duplicate terminate_session reason={reason}");
+            return false;
+        }
+
+        let result = self.terminate_session_inner(app, reason);
+        self.terminate_in_progress
+            .store(false, std::sync::atomic::Ordering::SeqCst);
+        result
+    }
+
+    fn terminate_session_inner(&self, app: &AppHandle, reason: &str) -> bool {
         let session = self
             .active_session
             .lock()
@@ -115,7 +137,15 @@ impl EmulatorLaunchState {
         registry.end_session(&session_id);
 
         if reason == "shell_exit_button" || reason == "shell_ui_exit" {
-            schedule_restore_arcade_shell(app, &game_id, &session_id, reason);
+            complete_emulator_session(
+                app,
+                &game_id,
+                &session_id,
+                reason,
+                true,
+                None,
+                true,
+            );
         }
 
         true
@@ -188,6 +218,38 @@ fn path_exists(path: String) -> PathCheckResult {
 }
 
 #[tauri::command]
+fn command_on_path(name: String) -> bool {
+    engine_launch::find_on_path(&name).is_some()
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LaunchPlanValidation {
+    valid: bool,
+    error: Option<String>,
+    program: String,
+    args: Vec<String>,
+}
+
+#[tauri::command]
+fn validate_launch_plan(program: String, args: Vec<String>) -> LaunchPlanValidation {
+    match engine_launch::prepare_launch(&program, &args) {
+        Ok(prepared) => LaunchPlanValidation {
+            valid: true,
+            error: None,
+            program: prepared.program,
+            args: prepared.args,
+        },
+        Err(err) => LaunchPlanValidation {
+            valid: false,
+            error: Some(err),
+            program,
+            args,
+        },
+    }
+}
+
+#[tauri::command]
 fn list_connected_displays_cmd() -> Vec<DisplayInfo> {
     list_connected_displays()
 }
@@ -243,12 +305,10 @@ fn emit_emulator_session_started(app: &AppHandle, game_id: &str, session_id: &st
     );
 }
 
-fn schedule_shell_hibernate_after_start(app: &AppHandle, game_id: &str, session_id: &str) {
+fn hibernate_shell_for_session(app: &AppHandle, game_id: &str, session_id: &str) {
     let app_for_main = app.clone();
     let game_id_owned = game_id.to_string();
     let session_id_owned = session_id.to_string();
-    let game_id_fallback = game_id_owned.clone();
-    let session_id_fallback = session_id_owned.clone();
     if app_for_main
         .clone()
         .run_on_main_thread(move || {
@@ -258,10 +318,54 @@ fn schedule_shell_hibernate_after_start(app: &AppHandle, game_id: &str, session_
         })
         .is_err()
     {
-        emit_emulator_session_started(app, &game_id_fallback, &session_id_fallback);
+        emit_emulator_session_started(app, game_id, session_id);
         let registry = (*app.state::<WindowRegistry>()).clone();
         registry.hibernate_shell(app);
     }
+}
+
+fn emit_emulator_session_finished(
+    app: &AppHandle,
+    game_id: &str,
+    session_id: &str,
+    reason: &str,
+    returned_cleanly: bool,
+    error_message: Option<String>,
+    session_reached_game: bool,
+) {
+    let _ = app.emit(
+        "emulator-session-finished",
+        EmulatorSessionFinishedPayload {
+            game_id: game_id.to_string(),
+            session_id: session_id.to_string(),
+            reason: reason.to_string(),
+            returned_cleanly,
+            error_message,
+            session_reached_game,
+        },
+    );
+}
+
+/// UI notification always fires; WM restore is debounced separately.
+pub fn complete_emulator_session(
+    app: &AppHandle,
+    game_id: &str,
+    session_id: &str,
+    reason: &str,
+    returned_cleanly: bool,
+    error_message: Option<String>,
+    session_reached_game: bool,
+) {
+    emit_emulator_session_finished(
+        app,
+        game_id,
+        session_id,
+        reason,
+        returned_cleanly,
+        error_message,
+        session_reached_game,
+    );
+    schedule_restore_arcade_shell(app, game_id, session_id, reason);
 }
 
 #[derive(Clone, Serialize)]
@@ -271,30 +375,33 @@ struct EmulatorSessionFinishedPayload {
     session_id: String,
     reason: String,
     returned_cleanly: bool,
+    error_message: Option<String>,
+    session_reached_game: bool,
 }
 
-/// Wake xi-io shell — Tauri APIs first (Wayland-safe); X11 WM tools optional.
-pub fn restore_arcade_shell(app: &AppHandle, game_id: &str, session_id: &str, reason: &str) {
-    eprintln!("[xi-io] restore_arcade_shell reason={reason} game={game_id}");
+/// Wake xi-io shell — Tauri APIs first (Wayland-safe); X11 WM tools optional and bounded.
+pub fn restore_arcade_shell(app: &AppHandle, _game_id: &str, _session_id: &str, reason: &str) {
+    if !try_begin_shell_restore(reason) {
+        return;
+    }
+
+    eprintln!("[xi-io] restore_arcade_shell reason={reason}");
     let registry = (*app.state::<WindowRegistry>()).clone();
     let app_for_main = app.clone();
     let registry_for_main = registry.clone();
     let _ = app_for_main.clone().run_on_main_thread(move || {
         registry_for_main.wake_shell(&app_for_main);
     });
+
     if crate::platform::x11_wm_tools_available() {
-        registry.wake_shell_wm(app);
+        registry.wake_shell_wm_once(app);
     }
-    registry.spawn_shell_focus_retries(app.clone());
-    let _ = app.emit(
-        "emulator-session-finished",
-        EmulatorSessionFinishedPayload {
-            game_id: game_id.to_string(),
-            session_id: session_id.to_string(),
-            reason: reason.to_string(),
-            returned_cleanly: true,
-        },
-    );
+
+    if registry.spawn_shell_focus_retries(app.clone()) {
+        // finish_shell_restore runs when retry thread completes
+    } else {
+        finish_shell_restore();
+    }
 }
 
 /// Window show/focus must run on Tauri's main thread — not from spawn_blocking or evdev monitor threads.
@@ -322,22 +429,6 @@ pub fn schedule_restore_arcade_shell(app: &AppHandle, game_id: &str, session_id:
     }
 }
 
-async fn retry_shell_focus(app: &AppHandle) {
-    let registry = (*app.state::<WindowRegistry>()).clone();
-    for _ in 0..3 {
-        let app_for_main = app.clone();
-        let _ = app_for_main.clone().run_on_main_thread(move || {
-            if let Some(main_window) = app_for_main.get_webview_window("main") {
-                let _ = main_window.show();
-                let _ = main_window.unminimize();
-                let _ = main_window.set_focus();
-            }
-        });
-        registry.wake_shell(app);
-        tokio::time::sleep(Duration::from_millis(150)).await;
-    }
-}
-
 #[tauri::command]
 async fn identify_connected_displays(
     app: AppHandle,
@@ -358,26 +449,27 @@ async fn launch_emulator(
     engine_id: String,
     content_path: String,
 ) -> Result<SpawnResult, String> {
+    use engine_launch::prepare_launch;
+    use session_startup::{format_supervisor_failure, poll_emulator_startup_once, startup_timeout};
+    use tokio::io::AsyncReadExt;
     use tokio::process::Command as AsyncCommand;
 
-    if !Path::new(&program).exists() {
-        return Err(format!("Engine binary not found: {program}"));
-    }
+    let prepared = prepare_launch(&program, &args)?;
 
     let runner = resolve_session_runner_path();
 
-    cleanup_orphan_emulators(&program, &content_path);
+    cleanup_orphan_emulators(&prepared.program, &content_path);
     state.terminate_requested.store(false, std::sync::atomic::Ordering::Relaxed);
 
     let mut async_cmd = AsyncCommand::new(&runner);
     async_cmd
         .arg(SESSION_RUN_ARG)
         .arg("--program")
-        .arg(&program)
+        .arg(&prepared.program)
         .arg("--content-path")
         .arg(&content_path)
         .arg("--")
-        .args(&args);
+        .args(&prepared.args);
     for (key, value) in &env {
         async_cmd.env(key, value);
     }
@@ -385,7 +477,7 @@ async fn launch_emulator(
     async_cmd.stdout(std::process::Stdio::null());
     async_cmd.stderr(std::process::Stdio::piped());
 
-    let child = async_cmd
+    let mut child = async_cmd
         .spawn()
         .map_err(|e| format!("Failed to spawn session supervisor: {e}"))?;
 
@@ -395,13 +487,58 @@ async fn launch_emulator(
         runner.display()
     );
 
-    let tracked_pids = tokio::task::spawn_blocking({
-        let program = program.clone();
-        let content_path = content_path.clone();
-        move || resolve_emulator_pids_after_start(&program, &content_path, supervisor_pid)
-    })
-    .await
-    .map_err(|e| format!("PID resolution task failed: {e}"))?;
+    let startup_deadline =
+        tokio::time::Instant::now() + startup_timeout() + Duration::from_secs(1);
+    let program_for_poll = prepared.program.clone();
+    let content_for_poll = content_path.clone();
+    let mut tracked_pids: Vec<u32> = Vec::new();
+    let mut startup_error: Option<String> = None;
+
+    while tokio::time::Instant::now() < startup_deadline {
+        if let Ok(Some(status)) = child.try_wait() {
+            let mut stderr_text = String::new();
+            if let Some(mut stderr) = child.stderr.take() {
+                let _ = stderr.read_to_string(&mut stderr_text).await;
+            }
+            let code = status.code().unwrap_or(-1);
+            startup_error = Some(format_supervisor_failure(code, &stderr_text));
+            break;
+        }
+
+        let poll_program = program_for_poll.clone();
+        let poll_content = content_for_poll.clone();
+        match tokio::task::spawn_blocking(move || {
+            poll_emulator_startup_once(&poll_program, &poll_content, supervisor_pid)
+        })
+        .await
+        {
+            Ok(Ok(Some(pids))) => {
+                tracked_pids = pids;
+                eprintln!("[xi-io] emulator startup confirmed pids={tracked_pids:?}");
+                break;
+            }
+            Ok(Ok(None)) => {}
+            Ok(Err(msg)) if msg.contains("Supervisor exited") => {
+                startup_error = Some(msg);
+                break;
+            }
+            Ok(Err(_)) => {}
+            Err(e) => {
+                startup_error = Some(format!("Startup check failed: {e}"));
+                break;
+            }
+        }
+
+        tokio::time::sleep(Duration::from_millis(200)).await;
+    }
+
+    if tracked_pids.is_empty() {
+        let _ = child.kill().await;
+        let _ = child.wait().await;
+        return Err(startup_error.unwrap_or_else(|| {
+            "The emulator did not start in time. Verify engine, core, and ROM paths.".into()
+        }));
+    }
 
     let session_id = new_session_id(&game_id);
     let window_registry = (*app.state::<WindowRegistry>()).clone();
@@ -423,12 +560,13 @@ async fn launch_emulator(
             supervisor_pid,
             pids: tracked_pids.clone(),
             pgid: None,
-            program: program.clone(),
+            program: prepared.program.clone(),
             content_path: content_path.clone(),
             game_id: game_id.clone(),
             engine_id: engine_id.clone(),
             started_at: started_at.clone(),
             game_window_xids: Vec::new(),
+            session_reached_game: true,
         });
     }
 
@@ -447,21 +585,20 @@ async fn launch_emulator(
         }),
     );
 
-    schedule_shell_hibernate_after_start(&app, &game_id, &session_id);
+    hibernate_shell_for_session(&app, &game_id, &session_id);
 
     let state_bg = state.inner().clone();
 
     tokio::spawn(async move {
         let app_bg = app;
         let window_registry_bg = window_registry;
-        let program_bg = program;
+        let program_bg = prepared.program;
         let content_path_bg = content_path;
         let game_id_bg = game_id;
         let session_id_bg = session_id;
         let engine_id_bg = engine_id;
         let started_at_bg = started_at;
         let tracked_pids_bg = tracked_pids;
-        let mut child = child;
 
         let wait_status = child.wait().await;
         monitor_stop_bg.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -469,6 +606,13 @@ async fn launch_emulator(
         let terminated_by_shell = state_bg
             .terminate_requested
             .load(std::sync::atomic::Ordering::Relaxed);
+
+        let session_reached_game = state_bg
+            .active_session
+            .lock()
+            .ok()
+            .and_then(|g| g.as_ref().map(|s| s.session_reached_game))
+            .unwrap_or(false);
 
         eprintln!(
             "[xi-io] session supervisor exited terminated_by_shell={terminated_by_shell} status={wait_status:?}"
@@ -502,7 +646,15 @@ async fn launch_emulator(
             "emulator_session_ended"
         };
         if !terminated_by_shell {
-            schedule_restore_arcade_shell(&app_bg, &game_id_bg, &session_id_bg, exit_reason);
+            complete_emulator_session(
+                &app_bg,
+                &game_id_bg,
+                &session_id_bg,
+                exit_reason,
+                true,
+                None,
+                session_reached_game,
+            );
         }
     });
 
@@ -640,6 +792,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             path_exists,
+            command_on_path,
+            validate_launch_plan,
             launch_emulator,
             terminate_active_emulator,
             list_input_devices,

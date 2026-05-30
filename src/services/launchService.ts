@@ -6,14 +6,16 @@ import {
   buildLaunchPlan,
   validateAdapterReadiness,
 } from './adapterService';
-import { isTauriRuntime, launchEmulatorProcess } from './tauriService';
+import { isTauriRuntime, launchEmulatorProcess, validateLaunchPlan } from './tauriService';
 import { classifyEmulatorExit, emulatorExitSummary } from './launchExitService';
 import { isStaleDemoContentPath, staleDemoLaunchBlocker } from './proofGameService';
 import {
   applyDisplaySettingsToLaunchPlan,
   type LaunchDisplaySettings,
 } from './launchDisplayService';
+import { finalizeEngineLaunch, formatLaunchCommand } from './engineLaunchService';
 import { listConnectedDisplays } from './tauriService';
+import { recordGameLaunch } from './playSessionService';
 
 export interface LaunchBlocker {
   code:
@@ -106,12 +108,25 @@ export const checkLaunchReadiness = async (game: GameRecord): Promise<LaunchRead
   const engine = getEngineSettings();
   const adapterCheck = await validateAdapterReadiness(adapter, engine, game.contentPath);
   for (const missing of adapterCheck.missing) {
-    if (missing.toLowerCase().includes('core')) {
-      blockers.push({ code: 'missing_core', title: 'Missing Core', desc: missing });
-    } else if (missing.toLowerCase().includes('game file')) {
-      blockers.push({ code: 'missing_content', title: 'Missing Game File', desc: missing });
+    const lower = missing.toLowerCase();
+    if (lower.includes('core')) {
+      blockers.push({
+        code: 'missing_core',
+        title: `${adapter.display_name}: core missing`,
+        desc: missing,
+      });
+    } else if (lower.includes('game file')) {
+      blockers.push({
+        code: 'missing_content',
+        title: `${game.systemId.toUpperCase()} content missing`,
+        desc: missing,
+      });
     } else {
-      blockers.push({ code: 'missing_engine', title: 'Missing Engine', desc: missing });
+      blockers.push({
+        code: 'missing_engine',
+        title: `${adapter.display_name} not configured`,
+        desc: missing,
+      });
     }
   }
 
@@ -124,12 +139,28 @@ export const checkLaunchReadiness = async (game: GameRecord): Promise<LaunchRead
   }
 
   const plan = buildLaunchPlan(adapter, engine, game.contentPath);
+  const previewPlan = plan
+    ? finalizeEngineLaunch(plan.program, plan.args)
+    : null;
+
+  if (previewPlan && isTauriRuntime()) {
+    const validation = await validateLaunchPlan(previewPlan.program, previewPlan.args);
+    if (!validation.valid && validation.error) {
+      blockers.push({
+        code: 'missing_engine',
+        title: `${adapter.display_name} launch not ready`,
+        desc: validation.error,
+      });
+    }
+  }
 
   return {
     ready: blockers.length === 0 && !!plan,
     blockers,
     adapterId: adapter.adapter_id,
-    commandPreview: plan?.commandDisplay,
+    commandPreview: previewPlan
+      ? formatLaunchCommand(previewPlan.program, previewPlan.args)
+      : undefined,
   };
 };
 
@@ -145,6 +176,8 @@ export const simulateLaunchGame = (game: GameRecord): LaunchResult => {
     command,
     demoMode: true,
   });
+
+  recordGameLaunch(game.id);
 
   return { success: true, command, returnedCleanly: true };
 };
@@ -185,9 +218,18 @@ export const launchGame = async (
   }
 
   const displays = isTauriRuntime() ? await listConnectedDisplays() : [];
-  const { plan, env } = displaySettings
+  const withDisplay = displaySettings
     ? applyDisplaySettingsToLaunchPlan(basePlan, adapter, displaySettings, displays)
     : { plan: basePlan, env: {} as Record<string, string> };
+
+  const finalized = finalizeEngineLaunch(withDisplay.plan.program, withDisplay.plan.args);
+  const plan = {
+    ...withDisplay.plan,
+    program: finalized.program,
+    args: finalized.args,
+    commandDisplay: formatLaunchCommand(finalized.program, finalized.args),
+  };
+  const env = withDisplay.env;
 
   addLedgerEvent('launch_started', `Starting ${game.title} via ${adapter.display_name}`, {
     gameId: game.id,
@@ -196,6 +238,8 @@ export const launchGame = async (
     displayMode: displaySettings?.mode,
     displayId: displaySettings?.displayId,
   });
+
+  recordGameLaunch(game.id);
 
   try {
     const result = await launchEmulatorProcess({
