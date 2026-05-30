@@ -145,7 +145,7 @@ impl EmulatorLaunchState {
         let _ = save_session_record(app, &record);
         let session_id = session.session_id.clone();
 
-        if reason == "shell_exit_button" || reason == "shell_ui_exit" {
+        if reason == "shell_exit_button" || reason == "shell_ui_exit" || reason == "prior_session_replace" {
             self.try_finish_emulator_session(app, reason);
         }
 
@@ -384,6 +384,17 @@ impl EmulatorLaunchState {
 
     /// Emit session-finished + restore shell once per launch — safe from PID monitor and supervisor cleanup.
     fn try_finish_emulator_session(&self, app: &AppHandle, reason: &str) {
+        let session = self
+            .active_session
+            .lock()
+            .ok()
+            .and_then(|guard| guard.clone());
+
+        let Some(session) = session else {
+            eprintln!("[xi-io] skip session finish reason={reason} (no active session)");
+            return;
+        };
+
         if self
             .session_ui_finished
             .compare_exchange(
@@ -397,17 +408,6 @@ impl EmulatorLaunchState {
             eprintln!("[xi-io] skip duplicate session finish reason={reason}");
             return;
         }
-
-        let session = self
-            .active_session
-            .lock()
-            .ok()
-            .and_then(|guard| guard.clone());
-
-        let Some(session) = session else {
-            eprintln!("[xi-io] skip session finish reason={reason} (no active session)");
-            return;
-        };
 
         let reached = session.session_reached_game;
         let returned_cleanly = reached;

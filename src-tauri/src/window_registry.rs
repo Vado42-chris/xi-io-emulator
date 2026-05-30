@@ -153,6 +153,7 @@ impl WindowRegistry {
         if main.show().is_err() {
             return ShellRestoreResult::failed("show_failed", "tauri_show");
         }
+        let _ = main.unminimize();
         if main.set_focus().is_err() {
             return ShellRestoreResult::failed("set_focus_failed", "tauri_focus");
         }

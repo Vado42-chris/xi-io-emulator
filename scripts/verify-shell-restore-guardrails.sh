@@ -50,9 +50,12 @@ pass 'short-session failure detection wired'
 # Restore failure signal (PRH-02 / XIO-LCH-008)
 grep -q 'shell_focus_restore_failed' src/components/ArcadeHome.tsx src/components/AppShell.tsx 2>/dev/null \
   || fail 'shell_focus_restore_failed ledger wiring missing'
+grep -q 'shellRestoreFailure' src/components/ArcadeHome.tsx || fail 'shell restore failure UI missing'
+grep -q 'role="alert"' src/components/ArcadeHome.tsx || fail 'shell restore failure banner missing'
 grep -q 'shell-focus-restore-failed' src-tauri/src/lib.rs || fail 'shell-focus-restore-failed event missing in lib.rs'
 grep -q 'ShellRestoreResult' src-tauri/src/shell_restore.rs || fail 'ShellRestoreResult missing'
 grep -q 'reason_code' src-tauri/src/shell_restore.rs || fail 'restore reason_code field missing'
+grep -q 'unminimize' src-tauri/src/window_registry.rs || fail 'wake_shell must call unminimize after show'
 grep -q 'tauri_window_missing' src-tauri/src/window_registry.rs || fail 'restore reason codes missing'
 grep -q 'emit_shell_focus_restore_result' src-tauri/src/lib.rs || fail 'emit_shell_focus_restore_result missing'
 pass 'shell_focus_restore_failed wired'

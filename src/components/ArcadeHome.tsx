@@ -112,6 +112,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
   const [launchBlockers, setLaunchBlockers] = useState<LaunchBlocker[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
   const [shellRestoreFailure, setShellRestoreFailure] = useState<string | null>(null);
+  const [gameSessionActive, setGameSessionActive] = useState(false);
   const [localShellExitMapping, setLocalShellExitMapping] = useState<ShellExitMapping | null>(null);
   const [displayPickerGame, setDisplayPickerGame] = useState<GameRecord | null>(null);
   const [connectedDisplays, setConnectedDisplays] = useState<ConnectedDisplay[]>([]);
@@ -156,6 +157,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
       if (result.sessionActive) {
         sessionActive = true;
         emulatorSessionActiveRef.current = true;
+        setGameSessionActive(true);
         setIsLaunching(false);
         setLaunchingGame(null);
         setLaunchResult(null);
@@ -477,11 +479,13 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     onSessionStarted: (sessionId) => {
       activeSessionIdRef.current = sessionId;
       emulatorSessionActiveRef.current = true;
+      setGameSessionActive(true);
       setShellRestoreFailure(null);
     },
     onSessionFinished: (payload) => {
       activeSessionIdRef.current = null;
       emulatorSessionActiveRef.current = false;
+      setGameSessionActive(false);
       setIsLaunching(false);
       setLaunchDisplaySummary(null);
 
@@ -653,6 +657,13 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
         document.activeElement === searchInputRef.current;
 
       if (inSearchField && !['Escape', 'Enter', 'y', 'Y'].includes(e.key)) {
+        return;
+      }
+
+      // 0. Active emulator session (shell may be hidden) — Esc returns to arcade
+      if (gameSessionActive && e.key === 'Escape') {
+        void handleExitGame();
+        e.preventDefault();
         return;
       }
 
@@ -875,6 +886,7 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     isSearchOpen,
     searchQuery,
     activeSearchIndex,
+    gameSessionActive,
     launchingGame,
     isLaunching,
     detailGame,
@@ -1186,6 +1198,30 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
           }}
         >
           DEMO MODE — launches are simulated; no emulator process is started. Disable in Admin → Settings.
+        </div>
+      )}
+      {shellRestoreFailure && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'rgba(251, 146, 60, 0.15)',
+            borderBottom: '2px solid #fb923c',
+            color: '#fdba74',
+            padding: '12px 24px',
+            textAlign: 'center',
+            fontSize: '0.85rem',
+            lineHeight: 1.5,
+          }}
+        >
+          {shellRestoreFailure}
+          <button
+            type="button"
+            className="arcade-admin-btn"
+            style={{ marginLeft: '16px', padding: '4px 12px', fontSize: '0.8rem' }}
+            onClick={() => setShellRestoreFailure(null)}
+          >
+            Dismiss
+          </button>
         </div>
       )}
       {/* Header */}
