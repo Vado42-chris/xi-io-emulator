@@ -77,6 +77,7 @@ import {
   hydrateNesUiShowcase,
   hydrateSnesUiShowcase,
 } from '../services/showcaseHydrationService';
+import { downloadMetadataBackupBundle } from '../services/metadataBackupService';
 import { ensureDefaultEngineSettings } from '../services/engineDiscoveryService';
 import {
   reconcileAllGamesIngress,
@@ -1177,6 +1178,41 @@ export const AppShell: React.FC = () => {
                   <RefreshCw size={14} style={{ marginRight: '6px' }} />
                   Re-hydrate NES
                 </button>
+              </div>
+
+              <div className="settings-item">
+                <div className="settings-meta">
+                  <span className="settings-label">Personal library metadata backup</span>
+                  <span className="settings-desc">
+                    Download metadata-only JSON (no ROM bytes). Pilot export caps at 50 titles; full export includes the entire catalog.
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      downloadMetadataBackupBundle({ maxGames: 50 });
+                      void refreshState();
+                    }}
+                  >
+                    <Download size={14} style={{ marginRight: '6px' }} />
+                    Export pilot (50)
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      downloadMetadataBackupBundle();
+                      void refreshState();
+                    }}
+                  >
+                    <Download size={14} style={{ marginRight: '6px' }} />
+                    Export full catalog
+                  </button>
+                </div>
               </div>
 
               <div className="settings-item">

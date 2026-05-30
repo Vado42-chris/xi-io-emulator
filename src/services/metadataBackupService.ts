@@ -227,3 +227,37 @@ export const buildMetadataBackupBundle = (
 
   return result;
 };
+
+/** Trigger a browser download of the metadata backup JSON (Settings / Admin). */
+export const downloadMetadataBackupBundle = (
+  options?: BuildMetadataBackupOptions,
+): BuildMetadataBackupResult => {
+  const result = buildMetadataBackupBundle({ ...options, emitLedger: false });
+  const json = JSON.stringify(result.bundle, null, 2);
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `xi-io-metadata-backup-${result.bundle.exportId}.json`;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+
+  addLedgerEvent(
+    'metadata_backup_export_succeeded',
+    `Metadata backup downloaded (${result.exportedCount} games, ${result.skippedNoRoot} skipped no root)`,
+    {
+      exportId: result.bundle.exportId,
+      gameCount: result.exportedCount,
+      rootCount: result.bundle.libraryRoots.length,
+      skippedNoRoot: result.skippedNoRoot,
+      excludedByFilter: result.excludedByFilter,
+      schemaVersion: METADATA_BACKUP_SCHEMA_VERSION,
+      maxGames: options?.maxGames,
+    },
+  );
+
+  return result;
+};
