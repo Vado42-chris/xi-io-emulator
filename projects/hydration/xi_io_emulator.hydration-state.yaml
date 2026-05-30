@@ -92,7 +92,7 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: pass_10_f1cf7c7
+  xi_io_net_mirror: pass_11_9c79e81
   workbench_preview_event: evt-xi-io-emulator-pass-b-partial-001
   product_repo_commit: "754f258"
   product_repo_branch: wip/pass-b-lifecycle-display-shell

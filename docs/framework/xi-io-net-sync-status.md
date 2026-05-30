@@ -1,6 +1,6 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 11 — PRH-01 scaffold @ pending mirror)  
+Date: 2026-05-30 (Pass 11 — PRH-01 scaffold @ `9c79e81`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
@@ -13,18 +13,19 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `754f258` |
-| xi-io.net mirror commit | **pending this pass** |
+| Product source commit | `6071a90` |
+| xi-io.net mirror commit | `9c79e81` |
 | Mirror date | 2026-05-30 |
-| Mirror status | **In progress** (Pass 11) |
+| Mirror status | **Complete** (Pass 11) |
 
-### Mirrored in Pass 11 (planned)
+### Mirrored in Pass 11
 
 ```txt
 projects/evidence/xi_io_emulator/prh-01-sqlite-migration-plan.md
 projects/evidence/xi_io_emulator/github-compliance-checklist.md
 projects/manifests/xi_io_emulator.project-manifest.yaml
 projects/hydration/xi_io_emulator.hydration-state.yaml
+projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
 ```
 
 ## Prior mirror (Pass 10 — Admin export UI)
