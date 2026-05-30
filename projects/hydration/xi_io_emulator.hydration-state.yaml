@@ -39,6 +39,7 @@ completed_in_repo:
   - PRH-01 play_session_db SQLite schema scaffold @ 754f258
   - Pass 12 safe session cleanup @ d8899e7 / CI fix 1f301a9
   - Pass 13 launch exit unified session finish @ 41bd811
+  - Pass 14 shell unminimize + session finish race + restore banner @ e1910fc
 
 pass_b_evidence:
   nes_xi_io_launch: partial

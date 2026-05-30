@@ -107,6 +107,19 @@ Emergency cleanup: `npm run cleanup:sessions` (never `pkill -f fceux` on Cursor 
 
 ---
 
+## Shell hidden after game closes (xi-io does not reappear)
+
+| | |
+|---|---|
+| **Code** | XIO-LCH-008 |
+| **Symptom** | FCEUX/RetroArch closed but xi-io window stays hidden or behind other windows |
+| **Likely cause** | Shell was `hide()`d for game session; wake path did not `unminimize()` or focus failed |
+| **In-app check** | Admin → Logs → `shell_focus_restored` vs `shell_focus_restore_failed`; orange banner on Arcade Home if restore failed |
+| **Safe fix** | Alt+Tab to xi-io; or run `npm run tauri:dev` (single-instance wake); rebuild after Pass 14 (`unminimize` in `wake_shell`) |
+| **Verified when** | Quit game via Select+Start or Guide → Arcade Home visible within ~1s; focus on last game tile |
+
+---
+
 ## Game says Missing Engine
 
 | | |

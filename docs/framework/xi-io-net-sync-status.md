@@ -1,28 +1,49 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 13 — launch exit unified session finish; mirror pending push)  
+Date: 2026-05-30 (Pass 14 — shell unminimize + session finish race; mirror pending push)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
-## Latest mirror (Pass 13 — launch exit restore)
+## Latest mirror (Pass 14 — shell wake + restore banner)
 
 | Field | Value |
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
+| Product source commit | `e1910fc` |
+| xi-io.net mirror commit | **pending** |
+| Mirror date | 2026-05-30 |
+| Mirror status | **In progress** (this pass) |
+
+### Mirrored in Pass 14
+
+```txt
+docs/reports/pass-b-final-evidence-report.md (Pass 14 verify receipt)
+docs/framework/xi-io-net-sync-status.md (this file)
+docs/operations/troubleshooting-pass-b.md (XIO-LCH-008 shell hidden)
+projects/manifests/xi_io_emulator.project-manifest.yaml (wip_head_sha)
+projects/hydration/xi_io_emulator.hydration-state.yaml
+projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
+projects/evidence/xi_io_emulator/pass-b-final-evidence-report.md
+projects/evidence/xi_io_emulator/troubleshooting-pass-b.md
+```
+
+## Prior mirror (Pass 13 — launch exit restore)
+
+| Field | Value |
+|-------|--------|
 | Product source commit | `41bd811` (source) / `2e03637` (head) |
 | xi-io.net mirror commit | `b85cb8a` |
-| Mirror date | 2026-05-30 |
 | Mirror status | **Complete** (Pass 13) |
 
 ### Mirrored in Pass 13
 
 ```txt
 docs/reports/pass-b-final-evidence-report.md (Pass 13 verify receipt)
-docs/framework/xi-io-net-sync-status.md (this file)
+docs/framework/xi-io-net-sync-status.md
 projects/manifests/xi_io_emulator.project-manifest.yaml (wip_head_sha)
 projects/hydration/xi_io_emulator.hydration-state.yaml
 projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
@@ -58,35 +79,25 @@ projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
 ### Mirrored in Pass 11
 
 ```txt
-projects/evidence/xi_io_emulator/prh-01-sqlite-migration-plan.md
-projects/evidence/xi_io_emulator/github-compliance-checklist.md
+docs/project-tracking/prh-01-sqlite-migration-plan.md
+src-tauri/src/play_session_db.rs (schema reference in evidence)
 projects/manifests/xi_io_emulator.project-manifest.yaml
 projects/hydration/xi_io_emulator.hydration-state.yaml
-projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
 ```
 
-## Prior mirror (Pass 10 — Admin export UI)
+## Agent checklist (each pass)
 
-| Field | Value |
-|-------|--------|
-| Product source commit | `bd1d088` |
-| xi-io.net mirror commit | `f1cf7c7` |
-| Mirror status | **Complete** (Pass 10) |
+1. Update product docs + verify receipts in `docs/reports/pass-b-final-evidence-report.md`
+2. Run full verify suite; record exit codes (no silent skips)
+3. Commit source and docs separately on WIP branch
+4. Push WIP; confirm CI green; record run ID in evidence report
+5. Copy evidence files to `003_xi-io_net/projects/evidence/xi_io_emulator/`
+6. Update hub manifest + hydration SHAs
+7. Commit and push xi-io.net `main`
+8. Update this file with mirror commit SHA
 
-## Sync contract
+## Related
 
-When completing an agent pass on the product repo:
-
-1. Update this file with product commit SHA and mirror commit SHA.
-2. Copy changed evidence/docs to `003_xi-io_net/projects/evidence/xi_io_emulator/`.
-3. Update `projects/manifests/xi_io_emulator.project-manifest.yaml` and `projects/hydration/xi_io_emulator.hydration-state.yaml`.
-4. Commit and push both repos (WIP branch on product; `main` on xi-io.net unless otherwise noted).
-5. Record verify script exit codes in `docs/reports/pass-b-final-evidence-report.md`.
-
-## Operator actions still open
-
-```txt
-PRH-04 user hardware sign-off (Pass B Launch Proof shelf)
-Metadata backup pilot: Settings → Export pilot (50)
-GitHub branch protection on main (API 404 @ Pass 11 — operator enable)
-```
+- [repo-sync-contract.md](./repo-sync-contract.md)
+- [supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md)
+- [open-work-ledger.md](../project-tracking/open-work-ledger.md)

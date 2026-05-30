@@ -2,7 +2,7 @@
 
 Date: **2026-05-30** (WIP refresh — user sign-off pending)  
 Milestone: **XARCADE-CONTROLLER-LAUNCH-PROOF-001**  
-Branch: `wip/pass-b-lifecycle-display-shell` @ **`7924d57`** (xi-io.net @ `b3a9b96`)  
+Branch: `wip/pass-b-lifecycle-display-shell` @ **`e1910fc`** (xi-io.net pending Pass 14 mirror)  
 Prior baseline: `main` @ `b34a60d`  
 Tags: `#xar:controller-launch-proof/pass-b` `#xar:controller-launch-proof/current`
 
@@ -392,8 +392,26 @@ Until then, do not close the milestone or start Pass C.
 | 12b | 2026-05-30 | CI fix: git chmod +x on cleanup script | **pushed** | `1f301a9`; CI `26690791201` **success** |
 | 13 | 2026-05-30 | Launch exit: unified session finish + shell restore retry | **pushed** | `41bd811`; verify suite exit 0 locally |
 | 13b | 2026-05-30 | CI fix: remove stale game_window_xids field init | **pushed** | `2e03637`; CI `26692163994` **success** |
+| 14 | 2026-05-30 | Launch exit: unminimize wake + session finish race + global restore banner | **pushed** | `e1910fc`; verify suite exit 0 locally |
 | 13 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | NES/SNES launch + exit + A/B retest |
 | 14 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
+
+### Pass 14 verify receipt (2026-05-30, commit `e1910fc`)
+
+| Command | Exit |
+|---------|------|
+| npm run typecheck | 0 |
+| npm run build | 0 |
+| npm run verify:shell-restore | 0 |
+| npm run verify:session-idle | 0 |
+| npm run verify:ui-toolbar | 0 |
+| npm run verify:metadata-backup | 0 |
+| npm run verify:play-session-migration | 0 |
+| npm run verify:engine-launch | 0 |
+| cargo check | 0 (6 dead-code warnings, non-blocking) |
+| npm run verify:deps | 0 (npm 0 vulns; cargo-audit skipped locally) |
+
+**Pass 14 fixes:** `wake_shell` calls `unminimize()`; `try_finish_emulator_session` checks active session before finish gate; global `shellRestoreFailure` alert banner; Esc exits active game session; `prior_session_replace` emits session-finished.
 
 ### Pass 13 verify receipt (2026-05-30, commit `41bd811`)
 
@@ -410,17 +428,17 @@ Until then, do not close the milestone or start Pass C.
 | cargo check | 0 (7 dead-code warnings, non-blocking) |
 | npm run verify:deps | 0 (npm 0 vulns; cargo-audit skipped locally) |
 
-### Remaining passes estimate (2026-05-30, post Pass 13)
+### Remaining passes estimate (2026-05-30, post Pass 14)
 
 | Workstream | Passes est. | Notes |
 |------------|-------------|-------|
-| Launch exit + return to shell | **Pass 13 code done** | **User HW retest required** (PRH-04) |
+| Launch exit + return to shell | **Pass 14 code done** | **User HW retest required** (PRH-04) |
 | Metadata backup 50-title pilot | **1 operator session** | Settings → Export pilot (50) |
 | Session cleanup (Cursor-safe) | **Pass 12 done** | `npm run cleanup:sessions` |
 | User hardware proof + sign-off | **1 user session** | PRH-04 blocker — SNES + A/B still open |
 | Pass B report close after sign-off | **1 agent pass** | Mark PRH-04 done; Pass C prep |
 | PRH-01 SQLite migration invoke | **1 agent pass** | Scaffold @ Pass 11; wire playSessionService |
-| xi-io.net mirror freshness | **ongoing each pass** | Pass 13 mirror pending this pass |
+| xi-io.net mirror freshness | **Pass 14 this pass** | mirror + hub push pending |
 | GitHub branch protection | **operator** | API 404 @ Pass 11 |
 | WIP review slicing | **2–3 passes** | Before main |
-| **Total to Pass B close + compliance baseline** | **~2–3 agent + 1 user + 1 operator** | Pass C + ~2 after B close |
+| **Total to Pass B close + compliance baseline** | **~2 agent + 1 user + 1 operator** | Pass C + ~2 after B close |

@@ -36,8 +36,8 @@ security:
 
 branch_policy:
   active_wip: wip/pass-b-lifecycle-display-shell
-  wip_head_sha: "2e03637"
-  launch_exit_restore_sha: "41bd811"
+  wip_head_sha: "e1910fc"
+  launch_exit_restore_sha: "e1910fc"
   launch_hardening_code_sha: "97e3a8d"
   security_docs_sha: "ab4365c"
   path_hygiene_sha: "afa9349"
@@ -54,7 +54,7 @@ status:
   lifecycle_state: in_build
   freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: synced_github_pass12_pending_push
+  repo_sync_state: synced_github_pass14_pending_push
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md

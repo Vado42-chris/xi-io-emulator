@@ -208,6 +208,25 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 020, Shell wake unminimize + session finish race (Pass 14)
+
+Status: **done 2026-05-30** @ `e1910fc` — `wake_shell` unminimize; finish gate ordering; global restore-failure banner; Esc during session; prior_session_replace UI event.
+
+```txt
+src-tauri/src/window_registry.rs — unminimize() in wake_shell
+src-tauri/src/lib.rs — try_finish session check before gate; prior_session_replace finish path
+src/components/ArcadeHome.tsx — gameSessionActive, global shellRestoreFailure alert, Esc handler
+scripts/verify-shell-restore-guardrails.sh — unminimize + alert banner guardrails
+docs/operations/troubleshooting-pass-b.md — XIO-LCH-008 shell hidden after exit
+```
+
+Tags:
+
+```txt
+#xio:emulator/launch/exit-restore
+#xio:emulator/pass-b/lifecycle
+```
+
 ### 019, Launch exit unified session finish (Pass 13)
 
 Status: **done 2026-05-30** @ `41bd811` — unified `try_finish_emulator_session`; shell restore retry after failed wake; ArcadeHome overlay cleanup.
