@@ -82,7 +82,7 @@ bulk_hydration_gate:
   rule: never bulk-scan as text-only GameRecords
 
 sync_metadata:
-  xi_io_net_mirror: pending_2026_05_30_integration
+  xi_io_net_mirror: mirrored_2026_05_30_ecf6902
   workbench_preview_event: evt-xi-io-emulator-phase-0-docs-001
   product_repo_commit: "ee76120"
   last_agent_pass: 2026-05-30
