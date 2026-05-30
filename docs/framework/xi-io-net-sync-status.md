@@ -15,10 +15,9 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
 | Product source commit | `a7c7305` (Pass 7) |
 | Prior substantive commit | `e7530b8` (PRH-04 evidence refresh) |
-| xi-io.net mirror commit | **pending Pass 7 push** |
-| Prior mirror commit | `f2c9230` (Pass 3 security hub) |
+| xi-io.net mirror commit | `888f4fa` |
 | Mirror date | 2026-05-30 |
-| Mirror status | **In progress** (Pass 7) |
+| Mirror status | **Complete** (Pass 7 hydration + planning) |
 
 ### Mirrored in Pass 7 (this pass)
 
@@ -80,7 +79,7 @@ incident-playbook.md
 | xi-io-emulator | `897a97d` | PRH-02 restore failure ledger |
 | xi-io-emulator | `f2c9230` | xi-io.net Pass 3 security mirror |
 | xi-io.net | `f2c9230` | Security hub mirror @ source `afa9349` |
-| xi-io.net | **Pass 7 TBD** | Hydration + planning freshness |
+| xi-io.net | `888f4fa` | Pass 7 hydration + planning @ source `a7c7305` |
 
 ## Blockers
 
