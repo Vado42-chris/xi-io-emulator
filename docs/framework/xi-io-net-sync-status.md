@@ -13,8 +13,8 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `b7a3d59` |
-| xi-io.net mirror commit | `e819893` |
+| Product source commit | `d8899e7` |
+| xi-io.net mirror commit | `d1b9947` |
 | Mirror date | 2026-05-30 |
 | Mirror status | **Complete** (Pass 12) |
 
