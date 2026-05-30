@@ -82,6 +82,8 @@ Operations runbooks: docs/operations/launch-failure-codes.md, docs/operations/tr
 
 **Blocks bulk hydration until all four are Done or deferred with date in tracker.**
 
+**Additional blocker (2026-05-30):** [personal-library-metadata-backup.md](../future/personal-library-metadata-backup.md) — metadata-only Git backup design must reach pilot export before full-library mapping. **XARCADE-LIBRARY-METADATA-BACKUP-001.**
+
 Verify: `npm run verify:deps` (npm audit; cargo-audit optional until installed).
 
 ### Pass B edge-case matrix (lifecycle / display / controller)
@@ -204,6 +206,24 @@ Tags:
 ```txt
 #xio:emulator/cheats/future
 #xio:emulator/patches/future
+```
+
+### 014, Personal library metadata backup (blocker)
+
+Status: **design locked 2026-05-30 — implementation blocked until pilot.**
+
+```txt
+docs/future/personal-library-metadata-backup.md
+Private example repo: Vado42-chris/personal_game_library (metadata + artwork only)
+Ibal/Ollama/MCP: optional assistant for organize + export — not required for v1
+```
+
+Tags:
+
+```txt
+#xio:emulator/library/metadata-backup
+#todo:metadata-backup/schema-v1
+#todo:ibal/metadata-assistant
 ```
 
 ### 013, GitHub CI + PRH-01 migration plan (Pass 8)

@@ -129,6 +129,7 @@ docs/research/competitor-library-ux-and-schema-notes.md
 docs/cheats-hacks-and-overlay-strategy.md
 docs/future/media-platform-extension-track.md
 docs/future/portable-usb-and-kiosk-product-model.md
+docs/future/personal-library-metadata-backup.md
 ```
 
 ## Legal and product boundary

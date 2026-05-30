@@ -1142,7 +1142,7 @@ export const AppShell: React.FC = () => {
                       await refreshState();
                       addLedgerEvent(
                         'showcase_hydration_completed',
-                        `Manual SNES showcase refresh (${result.added} added, ${result.updated} updated, ${result.missing.length} missing)`
+                        `Manual SNES showcase refresh (${result.added} added, ${result.updated} updated, ${result.skipped} skipped, ${result.missing.length} missing)`
                       );
                     })();
                   }}
@@ -1169,7 +1169,7 @@ export const AppShell: React.FC = () => {
                       await refreshState();
                       addLedgerEvent(
                         'showcase_hydration_completed',
-                        `Manual NES showcase refresh (${result.added} added, ${result.updated} updated, ${result.missing.length} missing)`
+                        `Manual NES showcase refresh (${result.added} added, ${result.updated} updated, ${result.skipped} skipped, ${result.missing.length} missing)`
                       );
                     })();
                   }}

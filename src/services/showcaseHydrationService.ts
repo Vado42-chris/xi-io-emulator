@@ -184,8 +184,17 @@ const hydrateShowcase = async (
 
   let added = 0;
   let updated = 0;
-  const skipped = 0;
+  let skipped = 0;
   const missing: string[] = [];
+
+  const tagsEqual = (a: string[], b: string[]): boolean => {
+    if (a.length !== b.length) {
+      return false;
+    }
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((tag, index) => tag === sortedB[index]);
+  };
 
   for (const entry of config.catalog) {
     const romRoot = entry.hack && config.hackRoot ? config.hackRoot : config.primaryRoot;
@@ -195,6 +204,7 @@ const hydrateShowcase = async (
       const check = await checkPathExists(contentPath);
       if (!check.exists || !check.is_file) {
         missing.push(entry.fileName);
+        skipped += 1;
         addLedgerEvent('showcase_rom_missing', `Showcase ROM not found: ${entry.fileName}`, {
           contentPath,
           systemId: config.systemId,
@@ -205,22 +215,36 @@ const hydrateShowcase = async (
 
     const prior = byPath.get(contentPath);
     if (prior) {
+      const nextArtwork = getArtworkMappingForGame({
+        title: entry.displayTitle,
+        systemId: config.systemId,
+        originalFileName: entry.fileName,
+      });
+      const nextTags = Array.from(
+        new Set([...prior.tags.filter((t) => !t.startsWith('genre:')), ...buildTags(entry, config.systemId)]),
+      );
+      const nextFavorite = entry.favorite ?? prior.favorite;
+      const unchanged =
+        prior.title === entry.displayTitle &&
+        prior.favorite === nextFavorite &&
+        prior.mappings?.artwork?.boxart === nextArtwork.boxart &&
+        tagsEqual(prior.tags, nextTags);
+
+      if (unchanged) {
+        skipped += 1;
+        continue;
+      }
+
       const merged: GameRecord = {
         ...prior,
         title: entry.displayTitle,
         sortTitle: entry.displayTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim(),
-        tags: Array.from(
-          new Set([...prior.tags.filter((t) => !t.startsWith('genre:')), ...buildTags(entry, config.systemId)]),
-        ),
+        tags: nextTags,
         identityStatus: 'normalized',
-        favorite: entry.favorite ?? prior.favorite,
+        favorite: nextFavorite,
         mappings: {
           ...prior.mappings,
-          artwork: getArtworkMappingForGame({
-            title: entry.displayTitle,
-            systemId: config.systemId,
-            originalFileName: entry.fileName,
-          }),
+          artwork: nextArtwork,
         },
         updatedAt: new Date().toISOString(),
       };
@@ -253,10 +277,11 @@ const hydrateShowcase = async (
   localStorage.setItem(config.flagKey, config.version);
   addLedgerEvent(
     'showcase_hydration_completed',
-    `${config.systemId.toUpperCase()} showcase hydration finished (${added} added, ${updated} updated)`,
+    `${config.systemId.toUpperCase()} showcase hydration finished (${added} added, ${updated} updated, ${skipped} skipped)`,
     {
       added,
       updated,
+      skipped,
       missing: missing.length,
       systemId: config.systemId,
     },
