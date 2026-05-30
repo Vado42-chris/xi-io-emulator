@@ -386,7 +386,7 @@ Until then, do not close the milestone or start Pass C.
 | 7 | 2026-05-30 | PRH-03 hydration SHA + xi-io.net planning mirror | **pushed** | product `a7c7305`; hub `888f4fa`; verify exit 0 |
 | 8 | 2026-05-30 | GitHub CI + compliance checklist + PRH-01 plan | **pushed** | `8702185`→`2bab4a6`; hub `fcaddc2`; CI green run `26688165897` |
 | 9 | 2026-05-30 | Metadata backup schema v1 + export service + verify | **pushed** | `7924d57`; hub `b3a9b96`; verify exit 0 |
-| 10 | 2026-05-30 | Admin Settings metadata export UI + download helper | **pushed** | `68d74ef`; verify exit 0 |
+| 10 | 2026-05-30 | Admin Settings metadata export UI + download helper | **pushed** | `68d74ef`; hub `f1cf7c7`; verify exit 0 |
 | 11 | **Pending** | User hardware sign-off (PRH-04) | **blocked** | Requires sign-off table above |
 | 12 | **Pending** | Metadata backup 50-title pilot (operator) | **blocked** | Settings → Export pilot (50) + verify JSON |
 

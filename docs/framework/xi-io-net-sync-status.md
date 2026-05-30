@@ -1,6 +1,6 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 10 — Admin metadata export UI @ pending mirror)  
+Date: 2026-05-30 (Pass 10 — Admin metadata export UI @ `f1cf7c7`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
@@ -13,17 +13,18 @@ Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `68d74ef` |
-| xi-io.net mirror commit | **pending this pass** |
+| Product source commit | `bd1d088` |
+| xi-io.net mirror commit | `f1cf7c7` |
 | Mirror date | 2026-05-30 |
-| Mirror status | **In progress** (Pass 10) |
+| Mirror status | **Complete** (Pass 10) |
 
-### Mirrored in Pass 10 (planned)
+### Mirrored in Pass 10
 
 ```txt
 projects/evidence/xi_io_emulator/personal-library-metadata-backup.md (Admin UI section)
-projects/manifests/xi_io_emulator.project-manifest.yaml (wip_head_sha)
-docs/framework/xi-io-net-sync-status.md (this file, evidence copy)
+projects/manifests/xi_io_emulator.project-manifest.yaml (wip_head_sha 68d74ef)
+projects/hydration/xi_io_emulator.hydration-state.yaml
+projects/evidence/xi_io_emulator/xi-io-net-sync-status.md
 ```
 
 ## Prior mirror (Pass 9 — metadata backup)
