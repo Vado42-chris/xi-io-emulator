@@ -739,7 +739,6 @@ async fn launch_emulator(
             game_id: game_id.clone(),
             engine_id: engine_id.clone(),
             started_at: started_at.clone(),
-            game_window_xids: Vec::new(),
             session_reached_game: true,
         });
     }
