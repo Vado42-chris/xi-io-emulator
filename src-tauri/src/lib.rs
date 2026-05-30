@@ -64,6 +64,7 @@ struct EmulatorLaunchState {
     terminate_requested: Arc<AtomicBool>,
     terminate_in_progress: Arc<AtomicBool>,
     session_ui_finished: Arc<AtomicBool>,
+    session_pid_monitor_stop: Arc<AtomicBool>,
 }
 
 impl EmulatorLaunchState {
@@ -380,6 +381,8 @@ impl EmulatorLaunchState {
     fn reset_session_ui_finished(&self) {
         self.session_ui_finished
             .store(false, std::sync::atomic::Ordering::SeqCst);
+        self.session_pid_monitor_stop
+            .store(false, std::sync::atomic::Ordering::SeqCst);
     }
 
     /// Emit session-finished + restore shell once per launch — safe from PID monitor and supervisor cleanup.
@@ -429,6 +432,8 @@ impl EmulatorLaunchState {
             error_message,
             reached,
         );
+        self.session_pid_monitor_stop
+            .store(true, std::sync::atomic::Ordering::SeqCst);
     }
 }
 
@@ -770,6 +775,12 @@ async fn launch_emulator(
         tokio::spawn(async move {
             let deadline = tokio::time::Instant::now() + Duration::from_secs(3600);
             while tokio::time::Instant::now() < deadline {
+                if state_early
+                    .session_pid_monitor_stop
+                    .load(std::sync::atomic::Ordering::Relaxed)
+                {
+                    break;
+                }
                 let still_running = tokio::task::spawn_blocking({
                     let pids = tracked_pids_early.clone();
                     move || pids.iter().any(|p| is_process_alive(*p))

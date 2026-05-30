@@ -227,7 +227,16 @@ export const AppShell: React.FC = () => {
   }, []);
 
   useEmulatorSessionLifecycle({
-    onSessionFinished: () => {
+    onSessionFinished: (payload) => {
+      const game = games.find((g) => g.id === payload.gameId);
+      const label = game?.title ?? payload.gameId;
+      if (payload.returnedCleanly !== false && payload.sessionReachedGame !== false) {
+        addLedgerEvent('emulator_exited', `${label}: session ended (${payload.reason})`, {
+          gameId: payload.gameId,
+          sessionId: payload.sessionId,
+          reason: payload.reason,
+        });
+      }
       void refreshState();
     },
     onShellFocusRestored: (payload) => {
@@ -541,6 +550,9 @@ export const AppShell: React.FC = () => {
 
   const handleLaunchFromShell = async (game: GameRecord) => {
     const result = await launchGame(game);
+    if (result.sessionActive) {
+      setAppMode('arcade');
+    }
     refreshState();
     if (!result.success && result.error) {
       alert(result.error);

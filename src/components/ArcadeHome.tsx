@@ -520,20 +520,9 @@ export const ArcadeHome: React.FC<ArcadeHomeProps> = ({
     },
     onShellFocusRestored: (payload) => {
       setShellRestoreFailure(null);
-      addLedgerEvent('shell_focus_restored', 'Shell focus restored after emulator exit', {
-        gameId: payload.gameId,
-        sessionId: payload.sessionId,
-        stage: payload.stage ?? undefined,
-      });
     },
     onShellFocusRestoreFailed: (payload) => {
       setShellRestoreFailure(SHELL_FOCUS_RESTORE_FAILED_MESSAGE);
-      addLedgerEvent('shell_focus_restore_failed', 'Shell focus restore failed after emulator exit', {
-        gameId: payload.gameId,
-        sessionId: payload.sessionId,
-        reasonCode: payload.reasonCode ?? undefined,
-        stage: payload.stage ?? undefined,
-      });
     },
   });
 

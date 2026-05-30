@@ -34,6 +34,9 @@ grep -q 'session_reached_game: true' src-tauri/src/lib.rs \
 grep -q 'session.session_reached_game' src-tauri/src/lib.rs \
   || fail 'session finish must use launch-time session_reached_game'
 
+grep -q 'session_pid_monitor_stop' src-tauri/src/lib.rs \
+  || fail 'session PID monitor stop flag missing'
+
 pass 'session_reached_game threshold wired'
 
 echo ""

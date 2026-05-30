@@ -58,6 +58,12 @@ grep -q 'reason_code' src-tauri/src/shell_restore.rs || fail 'restore reason_cod
 grep -q 'unminimize' src-tauri/src/window_registry.rs || fail 'wake_shell must call unminimize after show'
 grep -q 'tauri_window_missing' src-tauri/src/window_registry.rs || fail 'restore reason codes missing'
 grep -q 'emit_shell_focus_restore_result' src-tauri/src/lib.rs || fail 'emit_shell_focus_restore_result missing'
+grep -q 'emulator_exited' src/components/AppShell.tsx \
+  || fail 'AppShell must emit emulator_exited ledger on session finish'
+
+if grep -q "addLedgerEvent('shell_focus_restored'" src/components/ArcadeHome.tsx 2>/dev/null; then
+  fail 'ArcadeHome must not duplicate shell_focus ledger (AppShell owns ledger)'
+fi
 pass 'shell_focus_restore_failed wired'
 
 # No global emulator pkill reintroduced
