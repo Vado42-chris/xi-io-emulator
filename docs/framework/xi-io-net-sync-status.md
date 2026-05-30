@@ -1,22 +1,41 @@
 # xi-io.net Framework Sync Status
 
-Date: 2026-05-30 (Pass 7 — hydration SHA + planning doc freshness)  
+Date: 2026-05-30 (Pass 8 — CI compliance + PRH-01 plan mirror @ `fcaddc2`)  
 Tags: `#xio:emulator/framework-sync` `#xio:framework/security/baseline` `#xar:controller-launch-proof/pass-b`
 
 ## Purpose
 
 Track two-way sync between **xi-io-emulator** (product repo) and **xi-io.net** (management/hydration plane). This file records what is synced, what is pending, and what agents must update on each side.
 
-## Latest mirror (Pass 7 — freshness)
+## Latest mirror (Pass 8 — CI compliance)
 
 | Field | Value |
 |-------|--------|
 | Product repo | `Vado42-chris/xi-io-emulator` |
 | Product branch | `wip/pass-b-lifecycle-display-shell` |
-| Product source commit | `a7c7305` (Pass 7) |
-| Prior substantive commit | `e7530b8` (PRH-04 evidence refresh) |
-| xi-io.net mirror commit | `888f4fa` |
+| Product source commit | `8702185` |
+| xi-io.net mirror commit | `fcaddc2` |
 | Mirror date | 2026-05-30 |
+| Mirror status | **Complete** (Pass 8) |
+
+### Mirrored in Pass 8
+
+```txt
+projects/evidence/xi_io_emulator/github-compliance-checklist.md
+projects/evidence/xi_io_emulator/prh-01-sqlite-migration-plan.md
+projects/evidence/xi_io_emulator/security/supply-chain-security-baseline.md
+projects/evidence/xi_io_emulator/security/security-application-plan-xi-io-emulator.md
+projects/evidence/xi_io_emulator/security/pre-release-hardening-milestones.md
+projects/manifests/xi_io_emulator.project-manifest.yaml
+.github/workflows/ci.yml (product only — not mirrored)
+```
+
+## Prior mirror (Pass 7 — hydration)
+
+| Field | Value |
+|-------|--------|
+| Product source commit | `a7c7305` |
+| xi-io.net mirror commit | `888f4fa` |
 | Mirror status | **Complete** (Pass 7 hydration + planning) |
 
 ### Mirrored in Pass 7 (this pass)
@@ -73,6 +92,8 @@ incident-playbook.md
 
 | Repo | Commit | Notes |
 |------|--------|-------|
+| xi-io-emulator | `8702185` | Pass 8 CI + PRH-01 plan |
+| xi-io.net | `fcaddc2` | Pass 8 compliance mirror @ source `8702185` |
 | xi-io-emulator | `a7c7305` | Pass 7 hydration SHA + sync prep |
 | xi-io-emulator | `19d4a72` | Pass 6 manifest alignment (prior HEAD) |
 | xi-io-emulator | `e7530b8` | PRH-04 evidence refresh |

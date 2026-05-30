@@ -208,7 +208,7 @@ Tags:
 
 ### 013, GitHub CI + PRH-01 migration plan (Pass 8)
 
-Status: **in progress 2026-05-30.**
+Status: **done 2026-05-30** @ `8702185`; xi-io.net @ `fcaddc2`.
 
 ```txt
 .github/workflows/ci.yml

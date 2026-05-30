@@ -53,7 +53,7 @@ status:
   lifecycle_state: in_build
   freshness_state: updated_2026_05_30
   validation_state: agent_verified_partial
-  repo_sync_state: synced_github_a7c7305_xi_io_net_888f4fa
+  repo_sync_state: synced_github_8702185_xi_io_net_fcaddc2
   pre_release_hardening:
     milestone: XARCADE-PRE-RELEASE-HARDENING-001
     tracker: docs/project-tracking/pre-release-hardening-milestones.md
