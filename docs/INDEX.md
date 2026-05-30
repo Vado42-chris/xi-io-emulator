@@ -128,6 +128,13 @@ docs/packaging/flatpak-storage-and-device-strategy.md
 docs/research/competitor-library-ux-and-schema-notes.md
 docs/cheats-hacks-and-overlay-strategy.md
 docs/future/media-platform-extension-track.md
+docs/future/portable-usb-and-kiosk-product-model.md
+```
+
+## Legal and product boundary
+
+```txt
+docs/legal/content-and-user-library-boundary.md
 ```
 
 ## Decisions
@@ -249,6 +256,7 @@ Pass B may proceed with two hand-picked proof games only.
 ```txt
 Pass B  — local hardware proof (two hand-picked games)
 Pass C  — close launch proof milestone docs + framework sync
+XARCADE-PORTABLE-USB-001  — portable USB + library sibling layout (future)
 XARCADE-IMAGE-HYDRATION-001  — Rosetta + local artwork + fallback + review queue
 XARCADE-IBAL-SLOT-001        — optional assistant slot (not blocking image hydration)
 XARCADE-STORAGE-001          — bulk library ingress (gated; never text-only GameRecords)

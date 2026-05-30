@@ -177,3 +177,64 @@ duplicate_rom_detected
 4. Always give the user a recovery path.
 5. Never copy ROMs by default.
 6. Never upload ROM names or paths by default.
+
+---
+
+## Future addendum — portable USB and relative paths (v1.1 target)
+
+Status: **Planned — not implemented.** See [portable-usb-and-kiosk-product-model.md](../future/portable-usb-and-kiosk-product-model.md).
+
+Before bulk hydration (XARCADE-STORAGE-001), catalog records should evolve beyond absolute `contentPath` only:
+
+### Library root identity
+
+```ts
+type LibraryRoot = {
+  // ... existing fields ...
+  volumeFingerprint?: string;   // stable id for removable volume when detectable
+  relativePathSupported: boolean;
+  readOnlySource: boolean;      // default true for ROM roots
+};
+```
+
+### Game path resolution (target shape)
+
+```ts
+type GamePathRef = {
+  libraryRootId: string;
+  relativePath: string;              // path within root, portable across mounts
+  volumeHint?: string;               // e.g. USB label, last seen mount base
+  lastResolvedAbsolutePath?: string; // cache; not authoritative
+  pathStatus: 'mounted' | 'missing' | 'permission_denied' | 'path_changed';
+};
+```
+
+### Portable catalog mode
+
+```txt
+App data (SQLite, settings, cache) may live:
+  - beside portable install on USB (xi-io/app-data/)
+  - or on internal disk when app is installed
+
+Library data (ROM files) always external to app binary folder.
+Catalog travels with app data; ROMs never copied into app install by default.
+```
+
+### Mount unavailable state
+
+```txt
+When libraryRoot.mounted === false:
+  - preserve all GameRecords for that root
+  - set pathStatus = missing on affected games
+  - UI shows recovery banner, not empty library
+  - no silent deletion or re-scan that drops records
+```
+
+### Read-only source root
+
+```txt
+ROM library roots are read-only by reference (decision locked).
+Ingress and hydration must not write sidecars next to user ROMs without explicit opt-in.
+```
+
+Milestone: **XARCADE-PORTABLE-USB-001**, **XARCADE-RUNTIME-CONFIG-001**.

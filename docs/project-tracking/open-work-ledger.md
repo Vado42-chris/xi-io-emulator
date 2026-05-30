@@ -206,6 +206,28 @@ Tags:
 #xio:emulator/patches/future
 ```
 
+### 010, Portable USB and kiosk product model
+
+Status: **documented 2026-05-30 — implementation deferred until after Pass B/C and PRH gates.**
+
+Canonical docs:
+
+```txt
+docs/future/portable-usb-and-kiosk-product-model.md
+docs/legal/content-and-user-library-boundary.md
+docs/contracts/storage-contract-v1.md  (future addendum § portable USB)
+```
+
+Future milestones: XARCADE-PORTABLE-USB-001, XARCADE-RUNTIME-CONFIG-001, XARCADE-KIOSK-DISTRO-001, XARCADE-CHROMEOS-RESEARCH-001.
+
+Tags:
+
+```txt
+#xio:emulator/portable/usb
+#xio:emulator/kiosk/future
+#xio:emulator/legal/boundary
+```
+
 ### 006, Image hydration before bulk ingress
 
 Status: **decision + handoff committed (`0f738f5`, `86090b3`) — implementation deferred until after Pass B/C.**

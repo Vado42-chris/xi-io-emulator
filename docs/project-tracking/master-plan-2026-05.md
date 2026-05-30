@@ -329,7 +329,7 @@ Full cross-reference of open items from prior plans: [historical-plans-consolida
 | ID | Item | Phase |
 |----|------|-------|
 | B1 | XARCADE-CONTROLLER-MAPPING-001 — A/B at launch (`#todo:controller/profile-mapping`) | 1 |
-| B2 | Shell focus failure ledger (XIO-LCH-008) | 1 / 7 |
+| B2 | Shell focus failure ledger (XIO-LCH-008) — **PRH-02 done** | 1 / 7 |
 | B3 | Display identify surfacing (XIO-LCH-009) | 1 / 7 |
 | B7 | Launch hardening docs + XIO-LCH-014–016 parity | 0 |
 | B8 | Merge `origin/docs/xibalba-ui-framework-001` (5 docs, no source) | -1 |
@@ -344,6 +344,17 @@ Full cross-reference of open items from prior plans: [historical-plans-consolida
 | B4 | XARCADE-IMAGE-HYDRATION-001 + Rosetta + `#todo:rosetta/local-alias-map` | 5 |
 | B5 | XARCADE-STORAGE-001 + `#todo:storage/read-only-source-root` | 6 |
 | B6 | XARCADE-BATCH-RESUME-001 | 6 |
+
+### Future product (post MVP — docs only until gated)
+
+| ID | Item | Phase |
+|----|------|-------|
+| F1 | XARCADE-PORTABLE-USB-001 — USB run + library sibling layout | 7+ |
+| F2 | XARCADE-RUNTIME-CONFIG-001 — runtime path config (not VITE_* release) | 1D / pre-beta |
+| F3 | XARCADE-KIOSK-DISTRO-001 — boot-to-shell Linux distro | far future |
+| F4 | XARCADE-CHROMEOS-RESEARCH-001 — ChromeOS packaging research | research |
+
+Canonical: [portable-usb-and-kiosk-product-model.md](../future/portable-usb-and-kiosk-product-model.md), [content-and-user-library-boundary.md](../legal/content-and-user-library-boundary.md).
 | B11 | SQLite migration (if dry-run requires) | 6 |
 | B12 | Framework/xi-io.net mirror + Workbench reconcile | 1C |
 | H-IC-01 | XARCADE-SEARCH-001 search/filters MVP | 7+ |
