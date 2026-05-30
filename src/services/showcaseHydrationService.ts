@@ -1,14 +1,16 @@
 import type { GameGenreId } from '../data/libraryFacets';
 import type { GameRecord } from '../data/gameModels';
 import {
-  ARIES_NES_HACK_ROOT,
-  ARIES_NES_ROM_ROOT,
+  NES_SHOWCASE_HACK_ROOT,
+  NES_SHOWCASE_ROM_ROOT,
+  SNES_SHOWCASE_ROM_ROOT,
+} from '../config/showcaseRomRoots';
+import {
   NES_SHOWCASE_CATALOG,
   NES_SHOWCASE_VERSION,
   type NesShowcaseEntry,
 } from '../data/nesShowcaseCatalog';
 import {
-  ARIES_SNES_ROM_ROOT,
   SNES_SHOWCASE_CATALOG,
   SNES_SHOWCASE_VERSION,
   type SnesShowcaseEntry,
@@ -51,9 +53,9 @@ const SNES_CONFIG: ShowcaseConfig = {
   systemId: 'snes',
   version: SNES_SHOWCASE_VERSION,
   flagKey: 'xibalba_snes_showcase_hydrated',
-  primaryRoot: ARIES_SNES_ROM_ROOT,
-  rootId: 'root_snes_showcase_aries',
-  rootLabel: 'SNES Showcase (Aries local)',
+  primaryRoot: SNES_SHOWCASE_ROM_ROOT,
+  rootId: 'root_snes_showcase_local',
+  rootLabel: 'SNES Showcase (local library)',
   fileExtension: '.smc',
   catalog: SNES_SHOWCASE_CATALOG,
 };
@@ -62,10 +64,10 @@ const NES_CONFIG: ShowcaseConfig = {
   systemId: 'nes',
   version: NES_SHOWCASE_VERSION,
   flagKey: 'xibalba_nes_showcase_hydrated',
-  primaryRoot: ARIES_NES_ROM_ROOT,
-  hackRoot: ARIES_NES_HACK_ROOT,
-  rootId: 'root_nes_showcase_aries',
-  rootLabel: 'NES Showcase (Aries local USA + Hacks)',
+  primaryRoot: NES_SHOWCASE_ROM_ROOT,
+  hackRoot: NES_SHOWCASE_HACK_ROOT,
+  rootId: 'root_nes_showcase_local',
+  rootLabel: 'NES Showcase (local USA + Hacks)',
   fileExtension: '.nes',
   catalog: NES_SHOWCASE_CATALOG,
 };

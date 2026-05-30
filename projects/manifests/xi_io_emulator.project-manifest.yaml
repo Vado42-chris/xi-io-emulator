@@ -63,7 +63,7 @@ status:
   known_blockers:
     - SNES xi-io GUI launch not fully evidenced in ledger
     - Pass B full checklist not signed
-    - Public path hygiene in source catalogs (showcase) — see security application plan P0
+    - Public path hygiene in source catalogs — fixed @ P0 slice (`.env.local` + `showcaseRomRoots.ts`)
     - Stale demo /media/arcade-usb/ records mitigated via proof-only bootstrap
   next_action: Path P0 slice; PRH-04 evidence; framework hub mirror; review-slice WIP before main merge
 

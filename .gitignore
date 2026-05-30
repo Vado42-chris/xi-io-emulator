@@ -14,6 +14,7 @@ dist-ssr
 src-tauri/gen/
 src-tauri/target
 *.local
+.env.local
 
 # Local machine overlays (paths, proof ROMs) — never commit
 projects/local/*.local.yaml

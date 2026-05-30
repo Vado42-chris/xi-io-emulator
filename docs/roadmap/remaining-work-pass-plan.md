@@ -41,7 +41,7 @@ Pass L  → MVP peer review + public/private release readiness
 The local SNES source root is user-owned and must be treated as read-only source material:
 
 ```txt
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+/path/to/your/snes/roms
 ```
 
 Default import may index, tag, hydrate, and map metadata by reference.

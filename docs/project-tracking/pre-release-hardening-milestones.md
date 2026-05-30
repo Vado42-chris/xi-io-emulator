@@ -170,7 +170,7 @@ Pass B is “prove one NES and one SNES game launch, play, and return with a con
 - [ ] [pass-b-final-evidence-report.md](../reports/pass-b-final-evidence-report.md) updated with 2026-05-30 results (launch, return, controller, sound as applicable)
 - [ ] Ledger milestone state: Pass B **complete**, Pass C **in progress**
 - [ ] Peer review recorded (GitHub PR comment, review doc, or Workbench event)
-- [ ] Path-privacy sign-off: public manifest sanitized; source catalog path slice scheduled (see [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md))
+- [ ] Path-privacy sign-off: public manifest + showcase catalogs + evidence docs redacted (see [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md))
 - [ ] `master-plan-2026-05.md` Pass B table updated — no row stuck at “Partial” without explanation
 - [ ] Only after the above: begin XARCADE-IMAGE-HYDRATION-001 planning execution
 
@@ -214,7 +214,7 @@ These were discussed in planning but are **separate** from PRH-01–04. Track he
 |-------|-----------------|----------|
 | PRH-01–04 | Yes | This file |
 | Security propagation / xi-io.net hub | Yes | [supply-chain-security-baseline.md](../security/supply-chain-security-baseline.md), [framework-security-standard-v1.md](../security/framework-security-standard-v1.md) |
-| Path/privacy (public repo) | Partial | Manifest sanitized; showcase catalogs P0 in [security-application-plan-xi-io-emulator.md](./security-application-plan-xi-io-emulator.md) |
+| Path/privacy (public repo) | Mostly done | Manifest + catalogs + docs redacted; operator must configure `.env.local` |
 | NES launch/return success | Partial | Update under PRH-04 → `pass-b-final-evidence-report.md` |
 | Navigation snapshot | Planned | XARCADE-NAV-SNAPSHOT-001 above |
 | In-game Continue | Planned | XARCADE-SAVE-STATE-001 above |

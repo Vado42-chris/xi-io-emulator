@@ -281,7 +281,7 @@ npm run tauri:dev
 
 ### 4. Register proof ROMs (Engines → Proof Games)
 
-- NES: one `.nes` from your library (e.g. Zelda ROM on Storage 22)
+- NES: one `.nes` from your library (configure path in local overlay)
 - SNES: one `.smc`/`.sfc` (e.g. Super Mario World)
 
 ### 5. Launch, verify controller, click Mark In-Game Verified

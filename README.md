@@ -107,7 +107,7 @@ Plain-language tracker: [docs/project-tracking/pre-release-hardening-milestones.
 - Framework standard: [docs/security/framework-security-standard-v1.md](docs/security/framework-security-standard-v1.md)
 - Application plan (gap table, path audit): [docs/project-tracking/security-application-plan-xi-io-emulator.md](docs/project-tracking/security-application-plan-xi-io-emulator.md)
 - Agent rules: [.memory/security.md](.memory/security.md)
-- Local paths: copy [pass-b-local-paths.example.yaml](projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml) → `projects/local/xi_io_emulator.local.yaml` (gitignored)
+- Local paths: copy [pass-b-local-paths.example.yaml](projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml) → `projects/local/xi_io_emulator.local.yaml` (gitignored); for showcase hydration also copy [.env.local.example](.env.local.example) → `.env.local`
 - Verify before merge: `npm run verify:deps` — npm audit fail moderate+; `cargo-audit` **warn** on Pass B, **fail** pre-release
 - Last npm audit (2026-05-30): **0 vulnerabilities**
 

@@ -83,10 +83,10 @@ PRH-03 **xi-io.net mirror** remains open.
 | Location | Issue | Action |
 |----------|-------|--------|
 | `projects/manifests/xi_io_emulator.project-manifest.yaml` | Full `/media/chrishallberg/...` paths | **Sanitized this pass** — use local overlay |
-| `src/data/nesShowcaseCatalog.ts` | Hardcoded Aries ROM roots | **Source slice** — env or local config |
-| `src/data/snesShowcaseCatalog.ts` | Same | **Source slice** |
-| `docs/reports/pass-b-final-evidence-report.md` | Full user paths | Redact to placeholders in docs slice |
-| `docs/decisions/non-mutating-local-library-import.md` | User path + hostname | Redact in docs slice |
+| `src/data/nesShowcaseCatalog.ts` | Hardcoded Aries ROM roots | **Fixed** — `showcaseRomRoots.ts` + `.env.local` |
+| `src/data/snesShowcaseCatalog.ts` | Same | **Fixed** |
+| `docs/reports/pass-b-final-evidence-report.md` | Full user paths | **Redacted** |
+| `docs/decisions/non-mutating-local-library-import.md` | User path + hostname | **Redacted** |
 
 ### Acceptable (with context)
 

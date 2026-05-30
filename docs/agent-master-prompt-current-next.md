@@ -113,7 +113,7 @@ If Tauri failed to open:
 NON-MUTATING IMPORT INVARIANT:
 The local SNES source library is external and user-owned:
 
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+/path/to/your/snes/roms
 
 Do not hardcode this path into source.
 Do not scan it yet.

@@ -281,10 +281,10 @@ Canonical doc:
 docs/decisions/non-mutating-local-library-import.md
 ```
 
-Known user source root, documented for local ops only and not to be hardcoded in source:
+Known user source root — configure in `projects/local/xi_io_emulator.local.yaml` or `.env.local` (gitignored), not in public git:
 
 ```txt
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+/path/to/your/snes/roms
 ```
 
 Decision:

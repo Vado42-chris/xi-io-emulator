@@ -140,11 +140,11 @@ Launch Blocked: Missing Game File
 **Classification:** This is **not** a missing user-owned ROM. It is a **stale demo/mock batch ingress record** from hardcoded `mockFiles` in `AppShell.tsx` (`/media/arcade-usb/snes-roms`). The user’s real SNES library and proof ROM live under:
 
 ```txt
-Library root (reference only — do not bulk scan):
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+Library root (reference only — configure in local overlay; do not bulk scan):
+/path/to/your/snes/roms
 
 SNES proof ROM (single file only):
-.../ROMS/Super Mario World (E) (V1.1) [!].smc
+/path/to/your/snes/roms/Super Mario World (E) (V1.1) [!].smc
 ```
 
 **Pass B SNES proof must use the proof ROM path above**, registered via Admin → Engines → Register SNES Proof, then launched from the **Pass B Launch Proof** shelf (added in code fix).
@@ -158,7 +158,7 @@ SNES proof ROM (single file only):
 **Bootstrap executed (agent, this session):** localStorage now contains **exactly 2** game records (NES Zelda + SNES Super Mario World). No `/media/arcade-usb/` paths remain in `xibalba_game_records`. Proof SNES path confirmed on disk:
 
 ```txt
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS/Super Mario World (E) (V1.1) [!].smc
+/path/to/your/snes/roms/Super Mario World (E) (V1.1) [!].smc
 ```
 
 **Before SNES launch proof:**

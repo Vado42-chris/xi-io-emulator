@@ -159,7 +159,7 @@ Then **Pass C** milestone close, then **XARCADE-IMAGE-HYDRATION-001**, then **XA
 | FCEUX binary | `/usr/games/fceux` |
 | RetroArch binary (Flatpak) | `/home/chrishallberg/.local/share/flatpak/exports/bin/org.libretro.RetroArch` |
 | SNES core | Install **Snes9x** via RetroArch Online Updater, or point to an existing libretro core under `~/.var/app/org.libretro.RetroArch/config/retroarch/cores/` (bsnes cores present; snes9x not found at scan time) |
-| NES proof ROM | `/media/chrishallberg/Storage 22/Games/emulators/Legend of Zelda, The (USA) (Rev 1).nes` |
+| NES proof ROM | `proof_game_id: game_passb_nes` (path in local overlay) |
 | SNES proof ROM | e.g. `…/ROMS/Super Mario World (E) (V1.1) [!].smc` under your SNES ROM folder |
 
 **Pass B checklist (user fills in after test):**

@@ -20,6 +20,11 @@ showcase_rom_roots:
   nes_hacks: "/path/to/your/nes/roms/Hacks"
   snes: "/path/to/your/snes/roms"
 
+# Or set VITE_* in .env.local (see .env.local.example):
+# VITE_NES_SHOWCASE_ROM_ROOT=...
+# VITE_NES_SHOWCASE_HACK_ROOT=...
+# VITE_SNES_SHOWCASE_ROM_ROOT=...
+
 notes:
   - Register proof games via Admin → Engines or Pass B bootstrap — not via public git.
   - See docs/project-tracking/security-application-plan-xi-io-emulator.md

@@ -12,19 +12,19 @@ xi-io Emulator must not move, rename, delete, rewrite, or reorganize the physica
 
 ## Known local SNES source root
 
-The full local SNES library is located on the user's Aries machine at:
+Configure on your machine via gitignored overlay — see `projects/evidence/xi_io_emulator/pass-b-local-paths.example.yaml`:
 
 ```txt
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+/path/to/your/snes/roms
 ```
 
-Shell prompt context supplied by user:
+Example shell context (placeholder):
 
 ```txt
-chrishallberg@aries:/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS$
+<user>@<host>:/path/to/your/snes/roms$
 ```
 
-This path is allowed in docs as a local ops note. Do not hardcode it into source code.
+Do not commit real paths to this public repo. Do not hardcode roots in source code — use `.env.local` or local YAML overlay.
 
 ## Decision
 

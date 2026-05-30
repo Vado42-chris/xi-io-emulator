@@ -1,13 +1,5 @@
 import type { GameGenreId } from './libraryFacets';
 
-/** Local NES USA library on Aries — reference-only import (ROMs never moved). */
-export const ARIES_NES_ROM_ROOT =
-  '/media/chrishallberg/Storage 22/Games/emulators/ROMS/Nintendo for PC (Every NES Rom and Emu EVER) (Full Collection)/Roms/USA';
-
-/** Optional hack/cheat ROM folder for smaller proof batches. */
-export const ARIES_NES_HACK_ROOT =
-  '/media/chrishallberg/Storage 22/Games/emulators/ROMS/Nintendo for PC (Every NES Rom and Emu EVER) (Full Collection)/Roms/Hacks';
-
 export interface NesShowcaseEntry {
   displayTitle: string;
   fileName: string;

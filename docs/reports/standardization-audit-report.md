@@ -115,7 +115,7 @@ Expected dirs present: `docs/architecture/`, `docs/decisions/`, `projects/manife
 
 | Location | Issue | Severity | Action |
 |----------|-------|----------|--------|
-| `AppShell.tsx` storage preset | Hardcoded `/media/chrishallberg/Storage 22/...` | **high** | **fixed** → generic example path |
+| `AppShell.tsx` storage preset | Hardcoded user volume paths | **high** | **fixed** → generic example path |
 | `AppShell.tsx` demo defaults | `/home/user/retro/games/...`, `/media/arcade-usb/...` | low | acceptable generic demo placeholders; used in staging UI |
 | `manifest.yaml` `local_path` | User dev machine path | low | acceptable in framework manifest (not ROM catalog) |
 

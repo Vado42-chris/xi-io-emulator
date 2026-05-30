@@ -91,7 +91,7 @@ sudo apt update
 
 sudo apt install libwebkit2gtk-4.1-dev libsoup-3.0-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
 
-cd "/media/chrishallberg/Storage 22/999_Work/003_Projects/015_emulator"
+cd "/path/to/your/015_emulator"
 npm run tauri:dev
 ```
 
@@ -275,7 +275,7 @@ hardcode user source paths in source code
 The user's full SNES source root is:
 
 ```txt
-/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS
+/path/to/your/snes/roms
 ```
 
 This is local ops context only.

@@ -1,13 +1,9 @@
 import type { GameGenreId } from './libraryFacets';
 
-/** Local SNES library root on Aries — reference-only import (ROMs never moved). */
-export const ARIES_SNES_ROM_ROOT =
-  '/media/chrishallberg/Storage 22/Games/emulators/ROMS/Super Nintendo for PC (Every SNES Rom N Emu EVER) (11337 roms)/ROMS';
-
 export interface SnesShowcaseEntry {
   /** Clean title shown in UI */
   displayTitle: string;
-  /** Exact filename under ARIES_SNES_ROM_ROOT */
+  /** Exact filename under configured SNES showcase root (see showcaseRomRoots.ts) */
   fileName: string;
   genre: GameGenreId;
   year: number;

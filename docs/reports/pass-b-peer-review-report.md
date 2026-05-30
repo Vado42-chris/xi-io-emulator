@@ -50,7 +50,7 @@ Peer-reviewed product direction (platform-scoped engines, metadata facets, chunk
 ## NES / FCEUX proof result
 
 - **Adapter:** `fceux.nes` — launch template `{engine_path} {content_path}`
-- **Proof ROM:** `/media/chrishallberg/Storage 22/Games/emulators/Legend of Zelda, The (USA) (Rev 1).nes`
+- **Proof ROM:** `proof_game_id: game_passb_nes` — path in `projects/local/xi_io_emulator.local.yaml`
 - **Engine:** `/usr/games/fceux`
 - **Launch evidence:** Ledger events + FCEUX process with proof ROM path
 - **Presentation gap:** NES records have no cover art — `getArtworkMappingForTitle` returns `{}` for `systemId !== 'snes'` (SNES-only demo hydration)

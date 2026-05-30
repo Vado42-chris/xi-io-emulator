@@ -120,7 +120,7 @@ Emergency cleanup only (operator terminal): `pkill -f fceux`
 | **In-app check** | Use **Pass B Launch Proof** shelf only; read green banner |
 | **Terminal check** | `test -d /media/arcade-usb` (may not exist — expected) |
 | **Safe fix** | Ignore demo tiles; configure proof ROMs under Admin → Engines |
-| **Verified when** | Launch from proof shelf with Storage 22 paths |
+| **Verified when** | Launch from proof shelf with local overlay paths configured |
 
 ---
 
